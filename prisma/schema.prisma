@@ -1,0 +1,45 @@
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Brief {
+  id          String   @id @default(cuid())
+  name        String
+  email       String
+  projectType String
+  budget      String?
+  description String   @db.Text
+  status      String   @default("new")
+  createdAt   DateTime @default(now())
+}
+
+model Project {
+  id               String   @id @default(cuid())
+  slug             String   @unique
+  idx              String
+  name             String
+  category         String
+  oneLiner         String   @db.Text
+  homepageOneLiner String?  @db.Text
+  result           String
+  tags             String[]
+  status           String?
+  mobilePreview    String?  @db.Text
+  previewLabel     String?
+  previewSvg       String?  @db.Text
+  featured         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model SiteSetting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+}

@@ -1,0 +1,22 @@
+[
+  {
+    "id": "local_1787573688204_zm1w0",
+    "name": "Maya Patel",
+    "email": "maya@studio.design",
+    "projectType": "UI / UX Design",
+    "budget": "₹50k – ₹2L",
+    "description": "Design system and mobile UI/UX for fintech platform.",
+    "status": "new",
+    "createdAt": "2026-08-24T12:14:48.204Z"
+  },
+  {
+    "id": "local_1787508316776_z477o",
+    "name": "Arjun Sharma",
+    "email": "arjun@example.com",
+    "projectType": "Product / App",
+    "budget": "₹50k – ₹2L",
+    "description": "An AI portfolio management dashboard for active retail traders.",
+    "status": "read",
+    "createdAt": "2026-08-23T18:05:16.776Z"
+  }
+]
