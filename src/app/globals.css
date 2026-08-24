@@ -1649,3 +1649,10 @@ footer {
   box-shadow: var(--shadow);
   border: 1px solid var(--line);
 }
+
+/* 404 Action Cards */
+.nf-card:hover {
+  border-color: var(--ink) !important;
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-sm);
+}
