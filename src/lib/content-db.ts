@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { Project, projects as initialProjects } from "@/data/projects";
+import { unstable_cache, revalidateTag } from "next/cache";
 import fs from "fs";
 import path from "path";
 
@@ -54,6 +55,10 @@ const DEFAULT_TRUST: TrustSectionConfig = {
 
 const CONTENT_FILE_PATH = path.join(process.cwd(), "data", "site-content.json");
 
+// In-memory cache for instant 0ms responses without repeated DB queries
+let cachedSiteContent: { data: SiteContent; timestamp: number } | null = null;
+const CACHE_TTL_MS = 1000 * 60 * 60; // 1 hour
+
 function getLocalFallback(): SiteContent {
   try {
     if (fs.existsSync(CONTENT_FILE_PATH)) {
@@ -76,7 +81,14 @@ function saveLocalFallback(content: SiteContent) {
   } catch {}
 }
 
-export async function getSiteContent(): Promise<SiteContent> {
+export function invalidateContentCache() {
+  cachedSiteContent = null;
+  try {
+    revalidateTag("site-content");
+  } catch {}
+}
+
+async function fetchSiteContentFromDB(): Promise<SiteContent> {
   try {
     // 1. Fetch Trust config from Postgres
     const trustSetting = await prisma.siteSetting.findUnique({
@@ -125,6 +137,34 @@ export async function getSiteContent(): Promise<SiteContent> {
   }
 }
 
+// Next.js ISR Cached Fetcher (tagged for on-demand invalidation)
+const getCachedSiteContent = unstable_cache(
+  fetchSiteContentFromDB,
+  ["site-content"],
+  {
+    tags: ["site-content"],
+    revalidate: 3600,
+  }
+);
+
+export async function getSiteContent(): Promise<SiteContent> {
+  // Check memory cache first (instant 0ms response)
+  const now = Date.now();
+  if (cachedSiteContent && now - cachedSiteContent.timestamp < CACHE_TTL_MS) {
+    return cachedSiteContent.data;
+  }
+
+  try {
+    const data = await getCachedSiteContent();
+    cachedSiteContent = { data, timestamp: now };
+    return data;
+  } catch {
+    const data = await fetchSiteContentFromDB();
+    cachedSiteContent = { data, timestamp: now };
+    return data;
+  }
+}
+
 export async function updateTrustConfig(
   updates: Partial<TrustSectionConfig>
 ): Promise<TrustSectionConfig> {
@@ -142,12 +182,14 @@ export async function updateTrustConfig(
     });
 
     saveLocalFallback({ ...current, trust: updated });
+    invalidateContentCache();
     return updated;
   } catch (error) {
     console.warn("Failed to update trust in Postgres, updating local cache:", (error as Error).message);
     const local = getLocalFallback();
     const updated = { ...local.trust, ...updates };
     saveLocalFallback({ ...local, trust: updated });
+    invalidateContentCache();
     return updated;
   }
 }
@@ -207,6 +249,7 @@ export async function createProject(projectData: Omit<Project, "id">): Promise<P
 
     const current = await getSiteContent();
     saveLocalFallback({ ...current, projects: [...current.projects, project] });
+    invalidateContentCache();
     return project;
   } catch (error) {
     console.warn("Failed to create project in Postgres, saving locally:", (error as Error).message);
@@ -217,6 +260,7 @@ export async function createProject(projectData: Omit<Project, "id">): Promise<P
     };
     const current = getLocalFallback();
     saveLocalFallback({ ...current, projects: [...current.projects, newProj] });
+    invalidateContentCache();
     return newProj;
   }
 }
@@ -262,6 +306,7 @@ export async function updateProject(
       featured: updated.featured,
     };
 
+    invalidateContentCache();
     return project;
   } catch (error) {
     console.warn("Failed to update project in Postgres, updating local fallback:", (error as Error).message);
@@ -270,6 +315,7 @@ export async function updateProject(
     if (index !== -1) {
       local.projects[index] = { ...local.projects[index], ...projectData };
       saveLocalFallback(local);
+      invalidateContentCache();
       return local.projects[index];
     }
     return null;
@@ -281,12 +327,14 @@ export async function deleteProject(id: string): Promise<boolean> {
     await prisma.project.delete({
       where: { id },
     });
+    invalidateContentCache();
     return true;
   } catch (error) {
     try {
       await prisma.project.delete({
         where: { slug: id },
       });
+      invalidateContentCache();
       return true;
     } catch {
       console.warn("Failed to delete project in Postgres, removing from local fallback");
@@ -295,6 +343,7 @@ export async function deleteProject(id: string): Promise<boolean> {
       local.projects = local.projects.filter((p) => p.id !== id && p.slug !== id);
       if (local.projects.length !== prev) {
         saveLocalFallback(local);
+        invalidateContentCache();
         return true;
       }
       return false;

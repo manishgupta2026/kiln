@@ -7,7 +7,7 @@ import CursorPreview from "@/components/CursorPreview";
 import ScrollReveal from "@/components/ScrollReveal";
 import { getSiteContent } from "@/lib/content-db";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Work — Kiln",

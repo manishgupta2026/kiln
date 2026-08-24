@@ -11,7 +11,7 @@ import ScrollReveal from "@/components/ScrollReveal";
 import TrustSection from "@/components/TrustSection";
 import { getSiteContent } from "@/lib/content-db";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 export default async function HomePage() {
   const content = await getSiteContent();
