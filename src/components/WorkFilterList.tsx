@@ -37,11 +37,13 @@ export default function WorkFilterList({
 
   return (
     <>
-      <div className="filters reveal">
+      <div className="filters reveal" role="tablist" aria-label="Filter projects by category">
         {FILTER_OPTIONS.map((f) => (
           <button
             key={f.value}
             type="button"
+            role="tab"
+            aria-selected={activeFilter === f.value}
             className={`chip ${activeFilter === f.value ? "active" : ""}`}
             data-filter={f.value}
             onClick={() => setActiveFilter(f.value)}
@@ -51,19 +53,29 @@ export default function WorkFilterList({
         ))}
       </div>
 
-      <section className="work-list">
+      <section className="work-list reveal" aria-label="Projects list">
         <div className="wrap">
           {filteredProjects.map((project: Project) => {
             const isOpen = !!openSlugs[project.slug];
             return (
               <div
                 key={project.id}
-                className={`work-row reveal ${isOpen ? "open" : ""}`}
+                className={`work-row ${isOpen ? "open" : ""}`}
                 data-cat={project.category}
                 data-preview={project.slug}
+                tabIndex={0}
+                role="button"
+                aria-expanded={isOpen}
+                aria-label={`Project ${project.name}: ${project.oneLiner}`}
                 onClick={() => toggleRowOpen(project.slug)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    toggleRowOpen(project.slug);
+                  }
+                }}
               >
-                <div className="idx">{project.idx}</div>
+                <div className="idx" aria-hidden="true">{project.idx}</div>
                 <div>
                   <div className="wname">
                     {project.name}
@@ -72,14 +84,16 @@ export default function WorkFilterList({
                     )}
                   </div>
                   <div className="wline">{project.oneLiner}</div>
-                  <div className="tags-row">
+                  <div className="tags-row" aria-label="Tags">
                     {project.tags.map((tag) => (
                       <span key={tag} className="tag">
                         {tag}
                       </span>
                     ))}
                   </div>
-                  <div className="mobile-preview">{project.mobilePreview}</div>
+                  <div className="mobile-preview" aria-hidden={!isOpen}>
+                    <p>{project.mobilePreview || project.oneLiner}</p>
+                  </div>
                 </div>
                 <div className="wresult">{project.result}</div>
               </div>

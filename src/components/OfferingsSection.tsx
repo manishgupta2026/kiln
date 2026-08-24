@@ -42,27 +42,41 @@ export default function OfferingsSection() {
   };
 
   return (
-    <section className="offerings">
+    <section className="offerings" id="offerings" aria-labelledby="offerings-heading">
       <div className="wrap">
-        <div className="section-label reveal">What we actually build</div>
+        <div className="section-label reveal" id="offerings-heading">
+          What we actually build
+        </div>
         <h2 className="section-title reveal">
           Not a menu of &quot;services.&quot; Four things we&apos;re genuinely good at.
         </h2>
 
-        {offerings.map((item) => {
-          const isOpen = !!openIndices[item.idx];
-          return (
-            <div
-              key={item.idx}
-              className={`offer-row reveal ${isOpen ? "open" : ""}`}
-              onClick={() => toggleIndex(item.idx)}
-            >
-              <div className="idx">{item.idx}</div>
-              <h3>{item.title}</h3>
-              <p>{item.desc}</p>
-            </div>
-          );
-        })}
+        <div className="offer-list reveal" role="list">
+          {offerings.map((item) => {
+            const isOpen = !!openIndices[item.idx];
+            return (
+              <div
+                key={item.idx}
+                className={`offer-row ${isOpen ? "open" : ""}`}
+                tabIndex={0}
+                role="listitem"
+                aria-expanded={isOpen}
+                aria-label={`${item.idx}: ${item.title}`}
+                onClick={() => toggleIndex(item.idx)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    toggleIndex(item.idx);
+                  }
+                }}
+              >
+                <div className="idx" aria-hidden="true">{item.idx}</div>
+                <h3>{item.title}</h3>
+                <p>{item.desc}</p>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </section>
   );
