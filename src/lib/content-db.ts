@@ -1,6 +1,5 @@
 import { prisma } from "@/lib/prisma";
 import { Project, projects as initialProjects } from "@/data/projects";
-import { unstable_cache, revalidateTag } from "next/cache";
 import fs from "fs";
 import path from "path";
 
@@ -21,6 +20,23 @@ export interface TrustSectionConfig {
 export interface SiteContent {
   trust: TrustSectionConfig;
   projects: Project[];
+}
+
+interface DbProjectRecord {
+  id: string;
+  slug: string;
+  idx: string;
+  name: string;
+  category: string;
+  oneLiner: string;
+  homepageOneLiner?: string | null;
+  result: string;
+  tags: string[];
+  status?: string | null;
+  mobilePreview?: string | null;
+  previewLabel?: string | null;
+  previewSvg?: string | null;
+  featured: boolean;
 }
 
 const DEFAULT_TRUST: TrustSectionConfig = {
@@ -55,7 +71,7 @@ const DEFAULT_TRUST: TrustSectionConfig = {
 
 const CONTENT_FILE_PATH = path.join(process.cwd(), "data", "site-content.json");
 
-// In-memory cache for instant 0ms responses without repeated DB queries
+// In-memory cache for fast sub-millisecond responses without repeated DB queries
 let cachedSiteContent: { data: SiteContent; timestamp: number } | null = null;
 const CACHE_TTL_MS = 1000 * 60 * 60; // 1 hour
 
@@ -69,7 +85,9 @@ function getLocalFallback(): SiteContent {
         projects: parsed.projects || initialProjects,
       };
     }
-  } catch {}
+  } catch {
+    // Fallback if file reading fails
+  }
   return { trust: DEFAULT_TRUST, projects: initialProjects };
 }
 
@@ -78,17 +96,21 @@ function saveLocalFallback(content: SiteContent) {
     const dir = path.dirname(CONTENT_FILE_PATH);
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
     fs.writeFileSync(CONTENT_FILE_PATH, JSON.stringify(content, null, 2), "utf-8");
-  } catch {}
+  } catch {
+    // Silently ignore in read-only production environments (like Vercel serverless)
+  }
 }
 
 export function invalidateContentCache() {
   cachedSiteContent = null;
-  try {
-    revalidateTag("site-content");
-  } catch {}
 }
 
-async function fetchSiteContentFromDB(): Promise<SiteContent> {
+export async function getSiteContent(): Promise<SiteContent> {
+  const now = Date.now();
+  if (cachedSiteContent && now - cachedSiteContent.timestamp < CACHE_TTL_MS) {
+    return cachedSiteContent.data;
+  }
+
   try {
     // 1. Fetch Trust config from Postgres
     const trustSetting = await prisma.siteSetting.findUnique({
@@ -106,7 +128,7 @@ async function fetchSiteContentFromDB(): Promise<SiteContent> {
 
     const projects: Project[] =
       dbProjects.length > 0
-        ? dbProjects.map((p) => ({
+        ? (dbProjects as DbProjectRecord[]).map((p: DbProjectRecord) => ({
             id: p.id,
             slug: p.slug,
             idx: p.idx,
@@ -129,39 +151,14 @@ async function fetchSiteContentFromDB(): Promise<SiteContent> {
         : initialProjects;
 
     const result = { trust: trustConfig, projects };
+    cachedSiteContent = { data: result, timestamp: now };
     saveLocalFallback(result);
     return result;
   } catch (error) {
-    console.warn("Falling back to local cache for site content:", (error as Error).message);
-    return getLocalFallback();
-  }
-}
-
-// Next.js ISR Cached Fetcher (tagged for on-demand invalidation)
-const getCachedSiteContent = unstable_cache(
-  fetchSiteContentFromDB,
-  ["site-content"],
-  {
-    tags: ["site-content"],
-    revalidate: 3600,
-  }
-);
-
-export async function getSiteContent(): Promise<SiteContent> {
-  // Check memory cache first (instant 0ms response)
-  const now = Date.now();
-  if (cachedSiteContent && now - cachedSiteContent.timestamp < CACHE_TTL_MS) {
-    return cachedSiteContent.data;
-  }
-
-  try {
-    const data = await getCachedSiteContent();
-    cachedSiteContent = { data, timestamp: now };
-    return data;
-  } catch {
-    const data = await fetchSiteContentFromDB();
-    cachedSiteContent = { data, timestamp: now };
-    return data;
+    console.warn("Using local cache for site content:", (error as Error).message);
+    const fallback = getLocalFallback();
+    cachedSiteContent = { data: fallback, timestamp: now };
+    return fallback;
   }
 }
 
@@ -177,8 +174,8 @@ export async function updateTrustConfig(
 
     await prisma.siteSetting.upsert({
       where: { key: "trust" },
-      update: { value: updated as any },
-      create: { key: "trust", value: updated as any },
+      update: { value: JSON.parse(JSON.stringify(updated)) },
+      create: { key: "trust", value: JSON.parse(JSON.stringify(updated)) },
     });
 
     saveLocalFallback({ ...current, trust: updated });
@@ -329,7 +326,7 @@ export async function deleteProject(id: string): Promise<boolean> {
     });
     invalidateContentCache();
     return true;
-  } catch (error) {
+  } catch {
     try {
       await prisma.project.delete({
         where: { slug: id },
