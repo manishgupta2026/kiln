@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Instrument_Serif, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import CursorTrail from "@/components/CursorTrail";
 
@@ -43,6 +44,7 @@ export default function RootLayout({
       <body>
         <CursorTrail />
         {children}
+        <Analytics />
       </body>
     </html>
   );
