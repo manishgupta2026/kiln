@@ -1,6 +1,9 @@
 /**
  * Transactional email service for onboarding, call scheduling, and password recovery
+ * Supports Nodemailer (Gmail / Custom SMTP) and Resend API, with local console fallback.
  */
+
+import nodemailer from "nodemailer";
 
 export interface EmailOptions {
   to: string;
@@ -11,15 +14,54 @@ export interface EmailOptions {
 }
 
 export async function sendEmail(options: EmailOptions): Promise<{ success: boolean; error?: string }> {
-  const apiKey = process.env.RESEND_API_KEY;
-  const fromEmail = process.env.FROM_EMAIL || "Kiln Studio <team@kiln.design>";
+  // 1. Check for Gmail / Custom SMTP credentials first
+  const smtpUser = process.env.SMTP_USER || process.env.GMAIL_USER;
+  const smtpPass = process.env.SMTP_PASS || process.env.GMAIL_APP_PASSWORD;
+  const smtpHost = process.env.SMTP_HOST || (process.env.GMAIL_USER ? "smtp.gmail.com" : undefined);
+  const smtpPort = process.env.SMTP_PORT ? parseInt(process.env.SMTP_PORT, 10) : 465;
 
-  if (apiKey) {
+  if (smtpUser && smtpPass) {
+    try {
+      const transporter = nodemailer.createTransport({
+        host: smtpHost || "smtp.gmail.com",
+        port: smtpPort,
+        secure: smtpPort === 465,
+        auth: {
+          user: smtpUser,
+          pass: smtpPass.replace(/\s+/g, ""),
+        },
+      });
+
+      await transporter.sendMail({
+        from: `"Kiln Studio" <${smtpUser}>`,
+        to: `"${options.name}" <${options.to}>`,
+        subject: options.subject,
+        html: options.html,
+        text: options.text,
+      });
+
+      console.log(`[EMAIL SENT VIA GMAIL/SMTP] To: ${options.to} (${options.subject})`);
+      return { success: true };
+    } catch (err: any) {
+      console.error("[SMTP ERROR] Failed to send email via SMTP:", err.message);
+      return { success: false, error: err.message };
+    }
+  }
+
+  // 2. Check for Resend API key
+  const resendApiKey = process.env.RESEND_API_KEY;
+  if (resendApiKey) {
+    // If FROM_EMAIL is not configured or uses an unverified placeholder, default to Resend test domain
+    const fromEmail =
+      process.env.FROM_EMAIL && !process.env.FROM_EMAIL.includes("team@kiln.design")
+        ? process.env.FROM_EMAIL
+        : "Kiln Studio <onboarding@resend.dev>";
+
     try {
       const res = await fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${apiKey}`,
+          Authorization: `Bearer ${resendApiKey}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -33,20 +75,21 @@ export async function sendEmail(options: EmailOptions): Promise<{ success: boole
 
       if (!res.ok) {
         const errorData = await res.json();
-        console.error("Resend email error:", errorData);
-        return { success: false, error: errorData.message || "Failed to send email" };
+        console.error("[RESEND ERROR]", errorData);
+        return { success: false, error: errorData.message || "Failed to send email via Resend" };
       }
 
+      console.log(`[EMAIL SENT VIA RESEND] From: ${fromEmail} -> To: ${options.to} (${options.subject})`);
       return { success: true };
     } catch (err: any) {
-      console.error("Failed to dispatch email via Resend:", err.message);
+      console.error("[RESEND ERROR] Failed to dispatch email via Resend:", err.message);
       return { success: false, error: err.message };
     }
   }
 
-  // Development & Testing Fallback: Log email details cleanly to console
+  // 3. Local Development Fallback: Log email details cleanly to console
   console.log("=================================================");
-  console.log(`[EMAIL DISPATCH]`);
+  console.log(`[LOCAL EMAIL DISPATCH - To send real emails, add GMAIL_USER & GMAIL_APP_PASSWORD or RESEND_API_KEY to .env]`);
   console.log(`To: ${options.name} <${options.to}>`);
   console.log(`Subject: ${options.subject}`);
   console.log(`Body:`);
