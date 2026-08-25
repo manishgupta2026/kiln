@@ -9,6 +9,7 @@ import CursorPreview from "@/components/CursorPreview";
 import FloatingCta from "@/components/FloatingCta";
 import ScrollReveal from "@/components/ScrollReveal";
 import TrustSection from "@/components/TrustSection";
+import PortalFeaturesSection from "@/components/PortalFeaturesSection";
 import { getSiteContent } from "@/lib/content-db";
 
 export const revalidate = 3600;
@@ -88,6 +89,9 @@ export default async function HomePage() {
 
         {/* DYNAMIC TRUST / COMPANY SECTION */}
         <TrustSection config={content.trust} />
+
+        {/* CLIENT PORTAL & WORKSPACE FEATURES */}
+        <PortalFeaturesSection />
 
         {/* BRIEF FORM */}
         <section className="brief" id="brief">

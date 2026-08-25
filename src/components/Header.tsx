@@ -46,7 +46,7 @@ export default function Header() {
             Work
           </Link>
           <Link
-            href="/#brief"
+            href="/#offerings"
           >
             Offerings
           </Link>
@@ -60,6 +60,15 @@ export default function Header() {
             href="/#faq"
           >
             FAQ
+          </Link>
+          <Link
+            href="/login"
+            style={{
+              color: "var(--accent)",
+              fontWeight: 500,
+            }}
+          >
+            Portal
           </Link>
         </nav>
 
@@ -106,7 +115,7 @@ export default function Header() {
               <span>Work Archive</span>
             </Link>
             <Link
-              href="/#brief"
+              href="/#offerings"
               onClick={() => setMobileMenuOpen(false)}
             >
               <span className="mobile-idx">03</span>
@@ -126,6 +135,14 @@ export default function Header() {
             >
               <span className="mobile-idx">05</span>
               <span>FAQ</span>
+            </Link>
+            <Link
+              href="/login"
+              onClick={() => setMobileMenuOpen(false)}
+              style={{ color: "var(--accent)" }}
+            >
+              <span className="mobile-idx">06</span>
+              <span>Client Portal</span>
             </Link>
           </nav>
 

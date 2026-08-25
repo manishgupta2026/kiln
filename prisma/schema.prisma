@@ -8,18 +8,191 @@ generator client {
   provider = "prisma-client-js"
 }
 
+enum Role {
+  CLIENT
+  DEVELOPER
+  ADMIN
+}
+
+enum ProjectPhase {
+  DISCOVER
+  DESIGN
+  BUILD
+  SHIP_AND_ITERATE
+}
+
+enum ProjectStatus {
+  ACTIVE
+  PAUSED
+  COMPLETED
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String?
+  role         Role
+  createdAt    DateTime @default(now())
+
+  projectsAsClient    Project[]          @relation("ClientProjects")
+  projectAssignments ProjectDeveloper[]
+  messages            Message[]
+  authTokens          AuthToken[]
+  callRequests        CallRequest[]
+}
+
+// Single-use, expiring tokens for both first-time setup and password reset
+model AuthToken {
+  id        String    @id @default(cuid())
+  token     String    @unique
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  purpose   String    // "onboard" | "reset"
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+}
+
 model Brief {
-  id          String   @id @default(cuid())
-  name        String
-  email       String
-  projectType String
-  budget      String?
-  description String   @db.Text
-  status      String   @default("new")
-  createdAt   DateTime @default(now())
+  id              String    @id @default(cuid())
+  name            String
+  email           String
+  phone           String?
+  projectType     String
+  budget          String?
+  description     String    @db.Text
+  status          String    @default("new") // "new" | "call_scheduled" | "call_completed" | "converted" | "archived"
+  callScheduledAt DateTime?
+  callMeetingUrl  String?
+  callNotes       String?   @db.Text
+  createdAt       DateTime  @default(now())
+  project         Project?
 }
 
 model Project {
+  id         String        @id @default(cuid())
+  name       String
+  briefId    String?       @unique
+  brief      Brief?        @relation(fields: [briefId], references: [id])
+  clientId   String
+  client     User          @relation("ClientProjects", fields: [clientId], references: [id])
+  phase      ProjectPhase  @default(DISCOVER)
+  status     ProjectStatus @default(ACTIVE)
+  nextCallAt DateTime?
+
+  // Quick Links
+  stagingUrl    String?
+  productionUrl String?
+  figmaUrl      String?
+  driveUrl      String?
+
+  // Client Sign-off Gates
+  designApprovedAt DateTime?
+  buildApprovedAt  DateTime?
+
+  // Billing & Payment Milestones
+  depositStatus String? @default("PAID")    // "UNPAID" | "PAID"
+  depositAmount String? @default("50%")
+  finalStatus   String? @default("PENDING") // "PENDING" | "PAID"
+  finalAmount   String? @default("50%")
+  invoiceUrl    String?
+
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  developers   ProjectDeveloper[]
+  updates      ProjectUpdate[]
+  tickets      Ticket[]
+  messages     Message[]
+  milestones   ProjectMilestone[]
+  callRequests CallRequest[]
+}
+
+// Many-to-many: a project can have several developers, a developer several projects.
+model ProjectDeveloper {
+  id          String   @id @default(cuid())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  developerId String
+  developer   User     @relation(fields: [developerId], references: [id], onDelete: Cascade)
+  assignedAt  DateTime @default(now())
+
+  @@unique([projectId, developerId])
+}
+
+// The progress log / timeline the client sees
+model ProjectUpdate {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  authorId  String
+  note      String   @db.Text
+  createdAt DateTime @default(now())
+}
+
+// Granular deliverables checklist with completion status
+model ProjectMilestone {
+  id          String    @id @default(cuid())
+  projectId   String
+  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  isCompleted Boolean   @default(false)
+  completedAt DateTime?
+  order       Int       @default(0)
+  createdAt   DateTime  @default(now())
+}
+
+// Client-initiated sync call requests
+model CallRequest {
+  id             String    @id @default(cuid())
+  projectId      String
+  project        Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  requestedById  String
+  requestedBy    User      @relation(fields: [requestedById], references: [id], onDelete: Cascade)
+  preferredTimes String
+  topic          String
+  status         String    @default("PENDING") // "PENDING" | "CONFIRMED" | "DECLINED"
+  meetingUrl     String?
+  confirmedTime  DateTime?
+  createdAt      DateTime  @default(now())
+}
+
+model Ticket {
+  id          String       @id @default(cuid())
+  projectId   String
+  project     Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdById String
+  subject     String
+  status      TicketStatus @default(OPEN)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  messages Message[]
+}
+
+// Doubles as general project chat (ticketId null) and ticket replies (ticketId set)
+model Message {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  ticketId  String?
+  ticket    Ticket?  @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  senderId  String
+  sender    User     @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  body      String   @db.Text
+  createdAt DateTime @default(now())
+}
+
+// Portfolio/Showcase items for public website
+model ShowcaseProject {
   id               String   @id @default(cuid())
   slug             String   @unique
   idx              String

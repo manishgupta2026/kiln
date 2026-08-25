@@ -1,13 +1,13 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
-import { getAdminSessionFromCookies } from "@/lib/auth";
+import { getSessionUser } from "@/lib/auth";
 import { getAllProjects, createProject } from "@/lib/content-db";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
-  const isAuthenticated = await getAdminSessionFromCookies();
-  if (!isAuthenticated) {
+export async function GET(request: NextRequest) {
+  const user = await getSessionUser(request);
+  if (!user || user.role !== "ADMIN") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -15,9 +15,9 @@ export async function GET() {
   return NextResponse.json({ success: true, data: projects });
 }
 
-export async function POST(req: Request) {
-  const isAuthenticated = await getAdminSessionFromCookies();
-  if (!isAuthenticated) {
+export async function POST(req: NextRequest) {
+  const user = await getSessionUser(req);
+  if (!user || user.role !== "ADMIN") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

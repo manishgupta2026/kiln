@@ -14,10 +14,13 @@ export default function Footer({ showNote = true }: FooterProps) {
           </Link>
           <div className="footer-links">
             <Link href="/work">Work</Link>
-            <Link href="/#brief">Offerings</Link>
+            <Link href="/#offerings">Offerings</Link>
             <Link href="/about">About</Link>
             <Link href="/#faq">FAQ</Link>
             <Link href="/#brief">Start a project</Link>
+            <Link href="/login" style={{ color: "var(--accent)" }}>
+              Client Portal →
+            </Link>
           </div>
         </div>
 

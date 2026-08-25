@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
 import fs from "fs";
 import path from "path";
 
@@ -38,7 +39,7 @@ async function main() {
     ],
   };
 
-  const contentFile = path.join(process.cwd(), "data", "site-content.json");
+  const contentFile = path.join(process.cwd(), "data", "content.json");
   if (fs.existsSync(contentFile)) {
     try {
       const content = JSON.parse(fs.readFileSync(contentFile, "utf-8"));
@@ -53,8 +54,8 @@ async function main() {
   });
   console.log("✓ Seeded Trust section configuration to SiteSetting table");
 
-  // 2. Seed Projects
-  const projects = [
+  // 2. Seed Showcase Projects
+  const showcaseProjects = [
     {
       slug: "tradesage",
       idx: "01",
@@ -123,34 +124,64 @@ async function main() {
     },
   ];
 
-  for (const p of projects) {
-    await prisma.project.upsert({
+  for (const p of showcaseProjects) {
+    await prisma.showcaseProject.upsert({
       where: { slug: p.slug },
       update: p,
       create: p,
     });
   }
-  console.log(`✓ Seeded ${projects.length} core projects to Project table`);
+  console.log(`✓ Seeded ${showcaseProjects.length} showcase projects to ShowcaseProject table`);
 
-  // 3. Seed Existing Briefs
+  // 3. Seed Users (Admin & Developer)
+  const defaultPasswordHash = await bcrypt.hash("kiln2026", 10);
+
+  const admin = await prisma.user.upsert({
+    where: { email: "admin@kiln.design" },
+    update: { role: "ADMIN", name: "Manish Gupta" },
+    create: {
+      email: "admin@kiln.design",
+      name: "Manish Gupta",
+      passwordHash: defaultPasswordHash,
+      role: "ADMIN",
+    },
+  });
+  console.log(`✓ Seeded Admin user: ${admin.email} (Password: kiln2026)`);
+
+  const dev = await prisma.user.upsert({
+    where: { email: "dev@kiln.design" },
+    update: { role: "DEVELOPER", name: "Lead Developer" },
+    create: {
+      email: "dev@kiln.design",
+      name: "Lead Developer",
+      passwordHash: defaultPasswordHash,
+      role: "DEVELOPER",
+    },
+  });
+  console.log(`✓ Seeded Developer user: ${dev.email} (Password: kiln2026)`);
+
+  // 4. Seed Existing Briefs
   const briefsFile = path.join(process.cwd(), "data", "briefs.json");
   if (fs.existsSync(briefsFile)) {
     try {
       const briefs = JSON.parse(fs.readFileSync(briefsFile, "utf-8"));
       for (const b of briefs) {
-        await prisma.brief.create({
-          data: {
-            name: b.name,
-            email: b.email,
-            projectType: b.projectType,
-            budget: b.budget || null,
-            description: b.description,
-            status: b.status || "new",
-            createdAt: b.createdAt ? new Date(b.createdAt) : new Date(),
-          },
-        });
+        const existing = await prisma.brief.findFirst({ where: { email: b.email } });
+        if (!existing) {
+          await prisma.brief.create({
+            data: {
+              name: b.name,
+              email: b.email,
+              projectType: b.projectType,
+              budget: b.budget || null,
+              description: b.description,
+              status: b.status || "new",
+              createdAt: b.createdAt ? new Date(b.createdAt) : new Date(),
+            },
+          });
+        }
       }
-      console.log(`✓ Seeded ${briefs.length} existing client briefs to Brief table`);
+      console.log(`✓ Synced client briefs to Brief table`);
     } catch {}
   }
 

@@ -40,7 +40,7 @@ export default function FaqSection() {
   };
 
   return (
-    <section className="faq">
+    <section className="faq" id="faq">
       <div className="wrap">
         <div className="section-label reveal">Quick answers</div>
         <div className="faq-list reveal">

@@ -1,13 +1,15 @@
 import { PrismaClient } from "@prisma/client";
 
+export * from "@/types/portal";
+
 const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
+  prisma: any;
 };
 
-export const prisma =
+export const prisma: any =
   globalForPrisma.prisma ??
   new PrismaClient({
-    log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
+    log: ["error", "warn"], // Silenced verbose dev queries to keep console clean and fast
   });
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;

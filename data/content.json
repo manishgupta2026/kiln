@@ -1,0 +1,119 @@
+{
+  "trust": {
+    "slots": [
+      {
+        "id": "slot-1",
+        "label": "Your logo\ncould go here",
+        "isHighlighted": true
+      },
+      {
+        "id": "slot-2",
+        "label": "—",
+        "isHighlighted": false
+      },
+      {
+        "id": "slot-3",
+        "label": "—",
+        "isHighlighted": false
+      },
+      {
+        "id": "slot-4",
+        "label": "—",
+        "isHighlighted": false
+      }
+    ],
+    "enabled": false,
+    "eyebrow": "Who we've worked with",
+    "heading": "Nobody yet — and we're not going to fake it.",
+    "description": "We're a young studio. No client logo wall, no invented quotes to look bigger than we are. What we do have is real, shipped work — you've just scrolled past it. If you work with us, your name goes in one of these."
+  },
+  "projects": [
+    {
+      "id": "cmt88y16z0000i2roj2dvrno1",
+      "slug": "tradesage",
+      "idx": "01",
+      "name": "TradeSage",
+      "category": "trading",
+      "oneLiner": "An algorithmic trading system for the Indian equity market — ten years of NSE data, automated risk controls, live on real capital.",
+      "homepageOneLiner": "Taught a model to trade the Indian market so we didn't have to guess twice.",
+      "result": "60.5% win rate",
+      "tags": [
+        "Python",
+        "XGBoost",
+        "GitHub Actions",
+        "SmartAPI"
+      ],
+      "mobilePreview": "60.5% live win rate · trained on 10yrs of NSE data across 2,200+ stocks",
+      "preview": {
+        "label": "60.5% win rate · 2,200+ stocks tracked",
+        "svg": "<svg viewBox=\"0 0 200 100\"><polyline points=\"0,80 40,70 80,75 120,45 160,55 200,20\" fill=\"none\" stroke=\"#75801F\" stroke-width=\"4\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"
+      },
+      "featured": true
+    },
+    {
+      "id": "cmt88y1on0001i2ro8g79se14",
+      "slug": "coursehunt",
+      "idx": "02",
+      "name": "CourseHunt",
+      "category": "product",
+      "oneLiner": "A fast course aggregator built on Next.js and Supabase — the shortcut 1,000+ students take every day.",
+      "homepageOneLiner": "Built the shortcut 1,000+ students take every day instead of hunting for links.",
+      "result": "1,000+ daily users",
+      "tags": [
+        "Next.js",
+        "Supabase",
+        "Vercel"
+      ],
+      "mobilePreview": "1,000+ daily active users · Next.js + Supabase",
+      "preview": {
+        "label": "1,000+ daily active users",
+        "svg": "<svg viewBox=\"0 0 200 100\"><rect x=\"10\" y=\"60\" width=\"180\" height=\"10\" rx=\"5\" fill=\"#75801F\" opacity=\"0.3\"/><rect x=\"10\" y=\"60\" width=\"130\" height=\"10\" rx=\"5\" fill=\"#75801F\"/><rect x=\"10\" y=\"40\" width=\"180\" height=\"10\" rx=\"5\" fill=\"#75801F\" opacity=\"0.3\"/><rect x=\"10\" y=\"40\" width=\"90\" height=\"10\" rx=\"5\" fill=\"#75801F\"/></svg>"
+      },
+      "featured": true
+    },
+    {
+      "id": "cmt88y1xt0002i2romsbj8nt7",
+      "slug": "zafby",
+      "idx": "03",
+      "name": "Zafby",
+      "category": "insurtech",
+      "oneLiner": "Parametric insurance for gig workers — pays out automatically against a trigger event, no claims process required.",
+      "homepageOneLiner": "Insurance for gig workers that pays out before you'd finish a claim form.",
+      "result": "Top 60 nationally",
+      "tags": [
+        "Product design",
+        "Insurtech",
+        "Full-stack"
+      ],
+      "mobilePreview": "Top 60 nationally · Guidewire DevTrails, 1st place ITER SOA",
+      "preview": {
+        "label": "Top 60 nationally · Guidewire DevTrails",
+        "svg": "<svg viewBox=\"0 0 200 100\"><circle cx=\"60\" cy=\"50\" r=\"34\" fill=\"none\" stroke=\"#75801F\" stroke-width=\"4\"/><text x=\"60\" y=\"58\" text-anchor=\"middle\" font-family=\"IBM Plex Mono\" font-size=\"16\" fill=\"#75801F\">#1</text><circle cx=\"150\" cy=\"50\" r=\"34\" fill=\"#75801F\" opacity=\"0.15\"/></svg>"
+      },
+      "featured": true
+    },
+    {
+      "id": "cmt88y25x0003i2ro4n9rfi8h",
+      "slug": "manraah",
+      "idx": "04",
+      "name": "Manraah",
+      "category": "in-progress",
+      "oneLiner": "A mental wellness platform with dedicated student, professional, and admin experiences — currently in build.",
+      "homepageOneLiner": "A mental wellness platform with dedicated student, professional, and admin experiences — currently in build.",
+      "result": "Shipping soon",
+      "tags": [
+        "Next.js",
+        "TypeScript",
+        "Tailwind",
+        "Neon"
+      ],
+      "status": "in-progress",
+      "mobilePreview": "Student, professional & admin dashboards",
+      "preview": {
+        "label": "Student, professional & admin dashboards",
+        "svg": "<svg viewBox=\"0 0 200 100\"><rect x=\"10\" y=\"15\" width=\"80\" height=\"70\" rx=\"6\" fill=\"#75801F\" opacity=\"0.18\"/><rect x=\"100\" y=\"15\" width=\"90\" height=\"32\" rx=\"6\" fill=\"#75801F\" opacity=\"0.3\"/><rect x=\"100\" y=\"53\" width=\"90\" height=\"32\" rx=\"6\" fill=\"#75801F\" opacity=\"0.18\"/></svg>"
+      },
+      "featured": false
+    }
+  ]
+}

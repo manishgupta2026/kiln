@@ -22,7 +22,7 @@ export interface SiteContent {
   projects: Project[];
 }
 
-interface DbProjectRecord {
+export interface DbProjectRecord {
   id: string;
   slug: string;
   idx: string;
@@ -69,24 +69,20 @@ const DEFAULT_TRUST: TrustSectionConfig = {
   ],
 };
 
-const CONTENT_FILE_PATH = path.join(process.cwd(), "data", "site-content.json");
+const CONTENT_FILE_PATH = path.join(process.cwd(), "data", "content.json");
 
-// In-memory cache for fast sub-millisecond responses without repeated DB queries
+// Memory cache with 60 second TTL for ultra-fast response
 let cachedSiteContent: { data: SiteContent; timestamp: number } | null = null;
-const CACHE_TTL_MS = 1000 * 60 * 60; // 1 hour
+const CACHE_TTL_MS = 60 * 1000;
 
 function getLocalFallback(): SiteContent {
   try {
     if (fs.existsSync(CONTENT_FILE_PATH)) {
       const raw = fs.readFileSync(CONTENT_FILE_PATH, "utf-8");
-      const parsed = JSON.parse(raw);
-      return {
-        trust: { ...DEFAULT_TRUST, ...(parsed.trust || {}) },
-        projects: parsed.projects || initialProjects,
-      };
+      return JSON.parse(raw);
     }
   } catch {
-    // Fallback if file reading fails
+    // If local file read fails, return defaults
   }
   return { trust: DEFAULT_TRUST, projects: initialProjects };
 }
@@ -117,8 +113,9 @@ export async function getSiteContent(): Promise<SiteContent> {
       where: { key: "trust" },
     });
 
-    // 2. Fetch Projects from Postgres
-    const dbProjects = await prisma.project.findMany({
+    // 2. Fetch Showcase Projects from Postgres
+    const dbClient = prisma as any;
+    const dbProjects: DbProjectRecord[] = await dbClient.showcaseProject.findMany({
       orderBy: { idx: "asc" },
     });
 
@@ -127,8 +124,8 @@ export async function getSiteContent(): Promise<SiteContent> {
       : DEFAULT_TRUST;
 
     const projects: Project[] =
-      dbProjects.length > 0
-        ? (dbProjects as DbProjectRecord[]).map((p: DbProjectRecord) => ({
+      dbProjects && dbProjects.length > 0
+        ? dbProjects.map((p: DbProjectRecord) => ({
             id: p.id,
             slug: p.slug,
             idx: p.idx,
@@ -205,7 +202,8 @@ export async function createProject(projectData: Omit<Project, "id">): Promise<P
       .replace(/(^-|-$)/g, "");
 
   try {
-    const created = await prisma.project.create({
+    const dbClient = prisma as any;
+    const created: DbProjectRecord = await dbClient.showcaseProject.create({
       data: {
         slug,
         idx: projectData.idx,
@@ -249,7 +247,7 @@ export async function createProject(projectData: Omit<Project, "id">): Promise<P
     invalidateContentCache();
     return project;
   } catch (error) {
-    console.warn("Failed to create project in Postgres, saving locally:", (error as Error).message);
+    console.warn("Failed to create showcase project in Postgres, saving locally:", (error as Error).message);
     const newProj: Project = {
       ...projectData,
       id: slug,
@@ -267,7 +265,8 @@ export async function updateProject(
   projectData: Partial<Project>
 ): Promise<Project | null> {
   try {
-    const updated = await prisma.project.update({
+    const dbClient = prisma as any;
+    const updated: DbProjectRecord = await dbClient.showcaseProject.update({
       where: { id },
       data: {
         ...(projectData.name && { name: projectData.name }),
@@ -306,7 +305,7 @@ export async function updateProject(
     invalidateContentCache();
     return project;
   } catch (error) {
-    console.warn("Failed to update project in Postgres, updating local fallback:", (error as Error).message);
+    console.warn("Failed to update showcase project in Postgres, updating local fallback:", (error as Error).message);
     const local = getLocalFallback();
     const index = local.projects.findIndex((p) => p.id === id || p.slug === id);
     if (index !== -1) {
@@ -321,20 +320,22 @@ export async function updateProject(
 
 export async function deleteProject(id: string): Promise<boolean> {
   try {
-    await prisma.project.delete({
+    const dbClient = prisma as any;
+    await dbClient.showcaseProject.delete({
       where: { id },
     });
     invalidateContentCache();
     return true;
   } catch {
     try {
-      await prisma.project.delete({
+      const dbClient = prisma as any;
+      await dbClient.showcaseProject.delete({
         where: { slug: id },
       });
       invalidateContentCache();
       return true;
     } catch {
-      console.warn("Failed to delete project in Postgres, removing from local fallback");
+      console.warn("Failed to delete showcase project in Postgres, removing from local fallback");
       const local = getLocalFallback();
       const prev = local.projects.length;
       local.projects = local.projects.filter((p) => p.id !== id && p.slug !== id);

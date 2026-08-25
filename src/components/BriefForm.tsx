@@ -21,6 +21,7 @@ const BUDGET_CHIPS = [
 export default function BriefForm() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [projectType, setProjectType] = useState<string>("Website");
   const [budget, setBudget] = useState<string | null>(null);
   const [description, setDescription] = useState("");
@@ -64,6 +65,7 @@ export default function BriefForm() {
         body: JSON.stringify({
           name,
           email,
+          phone: phone || null,
           projectType: projectType || "Not sure yet",
           budget: budget || null,
           description: description || "No additional description provided.",
@@ -80,6 +82,7 @@ export default function BriefForm() {
       setIsSuccess(true);
       setName("");
       setEmail("");
+      setPhone("");
       setDescription("");
       setBudget(null);
     } catch (err: unknown) {
@@ -116,6 +119,7 @@ export default function BriefForm() {
             type="text"
             id="fName"
             required
+            placeholder="Your name"
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
@@ -126,8 +130,22 @@ export default function BriefForm() {
             type="email"
             id="fEmail"
             required
+            placeholder="you@company.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
+      </div>
+
+      <div className="form-row" style={{ marginBottom: "18px" }}>
+        <div className="field field-full">
+          <label htmlFor="fPhone">Phone / WhatsApp (for discovery call &amp; meet)</label>
+          <input
+            type="tel"
+            id="fPhone"
+            placeholder="+91 98765 43210"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
           />
         </div>
       </div>
@@ -181,7 +199,7 @@ export default function BriefForm() {
           {isSubmitting ? "Sending..." : "Send the brief →"}
         </button>
         <div className={`form-success ${isSuccess ? "show" : ""}`} id="formSuccess">
-          Got it — we read every one of these ourselves. Expect a reply within a day.
+          Got it — we read every one of these ourselves. Expect a reply within a day to schedule our discovery call.
         </div>
         {errorMessage && (
           <div className="form-error show" id="formError">

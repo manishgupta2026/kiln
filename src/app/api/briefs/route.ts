@@ -7,6 +7,7 @@ export const dynamic = "force-dynamic";
 const briefSchema = z.object({
   name: z.string().min(1, "Name is required").max(100),
   email: z.string().email("A valid email is required").max(150),
+  phone: z.string().nullable().optional(),
   projectType: z.string().min(1, "Project type is required").max(50),
   budget: z.string().nullable().optional(),
   description: z.string().min(1, "Description is required").max(5000),
@@ -27,6 +28,7 @@ export async function POST(req: Request) {
     const newBrief = await createBrief({
       name: validatedData.name.trim(),
       email: validatedData.email.trim(),
+      phone: validatedData.phone ? validatedData.phone.trim() : null,
       projectType: validatedData.projectType,
       budget: validatedData.budget ? validatedData.budget.trim() : null,
       description: validatedData.description.trim(),

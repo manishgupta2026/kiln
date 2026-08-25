@@ -1,16 +1,16 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
-import { getAdminSessionFromCookies } from "@/lib/auth";
+import { getSessionUser } from "@/lib/auth";
 import { updateProject, deleteProject } from "@/lib/content-db";
 
 export const dynamic = "force-dynamic";
 
 export async function PUT(
-  req: Request,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const isAuthenticated = await getAdminSessionFromCookies();
-  if (!isAuthenticated) {
+  const user = await getSessionUser(req);
+  if (!user || user.role !== "ADMIN") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -48,11 +48,11 @@ export async function PUT(
 }
 
 export async function DELETE(
-  _req: Request,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const isAuthenticated = await getAdminSessionFromCookies();
-  if (!isAuthenticated) {
+  const user = await getSessionUser(req);
+  if (!user || user.role !== "ADMIN") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

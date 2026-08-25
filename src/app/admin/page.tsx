@@ -10,20 +10,58 @@ interface BriefItem {
   id: string;
   name: string;
   email: string;
+  phone?: string | null;
   projectType: string;
   budget: string | null;
   description: string;
-  status: "new" | "read" | "archived";
+  status: "new" | "read" | "call_scheduled" | "call_completed" | "converted" | "archived";
+  callScheduledAt?: string | null;
+  callMeetingUrl?: string | null;
+  callNotes?: string | null;
   createdAt: string;
+  project?: { id: string; name: string; phase: string; status: string } | null;
+}
+
+interface ClientPortalProject {
+  id: string;
+  name: string;
+  phase: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  client: { id: string; name: string; email: string };
+  developers: { developer: { id: string; name: string; email: string } }[];
+  _count: { tickets: number; messages: number; updates: number };
+}
+
+interface DeveloperItem {
+  id: string;
+  name: string;
+  email: string;
+  hasPassword: boolean;
+  activeProjects: { id: string; name: string; phase: string }[];
 }
 
 export default function AdminDashboardPage() {
-  const [activeTab, setActiveTab] = useState<"briefs" | "trust" | "projects">("briefs");
+  const [activeTab, setActiveTab] = useState<"briefs" | "portalProjects" | "developers" | "trust" | "projects">("briefs");
 
   // Briefs State
   const [briefs, setBriefs] = useState<BriefItem[]>([]);
   const [loadingBriefs, setLoadingBriefs] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  // Portal Projects State
+  const [portalProjects, setPortalProjects] = useState<ClientPortalProject[]>([]);
+  const [loadingPortalProjects, setLoadingPortalProjects] = useState(true);
+
+  // Developers State
+  const [developers, setDevelopers] = useState<DeveloperItem[]>([]);
+  const [loadingDevs, setLoadingDevs] = useState(true);
+  const [showInviteDevModal, setShowInviteDevModal] = useState(false);
+  const [devName, setDevName] = useState("");
+  const [devEmail, setDevEmail] = useState("");
+  const [invitingDev, setInvitingDev] = useState(false);
+  const [devInviteResult, setDevInviteResult] = useState<string | null>(null);
 
   // Trust Section State
   const [trustConfig, setTrustConfig] = useState<TrustSectionConfig | null>(null);
@@ -31,7 +69,7 @@ export default function AdminDashboardPage() {
   const [savingTrust, setSavingTrust] = useState(false);
   const [trustSuccessMsg, setTrustSuccessMsg] = useState<string | null>(null);
 
-  // Projects State
+  // Showcase Projects State
   const [projectsList, setProjectsList] = useState<Project[]>([]);
   const [loadingProjects, setLoadingProjects] = useState(true);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
@@ -57,7 +95,7 @@ export default function AdminDashboardPage() {
     try {
       const res = await fetch("/api/admin/briefs");
       if (res.status === 401) {
-        router.push("/admin/login");
+        router.push("/login");
         return;
       }
       const json = await res.json();
@@ -71,7 +109,37 @@ export default function AdminDashboardPage() {
     }
   };
 
-  // Load Trust Config & Projects
+  // Load Portal Projects
+  const fetchPortalProjects = async () => {
+    try {
+      const res = await fetch("/api/projects");
+      const json = await res.json();
+      if (json.success) {
+        setPortalProjects(json.projects);
+      }
+    } catch (err) {
+      console.error("Failed to load portal projects:", err);
+    } finally {
+      setLoadingPortalProjects(false);
+    }
+  };
+
+  // Load Developers
+  const fetchDevelopers = async () => {
+    try {
+      const res = await fetch("/api/admin/developers");
+      const json = await res.json();
+      if (json.success) {
+        setDevelopers(json.developers);
+      }
+    } catch (err) {
+      console.error("Failed to load developers:", err);
+    } finally {
+      setLoadingDevs(false);
+    }
+  };
+
+  // Load Trust Config & Showcase Projects
   const fetchContent = async () => {
     try {
       const res = await fetch("/api/content");
@@ -90,6 +158,8 @@ export default function AdminDashboardPage() {
 
   useEffect(() => {
     fetchBriefs();
+    fetchPortalProjects();
+    fetchDevelopers();
     fetchContent();
   }, []);
 
@@ -110,7 +180,6 @@ export default function AdminDashboardPage() {
     }
   };
 
-  // Instant Auto-Save for Visibility Toggle
   const handleToggleTrustVisibility = async (enabled: boolean) => {
     if (!trustConfig) return;
     const updated = { ...trustConfig, enabled };
@@ -136,7 +205,6 @@ export default function AdminDashboardPage() {
     }
   };
 
-  // Save Trust Config (text and slots)
   const handleSaveTrust = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!trustConfig) return;
@@ -162,7 +230,6 @@ export default function AdminDashboardPage() {
     }
   };
 
-  // Add/Remove Trust Slots
   const handleAddSlot = () => {
     if (!trustConfig) return;
     const newSlot: TrustSlot = {
@@ -202,7 +269,30 @@ export default function AdminDashboardPage() {
     });
   };
 
-  // Project Management
+  const handleInviteDev = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setInvitingDev(true);
+    try {
+      const res = await fetch("/api/admin/developers/invite", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: devName, email: devEmail }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setDevInviteResult(data.inviteUrl);
+        setDevName("");
+        setDevEmail("");
+        fetchDevelopers();
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setInvitingDev(false);
+    }
+  };
+
+  // Showcase Project Management
   const openNewProjectModal = () => {
     setProjectForm({
       name: "",
@@ -234,10 +324,7 @@ export default function AdminDashboardPage() {
       .map((t) => t.trim())
       .filter(Boolean);
 
-    const payload = {
-      ...projectForm,
-      tags,
-    };
+    const payload = { ...projectForm, tags };
 
     try {
       if (isCreatingProject) {
@@ -304,9 +391,9 @@ export default function AdminDashboardPage() {
   };
 
   const handleLogout = async () => {
-    await fetch("/api/admin/logout", { method: "POST" });
+    await fetch("/api/auth/logout", { method: "POST" });
     startTransition(() => {
-      router.push("/admin/login");
+      router.push("/login");
       router.refresh();
     });
   };
@@ -314,6 +401,7 @@ export default function AdminDashboardPage() {
   const totalBriefs = briefs.length;
   const newBriefs = briefs.filter((b) => b.status === "new").length;
   const readBriefs = briefs.filter((b) => b.status === "read").length;
+  const convertedBriefs = briefs.filter((b) => b.status === "converted").length;
 
   return (
     <div className="admin-wrap">
@@ -324,7 +412,7 @@ export default function AdminDashboardPage() {
             Kiln <span>Admin Studio</span>
           </h1>
           <div style={{ fontFamily: "var(--mono)", fontSize: "12px", color: "var(--muted)", marginTop: "4px" }}>
-            Inbound inquiries &amp; Live Site Content Management
+            Client Portal Hub, Engineering Roster &amp; Live Site CMS
           </div>
         </div>
 
@@ -378,13 +466,37 @@ export default function AdminDashboardPage() {
 
         <button
           type="button"
+          onClick={() => setActiveTab("portalProjects")}
+          className={`chip ${activeTab === "portalProjects" ? "active" : ""}`}
+          style={{ display: "flex", alignItems: "center", gap: "8px" }}
+        >
+          <span>🚀 Active Client Builds</span>
+          <span style={{ fontSize: "11px", color: "var(--muted)" }}>
+            ({portalProjects.length})
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab("developers")}
+          className={`chip ${activeTab === "developers" ? "active" : ""}`}
+          style={{ display: "flex", alignItems: "center", gap: "8px" }}
+        >
+          <span>👥 Engineering Team</span>
+          <span style={{ fontSize: "11px", color: "var(--muted)" }}>
+            ({developers.length})
+          </span>
+        </button>
+
+        <button
+          type="button"
           onClick={() => setActiveTab("trust")}
           className={`chip ${activeTab === "trust" ? "active" : ""}`}
           style={{ display: "flex", alignItems: "center", gap: "8px" }}
         >
-          <span>🏢 Company / Trust Section</span>
+          <span>🏢 Trust CMS</span>
           <span style={{ fontSize: "10px", padding: "2px 6px", borderRadius: "4px", background: trustConfig?.enabled ? "var(--accent-soft)" : "#eae7dd", color: trustConfig?.enabled ? "var(--accent)" : "var(--muted)" }}>
-            {trustConfig?.enabled ? "LIVE (ON)" : "HIDDEN (OFF)"}
+            {trustConfig?.enabled ? "LIVE" : "OFF"}
           </span>
         </button>
 
@@ -394,32 +506,31 @@ export default function AdminDashboardPage() {
           className={`chip ${activeTab === "projects" ? "active" : ""}`}
           style={{ display: "flex", alignItems: "center", gap: "8px" }}
         >
-          <span>🚀 Projects Manager</span>
+          <span>🎨 Showcase Portfolio</span>
           <span style={{ fontSize: "11px", color: "var(--muted)" }}>
             ({projectsList.length})
           </span>
         </button>
       </div>
 
-      {/* ================= TAB 1: BRIEFS ================= */}
+      {/* ================= TAB 1: INBOUND BRIEFS ================= */}
       {activeTab === "briefs" && (
         <div>
-          {/* Stats Summary */}
           <div className="admin-stats">
             <div className="admin-stat-card">
               <div className="admin-stat-label">Total Submissions</div>
               <div className="admin-stat-val">{totalBriefs}</div>
             </div>
             <div className="admin-stat-card">
-              <div className="admin-stat-label">New / Unread</div>
+              <div className="admin-stat-label">New / Unreviewed</div>
               <div className="admin-stat-val" style={{ color: "#c93b2b" }}>
                 {newBriefs}
               </div>
             </div>
             <div className="admin-stat-card">
-              <div className="admin-stat-label">Read / In Review</div>
+              <div className="admin-stat-label">Converted to Builds</div>
               <div className="admin-stat-val" style={{ color: "var(--accent)" }}>
-                {readBriefs}
+                {convertedBriefs}
               </div>
             </div>
           </div>
@@ -441,9 +552,6 @@ export default function AdminDashboardPage() {
               <p style={{ fontFamily: "var(--display)", fontSize: "22px", color: "var(--ink)" }}>
                 No briefs submitted yet.
               </p>
-              <p style={{ color: "var(--muted)", fontSize: "14px", marginTop: "6px" }}>
-                Submissions through the homepage brief form will appear here in real time.
-              </p>
             </div>
           ) : (
             <div className="admin-table-wrap">
@@ -452,21 +560,20 @@ export default function AdminDashboardPage() {
                   <tr>
                     <th>Status</th>
                     <th>Date</th>
-                    <th>Name</th>
+                    <th>Client</th>
                     <th>Contact</th>
                     <th>Type</th>
                     <th>Budget</th>
-                    <th>Description Preview</th>
+                    <th>Description</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {briefs.map((brief) => {
                     const isExpanded = expandedId === brief.id;
-                    const formattedDate = new Date(brief.createdAt).toLocaleDateString("en-IN", {
+                    const formattedDate = new Date(brief.createdAt).toLocaleDateString("en-US", {
                       day: "numeric",
                       month: "short",
-                      year: "numeric",
                       hour: "2-digit",
                       minute: "2-digit",
                     });
@@ -474,8 +581,32 @@ export default function AdminDashboardPage() {
                     return (
                       <tr key={brief.id}>
                         <td>
-                          <span className={`admin-status-badge ${brief.status}`}>
-                            {brief.status}
+                          <span
+                            className={`admin-status-badge ${brief.status}`}
+                            style={{
+                              background:
+                                brief.status === "converted"
+                                  ? "var(--accent-soft)"
+                                  : brief.status === "call_scheduled"
+                                  ? "#e0e7ff"
+                                  : brief.status === "call_completed"
+                                  ? "#fef3c7"
+                                  : brief.status === "new"
+                                  ? "#fde8e4"
+                                  : "#eae7dd",
+                              color:
+                                brief.status === "converted"
+                                  ? "var(--accent)"
+                                  : brief.status === "call_scheduled"
+                                  ? "#3730a3"
+                                  : brief.status === "call_completed"
+                                  ? "#92400e"
+                                  : brief.status === "new"
+                                  ? "#c93b2b"
+                                  : "var(--muted)",
+                            }}
+                          >
+                            {brief.status.replace("_", " ")}
                           </span>
                         </td>
                         <td style={{ fontFamily: "var(--mono)", fontSize: "12px", color: "var(--muted)", whiteSpace: "nowrap" }}>
@@ -485,12 +616,19 @@ export default function AdminDashboardPage() {
                           {brief.name}
                         </td>
                         <td>
-                          <a
-                            href={`mailto:${brief.email}?subject=Re:%20Kiln%20Project%20Brief`}
-                            style={{ color: "var(--accent)", textDecoration: "underline" }}
-                          >
-                            {brief.email}
-                          </a>
+                          <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                            <a
+                              href={`mailto:${brief.email}?subject=Re:%20Kiln%20Project%20Brief`}
+                              style={{ color: "var(--accent)", textDecoration: "underline", fontSize: "13px" }}
+                            >
+                              {brief.email}
+                            </a>
+                            {brief.phone && (
+                              <div style={{ fontFamily: "var(--mono)", fontSize: "11px", color: "var(--muted)" }}>
+                                📞 {brief.phone}
+                              </div>
+                            )}
+                          </div>
                         </td>
                         <td>
                           <span style={{ fontFamily: "var(--mono)", fontSize: "12px" }}>
@@ -502,58 +640,54 @@ export default function AdminDashboardPage() {
                             {brief.budget || "—"}
                           </span>
                         </td>
-                        <td style={{ maxWidth: "340px" }}>
+                        <td style={{ maxWidth: "260px" }}>
                           <div
                             onClick={() => setExpandedId(isExpanded ? null : brief.id)}
-                            style={{
-                              cursor: "pointer",
-                              color: "var(--ink)",
-                              lineHeight: 1.5,
-                            }}
+                            style={{ cursor: "pointer", color: "var(--ink)", lineHeight: 1.5 }}
                           >
                             {isExpanded ? (
-                              <div style={{ whiteSpace: "pre-wrap", background: "var(--bg)", padding: "12px", borderRadius: "8px", border: "1px solid var(--line)" }}>
+                              <div style={{ whiteSpace: "pre-wrap", background: "var(--bg)", padding: "10px", borderRadius: "6px", border: "1px solid var(--line)" }}>
                                 {brief.description}
-                                <div style={{ marginTop: "8px", fontFamily: "var(--mono)", fontSize: "11px", color: "var(--accent)" }}>
-                                  (Click to collapse)
-                                </div>
                               </div>
                             ) : (
-                              <div title="Click to view full description">
-                                {brief.description.length > 80
-                                  ? `${brief.description.slice(0, 80)}...`
+                              <div>
+                                {brief.description.length > 60
+                                  ? `${brief.description.slice(0, 60)}...`
                                   : brief.description}
-                                <span style={{ marginLeft: "6px", fontFamily: "var(--mono)", fontSize: "11px", color: "var(--muted)" }}>
-                                  [more]
+                                <span style={{ marginLeft: "4px", fontFamily: "var(--mono)", fontSize: "10px", color: "var(--muted)" }}>
+                                  [expand]
                                 </span>
                               </div>
                             )}
                           </div>
                         </td>
                         <td style={{ whiteSpace: "nowrap" }}>
-                          <div style={{ display: "flex", gap: "6px" }}>
-                            {brief.status !== "read" && (
+                          <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+                            <Link
+                              href={`/admin/briefs/${brief.id}`}
+                              style={{
+                                fontFamily: "var(--mono)",
+                                fontSize: "11px",
+                                padding: "4px 10px",
+                                border: brief.status === "converted" ? "1px solid var(--line)" : "1px solid var(--accent)",
+                                background: brief.status === "converted" ? "none" : "var(--accent-soft)",
+                                color: brief.status === "converted" ? "var(--ink)" : "var(--accent)",
+                                borderRadius: "4px",
+                                textDecoration: "none",
+                                fontWeight: 500,
+                              }}
+                            >
+                              {brief.status === "converted"
+                                ? "View Project →"
+                                : brief.status === "call_scheduled"
+                                ? "📅 Call Booked"
+                                : "Review & Meet →"}
+                            </Link>
+
+                            {brief.status === "new" && (
                               <button
                                 type="button"
                                 onClick={() => handleStatusChange(brief.id, "read")}
-                                style={{
-                                  fontFamily: "var(--mono)",
-                                  fontSize: "11px",
-                                  padding: "4px 8px",
-                                  border: "1px solid var(--accent)",
-                                  background: "var(--accent-soft)",
-                                  color: "var(--accent)",
-                                  borderRadius: "4px",
-                                  cursor: "pointer",
-                                }}
-                              >
-                                Mark Read
-                              </button>
-                            )}
-                            {brief.status !== "new" && (
-                              <button
-                                type="button"
-                                onClick={() => handleStatusChange(brief.id, "new")}
                                 style={{
                                   fontFamily: "var(--mono)",
                                   fontSize: "11px",
@@ -565,7 +699,7 @@ export default function AdminDashboardPage() {
                                   cursor: "pointer",
                                 }}
                               >
-                                Mark New
+                                Mark Read
                               </button>
                             )}
                           </div>
@@ -580,7 +714,307 @@ export default function AdminDashboardPage() {
         </div>
       )}
 
-      {/* ================= TAB 2: TRUST / COMPANY SECTION ================= */}
+      {/* ================= TAB 2: ACTIVE CLIENT BUILDS ================= */}
+      {activeTab === "portalProjects" && (
+        <div>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+            <div>
+              <h2 style={{ fontFamily: "var(--display)", fontSize: "24px", color: "var(--ink)" }}>
+                Active Client Builds ({portalProjects.length})
+              </h2>
+              <p style={{ fontSize: "13.5px", color: "var(--muted)" }}>
+                Live project portals accessed by clients and assigned engineering teams.
+              </p>
+            </div>
+          </div>
+
+          {loadingPortalProjects ? (
+            <div style={{ padding: "40px 0", textAlign: "center", fontFamily: "var(--mono)", color: "var(--muted)" }}>
+              Loading active builds…
+            </div>
+          ) : portalProjects.length > 0 ? (
+            <div className="admin-table-wrap">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Project</th>
+                    <th>Client</th>
+                    <th>Current Phase</th>
+                    <th>Status</th>
+                    <th>Assigned Devs</th>
+                    <th>Tickets</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {portalProjects.map((p) => (
+                    <tr key={p.id}>
+                      <td style={{ fontWeight: 600, color: "var(--ink)" }}>
+                        {p.name}
+                      </td>
+                      <td>
+                        <div style={{ fontSize: "13px" }}>{p.client.name}</div>
+                        <div style={{ fontFamily: "var(--mono)", fontSize: "11px", color: "var(--muted)" }}>{p.client.email}</div>
+                      </td>
+                      <td>
+                        <span
+                          style={{
+                            fontFamily: "var(--mono)",
+                            fontSize: "10.5px",
+                            textTransform: "uppercase",
+                            padding: "2px 8px",
+                            borderRadius: "999px",
+                            background: "var(--accent-soft)",
+                            color: "var(--accent)",
+                            fontWeight: 600,
+                          }}
+                        >
+                          {p.phase}
+                        </span>
+                      </td>
+                      <td>
+                        <span style={{ fontFamily: "var(--mono)", fontSize: "11px" }}>
+                          ● {p.status}
+                        </span>
+                      </td>
+                      <td>
+                        {p.developers.length > 0 ? (
+                          <div style={{ display: "flex", gap: "4px", flexWrap: "wrap" }}>
+                            {p.developers.map((d) => (
+                              <span key={d.developer.id} style={{ fontFamily: "var(--mono)", fontSize: "11px", background: "rgba(23, 21, 15, 0.04)", padding: "2px 6px", borderRadius: "4px" }}>
+                                {d.developer.name}
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          <span style={{ color: "#c93b2b", fontSize: "11px", fontFamily: "var(--mono)" }}>No devs assigned</span>
+                        )}
+                      </td>
+                      <td style={{ fontFamily: "var(--mono)", fontSize: "12px" }}>
+                        {p._count.tickets} tickets
+                      </td>
+                      <td>
+                        <Link
+                          href={`/admin/projects/${p.id}`}
+                          style={{
+                            fontFamily: "var(--mono)",
+                            fontSize: "11px",
+                            padding: "4px 10px",
+                            border: "1px solid var(--line)",
+                            borderRadius: "4px",
+                            textDecoration: "none",
+                            color: "var(--ink)",
+                          }}
+                        >
+                          Manage Build →
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div style={{ background: "var(--card)", padding: "40px", textAlign: "center", borderRadius: "14px", border: "1px solid var(--line)" }}>
+              <p style={{ color: "var(--muted)" }}>No active client builds yet. Convert an inbound brief above to create one.</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ================= TAB 3: DEVELOPERS ROSTER ================= */}
+      {activeTab === "developers" && (
+        <div>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+            <div>
+              <h2 style={{ fontFamily: "var(--display)", fontSize: "24px", color: "var(--ink)" }}>
+                Engineering Team ({developers.length})
+              </h2>
+              <p style={{ fontSize: "13.5px", color: "var(--muted)" }}>
+                Developers assigned to client builds.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setShowInviteDevModal(true);
+                setDevInviteResult(null);
+              }}
+              className="btn-primary"
+              style={{ fontSize: "12px" }}
+            >
+              + Invite Developer
+            </button>
+          </div>
+
+          <div className="admin-table-wrap">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Status</th>
+                  <th>Active Builds</th>
+                </tr>
+              </thead>
+              <tbody>
+                {developers.map((d) => (
+                  <tr key={d.id}>
+                    <td style={{ fontWeight: 600, color: "var(--ink)" }}>{d.name}</td>
+                    <td style={{ fontFamily: "var(--mono)", fontSize: "12px", color: "var(--muted)" }}>{d.email}</td>
+                    <td>
+                      <span
+                        style={{
+                          fontFamily: "var(--mono)",
+                          fontSize: "10.5px",
+                          textTransform: "uppercase",
+                          padding: "2px 8px",
+                          borderRadius: "999px",
+                          background: d.hasPassword ? "var(--accent-soft)" : "#fef3c7",
+                          color: d.hasPassword ? "var(--accent)" : "#92400e",
+                        }}
+                      >
+                        {d.hasPassword ? "Active" : "Invite Pending"}
+                      </span>
+                    </td>
+                    <td>
+                      {d.activeProjects.length > 0 ? (
+                        <div style={{ display: "flex", gap: "4px", flexWrap: "wrap" }}>
+                          {d.activeProjects.map((p) => (
+                            <Link
+                              key={p.id}
+                              href={`/admin/projects/${p.id}`}
+                              style={{ fontFamily: "var(--mono)", fontSize: "11px", background: "rgba(23, 21, 15, 0.04)", padding: "2px 6px", borderRadius: "4px", textDecoration: "none", color: "var(--ink)" }}
+                            >
+                              {p.name}
+                            </Link>
+                          ))}
+                        </div>
+                      ) : (
+                        <span style={{ color: "var(--muted)", fontSize: "11px" }}>None assigned</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Quick Dev Invite Modal */}
+          {showInviteDevModal && (
+            <div
+              style={{
+                position: "fixed",
+                inset: 0,
+                background: "rgba(23, 21, 15, 0.5)",
+                backdropFilter: "blur(4px)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                zIndex: 200,
+                padding: "20px",
+              }}
+            >
+              <div
+                style={{
+                  background: "var(--card)",
+                  borderRadius: "18px",
+                  padding: "32px",
+                  width: "100%",
+                  maxWidth: "480px",
+                  boxShadow: "var(--shadow)",
+                  border: "1px solid var(--line)",
+                }}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+                  <h2 style={{ fontFamily: "var(--display)", fontSize: "22px", color: "var(--ink)" }}>
+                    Invite Developer
+                  </h2>
+                  <button
+                    type="button"
+                    onClick={() => setShowInviteDevModal(false)}
+                    style={{ background: "none", border: "none", fontSize: "20px", cursor: "pointer", color: "var(--muted)" }}
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                {devInviteResult ? (
+                  <div>
+                    <div style={{ background: "var(--accent-soft)", border: "1px solid var(--accent)", padding: "16px", borderRadius: "12px", marginBottom: "20px" }}>
+                      <div style={{ fontWeight: 600, color: "var(--ink)", marginBottom: "4px" }}>
+                        ✓ Developer Invited!
+                      </div>
+                      <p style={{ fontSize: "13px", color: "var(--ink)", lineHeight: 1.4 }}>
+                        Single-use onboarding link generated:
+                      </p>
+                      <div style={{ marginTop: "8px" }}>
+                        <a href={devInviteResult} style={{ fontSize: "12px", color: "var(--accent)", wordBreak: "break-all" }}>
+                          {devInviteResult}
+                        </a>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setShowInviteDevModal(false)}
+                      className="btn-primary"
+                      style={{ width: "100%", justifyContent: "center" }}
+                    >
+                      Done
+                    </button>
+                  </div>
+                ) : (
+                  <form onSubmit={handleInviteDev}>
+                    <div style={{ marginBottom: "16px" }}>
+                      <label style={{ display: "block", fontFamily: "var(--mono)", fontSize: "11px", textTransform: "uppercase", color: "var(--muted)", marginBottom: "6px" }}>
+                        Name
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="Developer Name"
+                        value={devName}
+                        onChange={(e) => setDevName(e.target.value)}
+                        style={{ width: "100%", border: "none", borderBottom: "1px solid var(--line)", background: "none", padding: "8px 0", outline: "none" }}
+                      />
+                    </div>
+
+                    <div style={{ marginBottom: "24px" }}>
+                      <label style={{ display: "block", fontFamily: "var(--mono)", fontSize: "11px", textTransform: "uppercase", color: "var(--muted)", marginBottom: "6px" }}>
+                        Email
+                      </label>
+                      <input
+                        type="email"
+                        required
+                        placeholder="dev@kiln.design"
+                        value={devEmail}
+                        onChange={(e) => setDevEmail(e.target.value)}
+                        style={{ width: "100%", border: "none", borderBottom: "1px solid var(--line)", background: "none", padding: "8px 0", outline: "none" }}
+                      />
+                    </div>
+
+                    <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
+                      <button
+                        type="button"
+                        onClick={() => setShowInviteDevModal(false)}
+                        style={{ fontFamily: "var(--mono)", fontSize: "12px", padding: "8px 16px", border: "1px solid var(--line)", background: "none", borderRadius: "999px" }}
+                      >
+                        Cancel
+                      </button>
+                      <button type="submit" className="btn-primary" disabled={invitingDev} style={{ fontSize: "12px" }}>
+                        {invitingDev ? "Sending…" : "Send Invite →"}
+                      </button>
+                    </div>
+                  </form>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ================= TAB 4: TRUST / COMPANY SECTION ================= */}
       {activeTab === "trust" && (
         <div style={{ background: "var(--card)", padding: "32px", borderRadius: "16px", border: "1px solid var(--line)", boxShadow: "var(--shadow-sm)" }}>
           {loadingTrust || !trustConfig ? (
@@ -589,7 +1023,6 @@ export default function AdminDashboardPage() {
             </div>
           ) : (
             <form onSubmit={handleSaveTrust}>
-              {/* Master ON/OFF Toggle */}
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: "24px", borderBottom: "1px solid var(--line)", marginBottom: "28px" }}>
                 <div>
                   <h2 style={{ fontFamily: "var(--display)", fontSize: "24px", color: "var(--ink)" }}>
@@ -613,7 +1046,6 @@ export default function AdminDashboardPage() {
                 </label>
               </div>
 
-              {/* Text Fields */}
               <div style={{ display: "grid", gap: "20px", marginBottom: "32px" }}>
                 <div className="field">
                   <label>Section Eyebrow Label</label>
@@ -652,7 +1084,6 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
 
-              {/* Slots / Companies Management */}
               <div style={{ marginBottom: "32px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
                   <div>
@@ -764,16 +1195,16 @@ export default function AdminDashboardPage() {
         </div>
       )}
 
-      {/* ================= TAB 3: PROJECTS MANAGER ================= */}
+      {/* ================= TAB 5: SHOWCASE PROJECTS CMS ================= */}
       {activeTab === "projects" && (
         <div>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
             <div>
               <h2 style={{ fontFamily: "var(--display)", fontSize: "26px", color: "var(--ink)" }}>
-                Projects Archive
+                Showcase Portfolio Archive
               </h2>
               <p style={{ fontSize: "14px", color: "var(--muted)", marginTop: "2px" }}>
-                Manage all portfolio projects shown on the homepage and `/work` archive page.
+                Manage public case studies shown on the homepage and `/work` page.
               </p>
             </div>
 
@@ -782,13 +1213,13 @@ export default function AdminDashboardPage() {
               onClick={openNewProjectModal}
               className="btn-primary"
             >
-              + Add New Project
+              + Add Showcase Project
             </button>
           </div>
 
           {loadingProjects ? (
             <div style={{ padding: "40px 0", textAlign: "center", fontFamily: "var(--mono)", color: "var(--muted)" }}>
-              Loading projects...
+              Loading showcase projects...
             </div>
           ) : (
             <div className="admin-table-wrap">
