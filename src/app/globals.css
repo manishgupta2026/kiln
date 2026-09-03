@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
 :root {
   --bg: #F7F4EE;
   --card: #FFFFFF;
@@ -8,6 +10,9 @@
   --accent-soft: #EEF0DD;
   --shadow: 0 24px 60px -30px rgba(23, 21, 15, 0.22), 0 6px 16px -8px rgba(23, 21, 15, 0.08);
   --shadow-sm: 0 10px 24px -14px rgba(23, 21, 15, 0.16);
+  --display: 'Instrument Serif', serif;
+  --body: 'IBM Plex Sans', sans-serif;
+  --mono: 'IBM Plex Mono', monospace;
   --max: 1180px;
 }
 
