@@ -1,4 +1,4 @@
-export type ProjectCategory = "product" | "trading" | "insurtech" | "in-progress";
+export type ProjectCategory = "product" | "trading" | "in-progress" | string;
 
 export type ProjectPreview = {
   label: string;
@@ -57,19 +57,19 @@ export const projects: Project[] = [
     featured: true,
   },
   {
-    id: "zafby",
-    slug: "zafby",
+    id: "coppter",
+    slug: "coppter",
     idx: "03",
-    name: "Zafby",
-    category: "insurtech",
-    oneLiner: "Parametric insurance for gig workers — pays out automatically against a trigger event, no claims process required.",
-    homepageOneLiner: "Insurance for gig workers that pays out before you'd finish a claim form.",
-    result: "Top 60 nationally",
-    tags: ["Product design", "Insurtech", "Full-stack"],
-    mobilePreview: "Top 60 nationally · Guidewire DevTrails, 1st place ITER SOA",
+    name: "Coppter",
+    category: "product",
+    oneLiner: "Four different logins, four completely different jobs to be done.",
+    homepageOneLiner: "Four different logins, four completely different jobs to be done.",
+    result: "4 role-based portals shipped",
+    tags: ["Next.js", "TypeScript", "Tailwind", "Neon"],
+    mobilePreview: "4 role-based portals shipped · Leadership, HR, Employee & Mentor",
     preview: {
-      label: "Top 60 nationally · Guidewire DevTrails",
-      svg: `<svg viewBox="0 0 200 100"><circle cx="60" cy="50" r="34" fill="none" stroke="#75801F" stroke-width="4"/><text x="60" y="58" text-anchor="middle" font-family="IBM Plex Mono" font-size="16" fill="#75801F">#1</text><circle cx="150" cy="50" r="34" fill="#75801F" opacity="0.15"/></svg>`,
+      label: "4 role-based portals shipped",
+      svg: `<svg viewBox="0 0 200 100"><rect x="20" y="20" width="160" height="60" rx="8" fill="#75801F" opacity="0.25"/><text x="100" y="55" text-anchor="middle" font-family="IBM Plex Mono" font-size="14" fill="#75801F">Coppter</text></svg>`,
     },
     featured: true,
   },
@@ -80,8 +80,8 @@ export const projects: Project[] = [
     name: "Manraah",
     category: "in-progress",
     status: "in-progress",
-    oneLiner: "A mental wellness platform with dedicated student, professional, and admin experiences — currently in build.",
-    homepageOneLiner: "A mental wellness platform with dedicated student, professional, and admin experiences — currently in build.",
+    oneLiner: "A mental wellness platform with dedicated student, professional, and admin experiences.",
+    homepageOneLiner: "A mental wellness platform with dedicated student, professional, and admin experiences.",
     result: "Shipping soon",
     tags: ["Next.js", "TypeScript", "Tailwind", "Neon"],
     mobilePreview: "Student, professional & admin dashboards",

@@ -29,6 +29,11 @@ const offerings: Offering[] = [
     title: "A partner, not a vendor",
     desc: "Ongoing work for teams who'll need us again next quarter — not just a one-time handoff.",
   },
+  {
+    idx: "05",
+    title: "The Kiln experience",
+    desc: "No status calls. No black boxes. A private portal with real-time phase tracking, direct developer comms, and one-click sign-off gates.",
+  },
 ];
 
 export default function OfferingsSection() {
@@ -48,7 +53,7 @@ export default function OfferingsSection() {
           What we actually build
         </div>
         <h2 className="section-title reveal">
-          Not a menu of &quot;services.&quot; Four things we&apos;re genuinely good at.
+          Not a menu of &quot;services.&quot; Five things we&apos;re genuinely good at.
         </h2>
 
         <div className="offer-list reveal" role="list">

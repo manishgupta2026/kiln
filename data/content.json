@@ -72,27 +72,6 @@
       "featured": true
     },
     {
-      "id": "cmt88y1xt0002i2romsbj8nt7",
-      "slug": "zafby",
-      "idx": "03",
-      "name": "Zafby",
-      "category": "insurtech",
-      "oneLiner": "Parametric insurance for gig workers — pays out automatically against a trigger event, no claims process required.",
-      "homepageOneLiner": "Insurance for gig workers that pays out before you'd finish a claim form.",
-      "result": "Top 60 nationally",
-      "tags": [
-        "Product design",
-        "Insurtech",
-        "Full-stack"
-      ],
-      "mobilePreview": "Top 60 nationally · Guidewire DevTrails, 1st place ITER SOA",
-      "preview": {
-        "label": "Top 60 nationally · Guidewire DevTrails",
-        "svg": "<svg viewBox=\"0 0 200 100\"><circle cx=\"60\" cy=\"50\" r=\"34\" fill=\"none\" stroke=\"#75801F\" stroke-width=\"4\"/><text x=\"60\" y=\"58\" text-anchor=\"middle\" font-family=\"IBM Plex Mono\" font-size=\"16\" fill=\"#75801F\">#1</text><circle cx=\"150\" cy=\"50\" r=\"34\" fill=\"#75801F\" opacity=\"0.15\"/></svg>"
-      },
-      "featured": true
-    },
-    {
       "id": "cmt88y25x0003i2ro4n9rfi8h",
       "slug": "manraah",
       "idx": "04",

@@ -1,106 +1,148 @@
 "use client";
 
-import { useState } from "react";
-import { Project, ProjectCategory } from "@/data/projects";
+import { useState, useMemo } from "react";
+import { CaseStudyRecord } from "@/lib/case-studies-db";
+import CaseStudyModal from "@/components/CaseStudyModal";
 
 interface WorkFilterListProps {
-  initialProjects?: Project[];
+  initialCaseStudies?: CaseStudyRecord[];
+  initialProjects?: any[];
   initialFilter?: string;
 }
 
-const FILTER_OPTIONS: { label: string; value: string }[] = [
-  { label: "All", value: "all" },
-  { label: "Product", value: "product" },
-  { label: "Trading & fintech", value: "trading" },
-  { label: "Insurtech", value: "insurtech" },
-  { label: "In progress", value: "in-progress" },
-];
-
 export default function WorkFilterList({
-  initialProjects = [],
+  initialCaseStudies,
+  initialProjects,
   initialFilter = "all",
 }: WorkFilterListProps) {
   const [activeFilter, setActiveFilter] = useState<string>(initialFilter);
-  const [openSlugs, setOpenSlugs] = useState<Record<string, boolean>>({});
+  const [selectedCaseStudy, setSelectedCaseStudy] = useState<CaseStudyRecord | null>(null);
 
-  const toggleRowOpen = (slug: string) => {
-    setOpenSlugs((prev) => ({
-      ...prev,
-      [slug]: !prev[slug],
+  // Normalize data to CaseStudyRecord
+  const caseStudies: CaseStudyRecord[] = useMemo(() => {
+    if (initialCaseStudies && initialCaseStudies.length > 0) {
+      return initialCaseStudies;
+    }
+    return (initialProjects || []).map((p, idx) => ({
+      id: p.id,
+      name: p.name,
+      category: p.category,
+      oneLiner: p.oneLiner,
+      resultStat: p.result,
+      briefDescription: p.mobilePreview || p.oneLiner,
+      tags: p.tags || [],
+      liveUrl: null,
+      status: p.status || "live",
+      featured: p.featured ?? true,
+      displayOrder: idx + 1,
     }));
-  };
+  }, [initialCaseStudies, initialProjects]);
 
-  const filteredProjects = initialProjects.filter((project) => {
-    if (activeFilter === "all") return true;
-    return project.category === (activeFilter as ProjectCategory);
-  });
+  // Dynamically derive distinct category options present in the CaseStudy list
+  const distinctCategories = useMemo(() => {
+    const cats = new Set<string>();
+    caseStudies.forEach((cs) => {
+      if (cs.category && cs.category.trim()) {
+        cats.add(cs.category.trim());
+      }
+    });
+    return Array.from(cats);
+  }, [caseStudies]);
+
+  const filteredCaseStudies = useMemo(() => {
+    return caseStudies.filter((item) => {
+      if (activeFilter === "all") return true;
+      return item.category.trim().toLowerCase() === activeFilter.trim().toLowerCase();
+    });
+  }, [caseStudies, activeFilter]);
 
   return (
     <>
-      <div className="filters reveal" role="tablist" aria-label="Filter projects by category">
-        {FILTER_OPTIONS.map((f) => (
-          <button
-            key={f.value}
-            type="button"
-            role="tab"
-            aria-selected={activeFilter === f.value}
-            className={`chip ${activeFilter === f.value ? "active" : ""}`}
-            data-filter={f.value}
-            onClick={() => setActiveFilter(f.value)}
-          >
-            {f.label}
-          </button>
-        ))}
+      <div className="filters reveal" role="tablist" aria-label="Filter case studies by category">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeFilter === "all"}
+          className={`chip ${activeFilter === "all" ? "active" : ""}`}
+          onClick={() => setActiveFilter("all")}
+        >
+          All
+        </button>
+
+        {distinctCategories.map((cat) => {
+          const isActive = activeFilter.toLowerCase() === cat.toLowerCase();
+          return (
+            <button
+              key={cat}
+              type="button"
+              role="tab"
+              aria-selected={isActive}
+              className={`chip ${isActive ? "active" : ""}`}
+              onClick={() => setActiveFilter(cat)}
+            >
+              {cat}
+            </button>
+          );
+        })}
       </div>
 
-      <section className="work-list reveal" aria-label="Projects list">
+      <section className="work-list reveal" aria-label="Case studies archive">
         <div className="wrap">
-          {filteredProjects.map((project: Project) => {
-            const isOpen = !!openSlugs[project.slug];
+          {filteredCaseStudies.map((study, idx) => {
+            const indexStr = String(idx + 1).padStart(2, "0");
+            const slug = study.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+
             return (
               <div
-                key={project.id}
-                className={`work-row ${isOpen ? "open" : ""}`}
-                data-cat={project.category}
-                data-preview={project.slug}
+                key={study.id}
+                className="work-row"
+                data-cat={study.category}
+                data-preview={slug}
                 tabIndex={0}
                 role="button"
-                aria-expanded={isOpen}
-                aria-label={`Project ${project.name}: ${project.oneLiner}`}
-                onClick={() => toggleRowOpen(project.slug)}
+                aria-haspopup="dialog"
+                aria-label={`Case study ${study.name}: ${study.oneLiner}`}
+                onClick={() => setSelectedCaseStudy(study)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
-                    toggleRowOpen(project.slug);
+                    setSelectedCaseStudy(study);
                   }
                 }}
               >
-                <div className="idx" aria-hidden="true">{project.idx}</div>
+                <div className="idx" aria-hidden="true">
+                  {indexStr}
+                </div>
                 <div>
                   <div className="wname">
-                    {project.name}
-                    {project.status === "in-progress" && (
-                      <span className="status-pill">In progress</span>
+                    {study.name}
+                    {study.status === "in-progress" && (
+                      <span className="status-pill" style={{ marginLeft: "8px" }}>
+                        In progress
+                      </span>
                     )}
                   </div>
-                  <div className="wline">{project.oneLiner}</div>
-                  <div className="tags-row" aria-label="Tags">
-                    {project.tags.map((tag) => (
-                      <span key={tag} className="tag">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="mobile-preview" aria-hidden={!isOpen}>
-                    <p>{project.mobilePreview || project.oneLiner}</p>
+                  <div className="wline">{study.oneLiner}</div>
+                  <div className="tags-row" aria-label="Tags" style={{ marginTop: "8px" }}>
+                    {study.tags &&
+                      study.tags.map((tag) => (
+                        <span key={tag} className="tag">
+                          {tag}
+                        </span>
+                      ))}
                   </div>
                 </div>
-                <div className="wresult">{project.result}</div>
+                <div className="wresult">{study.resultStat}</div>
               </div>
             );
           })}
         </div>
       </section>
+
+      <CaseStudyModal
+        caseStudy={selectedCaseStudy}
+        onClose={() => setSelectedCaseStudy(null)}
+      />
     </>
   );
 }

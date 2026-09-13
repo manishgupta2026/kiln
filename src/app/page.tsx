@@ -11,11 +11,13 @@ import ScrollReveal from "@/components/ScrollReveal";
 import TrustSection from "@/components/TrustSection";
 import PortalFeaturesSection from "@/components/PortalFeaturesSection";
 import { getSiteContent } from "@/lib/content-db";
+import { getCaseStudies } from "@/lib/case-studies-db";
 
-export const revalidate = 3600;
+export const revalidate = 60;
 
 export default async function HomePage() {
   const content = await getSiteContent();
+  const caseStudies = await getCaseStudies();
 
   return (
     <>
@@ -47,7 +49,7 @@ export default async function HomePage() {
             <p>
               One thing we&apos;ve shipped is already used by <mark>1,000+ people</mark>, every day.
               Another is trading real capital, live, at a <mark>60.5%</mark> win rate. A third
-              placed <mark>top 60 nationally</mark> before most people had heard of it.
+              shipped <mark>4 role-based portals</mark> for enterprise workforce intelligence.
             </p>
           </div>
         </section>
@@ -56,8 +58,8 @@ export default async function HomePage() {
         <OfferingsSection />
 
         {/* WORK */}
-        <HomepageWork initialProjects={content.projects} />
-        <CursorPreview projects={content.projects} />
+        <HomepageWork initialCaseStudies={caseStudies} />
+        <CursorPreview projects={caseStudies as any} />
 
         {/* RECOGNITION */}
         <section className="recognition">
@@ -67,14 +69,6 @@ export default async function HomePage() {
               We&apos;d rather point at receipts than adjectives.
             </h2>
             <div className="rec-grid reveal">
-              <div className="rec-card">
-                <div className="rv">1st</div>
-                <div className="rl">Place — ITER SOA University hackathon</div>
-              </div>
-              <div className="rec-card">
-                <div className="rv">Top 60</div>
-                <div className="rl">Nationally — Guidewire DevTrails 2026</div>
-              </div>
               <div className="rec-card">
                 <div className="rv">1,000+</div>
                 <div className="rl">Daily users — CourseHunt, live in production</div>

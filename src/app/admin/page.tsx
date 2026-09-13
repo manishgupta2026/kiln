@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Project, ProjectCategory } from "@/data/projects";
 import { TrustSectionConfig, TrustSlot } from "@/lib/content-db";
+import { TeamMemberRecord } from "@/lib/team-db";
 
 interface BriefItem {
   id: string;
@@ -43,7 +44,7 @@ interface DeveloperItem {
 }
 
 export default function AdminDashboardPage() {
-  const [activeTab, setActiveTab] = useState<"briefs" | "portalProjects" | "developers" | "trust" | "projects">("briefs");
+  const [activeTab, setActiveTab] = useState<"briefs" | "portalProjects" | "developers" | "trust" | "projects" | "team">("briefs");
 
   // Briefs State
   const [briefs, setBriefs] = useState<BriefItem[]>([]);
@@ -86,6 +87,22 @@ export default function AdminDashboardPage() {
     mobilePreview: "",
   });
   const [tagsInput, setTagsInput] = useState("");
+
+  // Studio Team Members State
+  const [teamMembers, setTeamMembers] = useState<TeamMemberRecord[]>([]);
+  const [loadingTeam, setLoadingTeam] = useState(true);
+  const [showTeamModal, setShowTeamModal] = useState(false);
+  const [editingTeamMember, setEditingTeamMember] = useState<TeamMemberRecord | null>(null);
+  const [savingTeamMember, setSavingTeamMember] = useState(false);
+  const [teamError, setTeamError] = useState<string | null>(null);
+  const [teamSuccessMsg, setTeamSuccessMsg] = useState<string | null>(null);
+  const [teamForm, setTeamForm] = useState({
+    name: "",
+    role: "",
+    avatar: "",
+    bio: "",
+    displayOrder: 1,
+  });
 
   const [, startTransition] = useTransition();
   const router = useRouter();
@@ -156,11 +173,27 @@ export default function AdminDashboardPage() {
     }
   };
 
+  // Load Studio Team Members
+  const fetchTeamMembers = async () => {
+    try {
+      const res = await fetch("/api/admin/team");
+      const json = await res.json();
+      if (json.success) {
+        setTeamMembers(json.data);
+      }
+    } catch (err) {
+      console.error("Failed to load studio team:", err);
+    } finally {
+      setLoadingTeam(false);
+    }
+  };
+
   useEffect(() => {
     fetchBriefs();
     fetchPortalProjects();
     fetchDevelopers();
     fetchContent();
+    fetchTeamMembers();
   }, []);
 
   const handleStatusChange = async (id: string, newStatus: "new" | "read" | "archived") => {
@@ -390,6 +423,98 @@ export default function AdminDashboardPage() {
     }
   };
 
+  // Studio Team Handlers
+  const handleOpenCreateTeamMember = () => {
+    setEditingTeamMember(null);
+    setTeamForm({
+      name: "",
+      role: "Developer",
+      avatar: "",
+      bio: "",
+      displayOrder: (teamMembers.length || 0) + 1,
+    });
+    setTeamError(null);
+    setShowTeamModal(true);
+  };
+
+  const handleOpenEditTeamMember = (member: TeamMemberRecord) => {
+    setEditingTeamMember(member);
+    setTeamForm({
+      name: member.name,
+      role: member.role,
+      avatar: member.avatar,
+      bio: member.bio,
+      displayOrder: member.displayOrder,
+    });
+    setTeamError(null);
+    setShowTeamModal(true);
+  };
+
+  const handleSaveTeamMember = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSavingTeamMember(true);
+    setTeamError(null);
+    setTeamSuccessMsg(null);
+
+    try {
+      const url = editingTeamMember
+        ? `/api/admin/team/${editingTeamMember.id}`
+        : "/api/admin/team";
+      const method = editingTeamMember ? "PUT" : "POST";
+
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: teamForm.name,
+          role: teamForm.role,
+          avatar: teamForm.avatar || teamForm.name.charAt(0).toUpperCase(),
+          bio: teamForm.bio,
+          displayOrder: Number(teamForm.displayOrder),
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to save team member");
+      }
+
+      setShowTeamModal(false);
+      setTeamSuccessMsg(
+        editingTeamMember
+          ? `✓ Updated ${teamForm.name}. Changes are live on /about.`
+          : `✓ Added ${teamForm.name}. Changes are live on /about.`
+      );
+      setTimeout(() => setTeamSuccessMsg(null), 5000);
+      await fetchTeamMembers();
+    } catch (err: any) {
+      setTeamError(err.message || "An error occurred");
+    } finally {
+      setSavingTeamMember(false);
+    }
+  };
+
+  const handleDeleteTeamMember = async (id: string, name: string) => {
+    if (!window.confirm(`Are you sure you want to remove ${name} from the public team roster?`)) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/admin/team/${id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to delete team member");
+      }
+      setTeamSuccessMsg(`✓ Removed ${name} from team roster.`);
+      setTimeout(() => setTeamSuccessMsg(null), 5000);
+      await fetchTeamMembers();
+    } catch (err: any) {
+      alert(`Error: ${err.message}`);
+    }
+  };
+
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
     startTransition(() => {
@@ -502,15 +627,38 @@ export default function AdminDashboardPage() {
 
         <button
           type="button"
-          onClick={() => setActiveTab("projects")}
-          className={`chip ${activeTab === "projects" ? "active" : ""}`}
+          onClick={() => setActiveTab("team")}
+          className={`chip ${activeTab === "team" ? "active" : ""}`}
           style={{ display: "flex", alignItems: "center", gap: "8px" }}
         >
-          <span>🎨 Showcase Portfolio</span>
+          <span>👥 Studio Team (About)</span>
           <span style={{ fontSize: "11px", color: "var(--muted)" }}>
-            ({projectsList.length})
+            ({teamMembers.length})
           </span>
         </button>
+
+        <Link
+          href="/admin/case-studies"
+          className="chip"
+          style={{ display: "flex", alignItems: "center", gap: "8px", textDecoration: "none" }}
+        >
+          <span>🎨 Case Studies</span>
+          <span style={{ fontSize: "11px", color: "var(--accent)" }}>
+            ↗
+          </span>
+        </Link>
+
+        <Link
+          href="/admin/team"
+          className="chip"
+          style={{ display: "flex", alignItems: "center", gap: "8px", textDecoration: "none" }}
+          title="Open Dedicated Team CMS Page"
+        >
+          <span>Team Studio Page</span>
+          <span style={{ fontSize: "11px", color: "var(--accent)" }}>
+            ↗
+          </span>
+        </Link>
       </div>
 
       {/* ================= TAB 1: INBOUND BRIEFS ================= */}
@@ -1532,6 +1680,338 @@ export default function AdminDashboardPage() {
                     </button>
                     <button type="submit" className="btn-primary">
                       {isCreatingProject ? "Create Project →" : "Save Project Changes →"}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ================= TAB 6: STUDIO TEAM CMS ================= */}
+      {activeTab === "team" && (
+        <div>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+              marginBottom: "24px",
+              flexWrap: "wrap",
+              gap: "16px",
+            }}
+          >
+            <div>
+              <h2
+                style={{
+                  fontFamily: "var(--display)",
+                  fontSize: "26px",
+                  color: "var(--ink)",
+                  margin: 0,
+                }}
+              >
+                Studio Team Roster ({teamMembers.length})
+              </h2>
+              <p style={{ fontSize: "13.5px", color: "var(--muted)", marginTop: "4px" }}>
+                Add, edit, and remove team members shown in &quot;Who&apos;s building this&quot; on the public{" "}
+                <Link href="/about" target="_blank" style={{ color: "var(--accent)", textDecoration: "underline" }}>
+                  /about
+                </Link>{" "}
+                page.
+              </p>
+            </div>
+
+            <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+              <Link
+                href="/admin/team"
+                className="chip"
+                style={{ fontSize: "12px", textDecoration: "none" }}
+              >
+                Open Full Studio View ↗
+              </Link>
+              <button
+                type="button"
+                onClick={handleOpenCreateTeamMember}
+                className="btn-primary"
+                style={{ fontSize: "12px" }}
+              >
+                + Add Team Member
+              </button>
+            </div>
+          </div>
+
+          {teamSuccessMsg && (
+            <div
+              style={{
+                background: "#edf7ed",
+                color: "#2e7d32",
+                padding: "12px 16px",
+                borderRadius: "8px",
+                marginBottom: "20px",
+                fontSize: "13px",
+                fontFamily: "var(--mono)",
+              }}
+            >
+              {teamSuccessMsg}
+            </div>
+          )}
+
+          {teamError && (
+            <div
+              style={{
+                background: "#fde8e8",
+                color: "#c93b2b",
+                padding: "12px 16px",
+                borderRadius: "8px",
+                marginBottom: "20px",
+                fontSize: "13px",
+                fontFamily: "var(--mono)",
+              }}
+            >
+              {teamError}
+            </div>
+          )}
+
+          {loadingTeam ? (
+            <div style={{ padding: "60px 0", textAlign: "center", color: "var(--muted)", fontFamily: "var(--mono)" }}>
+              Loading team roster…
+            </div>
+          ) : teamMembers.length === 0 ? (
+            <div
+              style={{
+                background: "var(--card)",
+                padding: "48px 24px",
+                textAlign: "center",
+                borderRadius: "14px",
+                border: "1px solid var(--line)",
+              }}
+            >
+              <p style={{ color: "var(--muted)", marginBottom: "16px" }}>
+                No studio team members currently configured.
+              </p>
+              <button type="button" onClick={handleOpenCreateTeamMember} className="btn-primary">
+                + Add Your First Team Member
+              </button>
+            </div>
+          ) : (
+            <div className="admin-table-wrap">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th style={{ width: "50px" }}>Order</th>
+                    <th style={{ width: "60px" }}>Avatar</th>
+                    <th>Name</th>
+                    <th>Role</th>
+                    <th>Bio</th>
+                    <th style={{ textAlign: "right" }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {teamMembers.map((member) => (
+                    <tr key={member.id}>
+                      <td style={{ fontFamily: "var(--mono)", fontSize: "12px" }}>
+                        #{member.displayOrder}
+                      </td>
+                      <td>
+                        <div
+                          style={{
+                            width: "36px",
+                            height: "36px",
+                            borderRadius: "50%",
+                            background: "var(--accent-soft)",
+                            color: "var(--accent)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontFamily: "var(--display)",
+                            fontSize: "16px",
+                            fontWeight: 600,
+                          }}
+                        >
+                          {member.avatar}
+                        </div>
+                      </td>
+                      <td>
+                        <div style={{ fontWeight: 600, color: "var(--ink)", fontSize: "15px" }}>
+                          {member.name}
+                        </div>
+                      </td>
+                      <td>
+                        <span
+                          style={{
+                            fontSize: "11px",
+                            fontFamily: "var(--mono)",
+                            background: "var(--line)",
+                            padding: "3px 8px",
+                            borderRadius: "6px",
+                            color: "var(--ink)",
+                          }}
+                        >
+                          {member.role}
+                        </span>
+                      </td>
+                      <td>
+                        <p
+                          style={{
+                            fontSize: "12.5px",
+                            color: "var(--muted)",
+                            maxWidth: "420px",
+                            lineHeight: 1.4,
+                            margin: 0,
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            display: "-webkit-box",
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: "vertical",
+                          }}
+                        >
+                          {member.bio}
+                        </p>
+                      </td>
+                      <td style={{ textAlign: "right" }}>
+                        <div style={{ display: "inline-flex", gap: "8px" }}>
+                          <button
+                            type="button"
+                            onClick={() => handleOpenEditTeamMember(member)}
+                            className="chip"
+                            style={{ fontSize: "11px", padding: "4px 10px", cursor: "pointer" }}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteTeamMember(member.id, member.name)}
+                            style={{
+                              background: "transparent",
+                              border: "none",
+                              color: "#c93b2b",
+                              cursor: "pointer",
+                              fontSize: "11px",
+                              padding: "4px 8px",
+                              fontFamily: "var(--mono)",
+                            }}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* Add / Edit Team Member Modal */}
+          {showTeamModal && (
+            <div
+              className="case-study-backdrop"
+              onClick={(e) => {
+                if (e.target === e.currentTarget) setShowTeamModal(false);
+              }}
+            >
+              <div className="case-study-modal" style={{ maxWidth: "560px" }}>
+                <button
+                  type="button"
+                  className="case-study-close-btn"
+                  onClick={() => setShowTeamModal(false)}
+                >
+                  ✕
+                </button>
+
+                <h2 style={{ fontFamily: "var(--display)", fontSize: "24px", marginBottom: "6px" }}>
+                  {editingTeamMember ? `Edit ${editingTeamMember.name}` : "Add New Team Member"}
+                </h2>
+                <p style={{ fontSize: "13px", color: "var(--muted)", marginBottom: "20px" }}>
+                  Profile appears immediately on the <code>/about</code> page under &quot;Who&apos;s building this&quot;.
+                </p>
+
+                <form onSubmit={handleSaveTeamMember}>
+                  <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "12px", marginBottom: "14px" }}>
+                    <div>
+                      <label style={{ display: "block", fontSize: "11.5px", fontFamily: "var(--mono)", color: "var(--muted)", marginBottom: "4px" }}>
+                        Full Name *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. Deepak Kumar"
+                        value={teamForm.name}
+                        onChange={(e) => setTeamForm({ ...teamForm, name: e.target.value })}
+                        style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid var(--line)", background: "var(--card)", fontSize: "14px" }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: "block", fontSize: "11.5px", fontFamily: "var(--mono)", color: "var(--muted)", marginBottom: "4px" }}>
+                        Avatar Initial
+                      </label>
+                      <input
+                        type="text"
+                        maxLength={2}
+                        placeholder="Auto"
+                        value={teamForm.avatar}
+                        onChange={(e) => setTeamForm({ ...teamForm, avatar: e.target.value.toUpperCase() })}
+                        style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid var(--line)", background: "var(--card)", fontSize: "14px", textAlign: "center" }}
+                      />
+                    </div>
+                  </div>
+
+                  <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "12px", marginBottom: "14px" }}>
+                    <div>
+                      <label style={{ display: "block", fontSize: "11.5px", fontFamily: "var(--mono)", color: "var(--muted)", marginBottom: "4px" }}>
+                        Role / Title *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. Project Manager, Developer"
+                        value={teamForm.role}
+                        onChange={(e) => setTeamForm({ ...teamForm, role: e.target.value })}
+                        style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid var(--line)", background: "var(--card)", fontSize: "14px" }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: "block", fontSize: "11.5px", fontFamily: "var(--mono)", color: "var(--muted)", marginBottom: "4px" }}>
+                        Display Order
+                      </label>
+                      <input
+                        type="number"
+                        value={teamForm.displayOrder}
+                        onChange={(e) => setTeamForm({ ...teamForm, displayOrder: parseInt(e.target.value, 10) || 1 })}
+                        style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid var(--line)", background: "var(--card)", fontSize: "14px" }}
+                      />
+                    </div>
+                  </div>
+
+                  <div style={{ marginBottom: "20px" }}>
+                    <label style={{ display: "block", fontSize: "11.5px", fontFamily: "var(--mono)", color: "var(--muted)", marginBottom: "4px" }}>
+                      Short Bio / Description *
+                    </label>
+                    <textarea
+                      required
+                      rows={4}
+                      placeholder="Describe background, focus areas, and role at Kiln..."
+                      value={teamForm.bio}
+                      onChange={(e) => setTeamForm({ ...teamForm, bio: e.target.value })}
+                      style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid var(--line)", background: "var(--card)", fontSize: "14px", resize: "vertical", lineHeight: 1.5 }}
+                    />
+                  </div>
+
+                  <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
+                    <button
+                      type="button"
+                      onClick={() => setShowTeamModal(false)}
+                      className="chip"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={savingTeamMember}
+                      className="btn-primary"
+                    >
+                      {savingTeamMember ? "Saving…" : editingTeamMember ? "Update Member" : "Add Member"}
                     </button>
                   </div>
                 </form>

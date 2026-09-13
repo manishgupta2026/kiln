@@ -3,6 +3,9 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ScrollReveal from "@/components/ScrollReveal";
+import { getTeamMembers } from "@/lib/team-db";
+
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "About — Kiln",
@@ -12,11 +15,13 @@ export const metadata: Metadata = {
 const MILESTONES = [
   "Shipped CourseHunt — a course aggregator now used by 1,000+ students every day.",
   "Built TradeSage — an algorithmic trading system live on real capital, currently running at a 60.5% win rate.",
-  "Won 1st place at the ITER SOA University hackathon, then placed Top 60 nationally at Guidewire DevTrails.",
-  "Started Kiln — to do this kind of work for people outside hackathons and coursework too.",
+  "Shipped Coppter — 4 role-based portals for a construction management platform, from zero to live deployment.",
+  "Expanded Kiln into an in-house studio — bringing engineering, project management, and private client portals under one roof to ship products end-to-end.",
 ];
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const team = await getTeamMembers();
+
   return (
     <>
       <ScrollReveal />
@@ -35,23 +40,31 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* FOUNDER */}
+        {/* TEAM */}
         <section className="founder">
           <div className="wrap">
             <div className="section-label reveal">Who&apos;s building this</div>
-            <div className="founder-card reveal">
-              <div className="founder-avatar">M</div>
-              <div>
-                <h3>Manish Gupta</h3>
-                <div className="founder-role">Founder — Full-stack developer</div>
-                <p>
-                  Manish builds products end to end — frontend, backend, and the infrastructure that
-                  keeps them running. He shipped CourseHunt, now used by 1,000+ people daily; built
-                  TradeSage, an algorithmic trading system live on real capital; and designed
-                  Zafby, a parametric insurance product that won 1st place at ITER SOA University
-                  and placed Top 60 nationally at Guidewire DevTrails.
-                </p>
-              </div>
+            <div className="team-grid reveal">
+              {team.map((member) => (
+                <div key={member.id || member.name} className="founder-card">
+                  <div className="founder-avatar" style={{ overflow: "hidden" }}>
+                    {member.avatar && (member.avatar.startsWith("http") || member.avatar.startsWith("/")) ? (
+                      <img
+                        src={member.avatar}
+                        alt={member.name}
+                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                      />
+                    ) : (
+                      member.avatar || member.name?.charAt(0)?.toUpperCase() || "M"
+                    )}
+                  </div>
+                  <div>
+                    <h3>{member.name}</h3>
+                    <div className="founder-role">{member.role}</div>
+                    <p>{member.bio}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </section>

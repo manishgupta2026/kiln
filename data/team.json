@@ -1,0 +1,42 @@
+[
+  {
+    "id": "cmtzncfun0000i2eg0xh0fl7j",
+    "name": "Manish Gupta",
+    "role": "Founder — Full-stack developer",
+    "avatar": "M",
+    "bio": "Manish builds products end to end — frontend, backend, and the infrastructure that keeps them running. He shipped CourseHunt, now used by 1,000+ people daily, and built TradeSage, an algorithmic trading system live on real capital.",
+    "displayOrder": 1,
+    "createdAt": "2026-09-13T10:03:45.600Z",
+    "updatedAt": "2026-09-13T10:03:45.600Z"
+  },
+  {
+    "id": "cmtzncgh60001i2egudv26k7x",
+    "name": "Deepak Kumar",
+    "role": "Project Manager",
+    "avatar": "D",
+    "bio": "Deepak keeps Kiln's builds on schedule and razor-focused on client objectives. He coordinates sprint milestones, unblocks engineering decisions, and ensures every deliverable ships on time.",
+    "displayOrder": 2,
+    "createdAt": "2026-09-13T10:03:46.411Z",
+    "updatedAt": "2026-09-13T10:03:46.411Z"
+  },
+  {
+    "id": "cmtzncgxd0002i2egb5sjlnyl",
+    "name": "Ashutosh",
+    "role": "Developer",
+    "avatar": "A",
+    "bio": "Ashutosh builds resilient web applications and responsive interfaces. He focuses on modern frontend architectures, clean state management, and seamless integrations.",
+    "displayOrder": 3,
+    "createdAt": "2026-09-13T10:03:46.994Z",
+    "updatedAt": "2026-09-13T10:03:46.994Z"
+  },
+  {
+    "id": "cmtznchcj0003i2egsiheghzz",
+    "name": "Kartik",
+    "role": "Developer",
+    "avatar": "K",
+    "bio": "Kartik specializes in core systems, database engineering, and reliable backend services. He ensures Kiln's platforms are fast, secure, and built to scale under production traffic.",
+    "displayOrder": 4,
+    "createdAt": "2026-09-13T10:03:47.540Z",
+    "updatedAt": "2026-09-13T10:03:47.540Z"
+  }
+]

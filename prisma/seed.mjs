@@ -54,84 +54,140 @@ async function main() {
   });
   console.log("✓ Seeded Trust section configuration to SiteSetting table");
 
-  // 2. Seed Showcase Projects
-  const showcaseProjects = [
+  // 2. Seed Case Studies (Kiln's Public Portfolio)
+  // Remove any legacy Zafby records completely
+  try {
+    await prisma.caseStudy.deleteMany({
+      where: { name: { in: ["Zafby", "GigShield"], mode: "insensitive" } },
+    });
+    await prisma.showcaseProject.deleteMany({
+      where: { slug: "zafby" },
+    });
+  } catch (e) {
+    // Ignore if table/rows don't exist yet
+  }
+
+  const caseStudies = [
     {
-      slug: "tradesage",
-      idx: "01",
       name: "TradeSage",
-      category: "trading",
-      oneLiner:
-        "An algorithmic trading system for the Indian equity market — ten years of NSE data, automated risk controls, live on real capital.",
-      homepageOneLiner:
-        "Taught a model to trade the Indian market so we didn't have to guess twice.",
-      result: "60.5% win rate",
+      category: "Trading & fintech",
+      oneLiner: "Taught a model to trade so we didn't have to guess twice.",
+      resultStat: "60.5% win rate",
+      briefDescription:
+        "An algorithmic trading system for the Indian equity market. We trained a model on ten years of NSE data across 2,200+ stocks, then wrapped it in automated risk controls — position sizing, regime filters, and a daily loss kill-switch — so the model can't outrun its own discipline.",
       tags: ["Python", "XGBoost", "GitHub Actions", "SmartAPI"],
-      mobilePreview:
-        "60.5% live win rate · trained on 10yrs of NSE data across 2,200+ stocks",
-      previewLabel: "60.5% win rate · 2,200+ stocks tracked",
-      previewSvg: `<svg viewBox="0 0 200 100"><polyline points="0,80 40,70 80,75 120,45 160,55 200,20" fill="none" stroke="#75801F" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+      liveUrl: null,
+      status: "live",
       featured: true,
+      displayOrder: 1,
     },
     {
-      slug: "coursehunt",
-      idx: "02",
       name: "CourseHunt",
-      category: "product",
-      oneLiner:
-        "A fast course aggregator built on Next.js and Supabase — the shortcut 1,000+ students take every day.",
-      homepageOneLiner:
-        "Built the shortcut 1,000+ students take every day instead of hunting for links.",
-      result: "1,000+ daily users",
+      category: "Product",
+      oneLiner: "Built the shortcut 1,000+ students take every day.",
+      resultStat: "1,000+ daily users",
+      briefDescription:
+        "A fast course aggregator built on Next.js and Supabase. Students were losing hours hunting for course links scattered across the internet — CourseHunt automates discovery and validation so listings are already there, and already working, when they arrive.",
       tags: ["Next.js", "Supabase", "Vercel"],
-      mobilePreview: "1,000+ daily active users · Next.js + Supabase",
-      previewLabel: "1,000+ daily active users",
-      previewSvg: `<svg viewBox="0 0 200 100"><rect x="10" y="60" width="180" height="10" rx="5" fill="#75801F" opacity="0.3"/><rect x="10" y="60" width="130" height="10" rx="5" fill="#75801F"/><rect x="10" y="40" width="180" height="10" rx="5" fill="#75801F" opacity="0.3"/><rect x="10" y="40" width="90" height="10" rx="5" fill="#75801F"/></svg>`,
+      liveUrl: "https://coursehunt.tech",
+      status: "live",
       featured: true,
+      displayOrder: 2,
     },
     {
-      slug: "zafby",
-      idx: "03",
-      name: "Zafby",
-      category: "insurtech",
-      oneLiner:
-        "Parametric insurance for gig workers — pays out automatically against a trigger event, no claims process required.",
-      homepageOneLiner:
-        "Insurance for gig workers that pays out before you'd finish a claim form.",
-      result: "Top 60 nationally",
-      tags: ["Product design", "Insurtech", "Full-stack"],
-      mobilePreview: "Top 60 nationally · Guidewire DevTrails, 1st place ITER SOA",
-      previewLabel: "Top 60 nationally · Guidewire DevTrails",
-      previewSvg: `<svg viewBox="0 0 200 100"><circle cx="60" cy="50" r="34" fill="none" stroke="#75801F" stroke-width="4"/><text x="60" y="58" text-anchor="middle" font-family="IBM Plex Mono" font-size="16" fill="#75801F">#1</text><circle cx="150" cy="50" r="34" fill="#75801F" opacity="0.15"/></svg>`,
-      featured: true,
-    },
-    {
-      slug: "manraah",
-      idx: "04",
-      name: "Manraah",
-      category: "in-progress",
-      status: "in-progress",
-      oneLiner:
-        "A mental wellness platform with dedicated student, professional, and admin experiences — currently in build.",
-      homepageOneLiner:
-        "A mental wellness platform with dedicated student, professional, and admin experiences — currently in build.",
-      result: "Shipping soon",
+      name: "Coppter",
+      category: "Product",
+      oneLiner: "Four different logins, four completely different jobs to be done.",
+      resultStat: "4 role-based portals shipped",
+      briefDescription:
+        "A workforce intelligence platform built around four distinct roles — a leadership dashboard for strategic analytics, HR operations tools, personalized growth assessments for employees, and a mentor-facing view for career guidance. Four different logins, because four different people need four different tools, not one dashboard wearing four hats.",
       tags: ["Next.js", "TypeScript", "Tailwind", "Neon"],
-      mobilePreview: "Student, professional & admin dashboards",
-      previewLabel: "Student, professional & admin dashboards",
-      previewSvg: `<svg viewBox="0 0 200 100"><rect x="10" y="15" width="80" height="70" rx="6" fill="#75801F" opacity="0.18"/><rect x="100" y="15" width="90" height="32" rx="6" fill="#75801F" opacity="0.3"/><rect x="100" y="53" width="90" height="32" rx="6" fill="#75801F" opacity="0.18"/></svg>`,
+      liveUrl: "https://coppter-frontend.onrender.com/",
+      status: "live",
+      featured: true,
+      displayOrder: 3,
+    },
+    {
+      name: "Manraah",
+      category: "In progress",
+      oneLiner:
+        "A mental wellness platform with dedicated student, professional, and admin experiences.",
+      resultStat: "Shipping soon",
+      briefDescription:
+        "A mental wellness platform with entirely separate experiences for students, professionals, and admins — each with its own permissions, flows, and interface, not one dashboard trying to serve three audiences at once.",
+      tags: ["Next.js", "TypeScript", "Tailwind", "Neon"],
+      liveUrl: null,
+      status: "in-progress",
       featured: false,
+      displayOrder: 4,
     },
   ];
 
-  for (const p of showcaseProjects) {
-    await prisma.showcaseProject.upsert({
-      where: { slug: p.slug },
-      update: p,
-      create: p,
+  for (const cs of caseStudies) {
+    const existing = await prisma.caseStudy.findFirst({
+      where: { name: cs.name },
     });
+    if (existing) {
+      await prisma.caseStudy.update({
+        where: { id: existing.id },
+        data: cs,
+      });
+    } else {
+      await prisma.caseStudy.create({
+        data: cs,
+      });
+    }
   }
-  console.log(`✓ Seeded ${showcaseProjects.length} showcase projects to ShowcaseProject table`);
+  console.log(`✓ Seeded ${caseStudies.length} case studies to CaseStudy table`);
+
+  // 2.5. Seed Team Members (About Page Studio Roster)
+  const teamMembers = [
+    {
+      name: "Manish Gupta",
+      role: "Founder — Full-stack developer",
+      avatar: "M",
+      bio: "Manish builds products end to end — frontend, backend, and the infrastructure that keeps them running. He shipped CourseHunt, now used by 1,000+ people daily, and built TradeSage, an algorithmic trading system live on real capital.",
+      displayOrder: 1,
+    },
+    {
+      name: "Deepak Kumar",
+      role: "Project Manager",
+      avatar: "D",
+      bio: "Deepak keeps Kiln's builds on schedule and razor-focused on client objectives. He coordinates sprint milestones, unblocks engineering decisions, and ensures every deliverable ships on time.",
+      displayOrder: 2,
+    },
+    {
+      name: "Ashutosh",
+      role: "Developer",
+      avatar: "A",
+      bio: "Ashutosh builds resilient web applications and responsive interfaces. He focuses on modern frontend architectures, clean state management, and seamless integrations.",
+      displayOrder: 3,
+    },
+    {
+      name: "Kartik",
+      role: "Developer",
+      avatar: "K",
+      bio: "Kartik specializes in core systems, database engineering, and reliable backend services. He ensures Kiln's platforms are fast, secure, and built to scale under production traffic.",
+      displayOrder: 4,
+    },
+  ];
+
+  for (const m of teamMembers) {
+    const existing = await prisma.teamMember.findFirst({
+      where: { name: m.name },
+    });
+    if (existing) {
+      await prisma.teamMember.update({
+        where: { id: existing.id },
+        data: m,
+      });
+    } else {
+      await prisma.teamMember.create({
+        data: m,
+      });
+    }
+  }
+  console.log(`✓ Seeded ${teamMembers.length} team members to TeamMember table`);
 
   // 3. Seed Users (Admin & Developer)
   const defaultPasswordHash = await bcrypt.hash("kiln2026", 10);

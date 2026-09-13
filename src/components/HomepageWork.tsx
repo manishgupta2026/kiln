@@ -2,23 +2,38 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Project } from "@/data/projects";
+import { CaseStudyRecord } from "@/lib/case-studies-db";
+import CaseStudyModal from "@/components/CaseStudyModal";
 
 interface HomepageWorkProps {
-  initialProjects?: Project[];
+  initialCaseStudies?: CaseStudyRecord[];
+  initialProjects?: any[];
 }
 
-export default function HomepageWork({ initialProjects = [] }: HomepageWorkProps) {
-  const [openSlugs, setOpenSlugs] = useState<Record<string, boolean>>({});
+export default function HomepageWork({
+  initialCaseStudies,
+  initialProjects,
+}: HomepageWorkProps) {
+  const [selectedCaseStudy, setSelectedCaseStudy] = useState<CaseStudyRecord | null>(null);
 
-  const featuredProjects = initialProjects.filter((p) => p.featured);
-
-  const toggleRow = (slug: string) => {
-    setOpenSlugs((prev) => ({
-      ...prev,
-      [slug]: !prev[slug],
+  // Use initialCaseStudies if provided, or fallback to initialProjects
+  const rawItems: (CaseStudyRecord | any)[] =
+    initialCaseStudies ||
+    (initialProjects || []).map((p, idx) => ({
+      id: p.id,
+      name: p.name,
+      category: p.category,
+      oneLiner: p.homepageOneLiner || p.oneLiner,
+      resultStat: p.result,
+      briefDescription: p.mobilePreview || p.oneLiner,
+      tags: p.tags,
+      liveUrl: null,
+      status: p.status || "live",
+      featured: p.featured ?? true,
+      displayOrder: idx + 1,
     }));
-  };
+
+  const featuredCaseStudies = rawItems.filter((item) => item.featured);
 
   return (
     <section className="work" id="work" aria-labelledby="work-heading">
@@ -27,43 +42,54 @@ export default function HomepageWork({ initialProjects = [] }: HomepageWorkProps
           What we&apos;ve shipped
         </div>
         <h2 className="section-title reveal">
-          Real products. Real numbers. Hover a row, or tap it.
+          Real products. Real numbers. Tap any project to see the receipts.
         </h2>
 
-        <div className="work-list reveal" role="feed" aria-label="Featured projects">
-          {featuredProjects.map((project) => {
-            const isOpen = !!openSlugs[project.slug];
+        <div className="work-list reveal" role="feed" aria-label="Featured case studies">
+          {featuredCaseStudies.map((study, idx) => {
+            const indexStr = String(idx + 1).padStart(2, "0");
+            const slug = study.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+
             return (
               <div
-                key={project.id}
-                className={`work-row ${isOpen ? "open" : ""}`}
-                data-preview={project.slug}
+                key={study.id}
+                className="work-row"
+                data-preview={slug}
                 tabIndex={0}
                 role="button"
-                aria-expanded={isOpen}
-                aria-label={`Project ${project.name}: ${project.homepageOneLiner || project.oneLiner}`}
-                onClick={() => toggleRow(project.slug)}
+                aria-haspopup="dialog"
+                aria-label={`Case study ${study.name}: ${study.oneLiner}`}
+                onClick={() => setSelectedCaseStudy(study)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
-                    toggleRow(project.slug);
+                    setSelectedCaseStudy(study);
                   }
                 }}
               >
-                <div className="idx" aria-hidden="true">{project.idx}</div>
+                <div className="idx" aria-hidden="true">
+                  {indexStr}
+                </div>
                 <div>
-                  <div className="wname">{project.name}</div>
-                  <div className="wline">{project.homepageOneLiner || project.oneLiner}</div>
-                  <div className="mobile-preview" aria-hidden={!isOpen}>
-                    <p style={{ marginBottom: "8px" }}>{project.mobilePreview || project.oneLiner}</p>
-                    <div className="tags-row">
-                      {project.tags.map((tag) => (
-                        <span key={tag} className="tag">{tag}</span>
+                  <div className="wname">
+                    {study.name}
+                    {study.status === "in-progress" && (
+                      <span className="status-pill" style={{ marginLeft: "8px" }}>
+                        In progress
+                      </span>
+                    )}
+                  </div>
+                  <div className="wline">{study.oneLiner}</div>
+                  <div className="tags-row" style={{ marginTop: "8px" }}>
+                    {study.tags &&
+                      study.tags.map((tag: string) => (
+                        <span key={tag} className="tag">
+                          {tag}
+                        </span>
                       ))}
-                    </div>
                   </div>
                 </div>
-                <div className="wresult">{project.result}</div>
+                <div className="wresult">{study.resultStat}</div>
               </div>
             );
           })}
@@ -75,6 +101,11 @@ export default function HomepageWork({ initialProjects = [] }: HomepageWorkProps
           </Link>
         </div>
       </div>
+
+      <CaseStudyModal
+        caseStudy={selectedCaseStudy}
+        onClose={() => setSelectedCaseStudy(null)}
+      />
     </section>
   );
 }

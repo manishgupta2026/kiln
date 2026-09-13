@@ -830,7 +830,7 @@ h1.hero-headline em {
 
 .rec-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 1px;
   background: var(--line);
   border: 1px solid var(--line);
@@ -1360,6 +1360,24 @@ footer {
   max-width: 760px;
 }
 
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.team-grid .founder-card {
+  max-width: 100%;
+  grid-template-columns: 76px 1fr;
+  padding: 24px 24px;
+}
+
+.team-grid .founder-avatar {
+  width: 76px;
+  height: 76px;
+  font-size: 28px;
+}
+
 .founder-avatar {
   width: 88px;
   height: 88px;
@@ -1394,8 +1412,15 @@ footer {
   line-height: 1.65;
 }
 
+@media (max-width:860px) {
+  .team-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width:560px) {
-  .founder-card {
+  .founder-card,
+  .team-grid .founder-card {
     grid-template-columns: 1fr;
     text-align: left;
   }
@@ -1740,6 +1765,164 @@ footer {
   }
   .portal-cta-banner {
     padding: 20px 18px;
+  }
+}
+
+/* ---------- CASE STUDY DETAIL MODAL ---------- */
+.case-study-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(20, 20, 19, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  opacity: 0;
+  animation: csFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes csFadeIn {
+  to { opacity: 1; }
+}
+
+.case-study-modal {
+  position: relative;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  max-width: 580px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 36px 32px;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.2), 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(12px) scale(0.98);
+  animation: csSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes csSlideUp {
+  to {
+    transform: translateY(0) scale(1);
+  }
+}
+
+.case-study-close-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: transparent;
+  border: 1px solid var(--line);
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 16px;
+  transition: all 0.15s ease;
+}
+
+.case-study-close-btn:hover {
+  background: var(--card);
+  color: var(--ink);
+  border-color: var(--ink);
+}
+
+.case-study-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.case-study-category {
+  font-family: var(--mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+
+.case-study-title {
+  font-family: var(--display);
+  font-size: 32px;
+  line-height: 1.15;
+  color: var(--ink);
+  margin-bottom: 16px;
+  padding-right: 32px;
+}
+
+.case-study-stat-banner {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  padding: 8px 14px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.case-study-stat-val {
+  font-family: var(--display);
+  font-size: 20px;
+  color: var(--accent);
+}
+
+.case-study-stat-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.case-study-desc {
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--ink);
+  margin-bottom: 28px;
+  white-space: pre-line;
+}
+
+.case-study-tags-section {
+  margin-bottom: 28px;
+}
+
+.case-study-tags-label {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.case-study-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.case-study-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+@media (max-width: 600px) {
+  .case-study-modal {
+    padding: 24px 20px;
+  }
+  .case-study-title {
+    font-size: 26px;
   }
 }
 

@@ -5,9 +5,9 @@ import Footer from "@/components/Footer";
 import WorkFilterList from "@/components/WorkFilterList";
 import CursorPreview from "@/components/CursorPreview";
 import ScrollReveal from "@/components/ScrollReveal";
-import { getSiteContent } from "@/lib/content-db";
+import { getCaseStudies } from "@/lib/case-studies-db";
 
-export const revalidate = 3600;
+export const revalidate = 60; // 1 minute revalidation so admin edits reflect quickly
 
 export const metadata: Metadata = {
   title: "Work — Kiln",
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 };
 
 export default async function WorkPage() {
-  const content = await getSiteContent();
+  const caseStudies = await getCaseStudies();
 
   return (
     <>
@@ -32,11 +32,11 @@ export default async function WorkPage() {
               there&apos;s nothing here we&apos;re not proud of.
             </p>
 
-            <WorkFilterList initialProjects={content.projects} />
+            <WorkFilterList initialCaseStudies={caseStudies} />
           </div>
         </section>
 
-        <CursorPreview projects={content.projects} />
+        <CursorPreview projects={caseStudies as any} />
 
         <section className="cta-strip">
           <div className="wrap reveal">
