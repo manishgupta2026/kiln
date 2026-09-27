@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import AdminNavbar from "@/components/AdminNavbar";
 
 interface Developer {
   id: string;
@@ -83,7 +84,12 @@ export default function AdminDevelopersPage() {
   };
 
   return (
-    <div style={{ maxWidth: "1000px", margin: "0 auto", padding: "40px 20px" }}>
+    <>
+      <AdminNavbar
+        currentTitle="Developers"
+        currentSubtitle="Developer Engineering Accounts & Project Assignments"
+      />
+      <div style={{ maxWidth: "1000px", margin: "0 auto", padding: "40px 20px" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px", flexWrap: "wrap", gap: "16px" }}>
         <div>
           <Link
@@ -371,6 +377,7 @@ export default function AdminDevelopersPage() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }

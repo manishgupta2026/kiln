@@ -214,3 +214,263 @@ export async function sendPasswordResetEmail(to: string, name: string, resetUrl:
 
   return sendEmail({ to, name, subject, html, text });
 }
+
+export async function sendQuotationEmail(
+  quotation: {
+    quotationNumber: string;
+    clientName: string;
+    clientEmail: string;
+    clientCompany?: string | null;
+    projectTitle: string;
+    overview: string;
+    currency: "INR" | "USD";
+    subtotal: number;
+    discount: number;
+    taxRate: number;
+    taxAmount: number;
+    totalAmount: number;
+    timeline: string;
+    paymentSchedule: string;
+    validUntil: string;
+    lineItems: Array<{
+      id: string;
+      title: string;
+      description: string;
+      hours?: number;
+      amount: number;
+    }>;
+    techStack?: string[];
+    termsAndNotes?: string | null;
+    viewToken: string;
+  },
+  options?: {
+    customSubject?: string;
+    customNote?: string;
+    baseUrl?: string;
+  }
+) {
+  const currencySymbol = quotation.currency === "INR" ? "₹" : "$";
+  const formatAmt = (num: number) => {
+    if (quotation.currency === "INR") {
+      return `₹${num.toLocaleString("en-IN")}`;
+    }
+    return `$${num.toLocaleString("en-US")}`;
+  };
+
+  const subject =
+    options?.customSubject ||
+    `Project Proposal & Quotation — ${quotation.projectTitle} [${quotation.quotationNumber}]`;
+
+  const validUntilFormatted = new Date(quotation.validUntil).toLocaleDateString("en-US", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+
+  const origin = options?.baseUrl || process.env.NEXTAUTH_URL || "https://kiln.design";
+  const quoteUrl = `${origin}/quote/${quotation.viewToken}`;
+
+  const lineItemsHtml = quotation.lineItems
+    .map(
+      (item, idx) => `
+      <tr style="border-bottom: 1px solid #E8E4DC;">
+        <td style="padding: 14px 10px; font-size: 13.5px; color: #17150F; vertical-align: top;">
+          <strong>${idx + 1}. ${item.title}</strong>
+          ${item.description ? `<div style="color: #726C5C; font-size: 12.5px; margin-top: 4px; line-height: 1.4;">${item.description}</div>` : ""}
+        </td>
+        <td style="padding: 14px 10px; font-size: 13px; color: #726C5C; font-family: monospace; text-align: center; vertical-align: top;">
+          ${item.hours ? `${item.hours} hrs` : "Included"}
+        </td>
+        <td style="padding: 14px 10px; font-size: 14px; font-weight: 600; color: #17150F; text-align: right; vertical-align: top; white-space: nowrap;">
+          ${formatAmt(item.amount)}
+        </td>
+      </tr>
+    `
+    )
+    .join("");
+
+  const techChipsHtml = (quotation.techStack || [])
+    .map(
+      (tech) => `
+      <span style="display: inline-block; background: #EEF0DD; color: #75801F; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-family: monospace; margin: 2px 4px 2px 0;">
+        ${tech}
+      </span>
+    `
+    )
+    .join("");
+
+  const html = `
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 620px; margin: 0 auto; padding: 36px 24px; background: #FAF8F5; color: #17150F;">
+      
+      <!-- Brand & Header -->
+      <div style="display: flex; justify-content: space-between; align-items: baseline; border-bottom: 2px solid #17150F; padding-bottom: 16px; margin-bottom: 24px;">
+        <div style="font-family: Georgia, serif; font-size: 28px; font-weight: bold; color: #17150F;">
+          Kiln<span style="color: #75801F;">.</span>
+        </div>
+        <div style="font-family: monospace; font-size: 11.5px; color: #726C5C; text-align: right;">
+          ESTIMATE / PROPOSAL<br/>
+          <strong style="color: #17150F;">${quotation.quotationNumber}</strong>
+        </div>
+      </div>
+
+      <!-- Greeting -->
+      <h2 style="font-family: Georgia, serif; font-size: 22px; font-weight: normal; margin-bottom: 12px; color: #17150F;">
+        Project Quotation for ${quotation.clientName}
+      </h2>
+      ${quotation.clientCompany ? `<div style="font-size: 13.5px; color: #726C5C; margin-bottom: 16px;"><strong>Company:</strong> ${quotation.clientCompany}</div>` : ""}
+
+      ${
+        options?.customNote
+          ? `<div style="background: #FFFFFF; border-left: 3px solid #75801F; padding: 14px 18px; border-radius: 4px; margin-bottom: 24px; font-size: 14px; line-height: 1.55; color: #4A463B;">
+               ${options.customNote.replace(/\n/g, "<br/>")}
+             </div>`
+          : ""
+      }
+
+      <!-- Project Overview -->
+      <div style="background: #FFFFFF; border: 1px solid #E8E4DC; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+        <div style="font-size: 11px; font-family: monospace; text-transform: uppercase; color: #75801F; letter-spacing: 0.05em; margin-bottom: 6px;">
+          Project Scope
+        </div>
+        <h3 style="font-size: 17px; font-weight: 600; margin: 0 0 8px 0; color: #17150F;">
+          ${quotation.projectTitle}
+        </h3>
+        <p style="font-size: 14px; line-height: 1.6; color: #4A463B; margin: 0;">
+          ${quotation.overview.replace(/\n/g, "<br/>")}
+        </p>
+      </div>
+
+      <!-- Scope Breakdown Table -->
+      <div style="background: #FFFFFF; border: 1px solid #E8E4DC; border-radius: 12px; padding: 18px 20px; margin-bottom: 24px;">
+        <div style="font-size: 11px; font-family: monospace; text-transform: uppercase; color: #75801F; letter-spacing: 0.05em; margin-bottom: 12px;">
+          Deliverables &amp; Investment
+        </div>
+        <table style="width: 100%; border-collapse: collapse; text-align: left;">
+          <thead>
+            <tr style="border-bottom: 1.5px solid #17150F;">
+              <th style="padding: 8px 10px; font-size: 11.5px; font-family: monospace; text-transform: uppercase; color: #726C5C;">Deliverable</th>
+              <th style="padding: 8px 10px; font-size: 11.5px; font-family: monospace; text-transform: uppercase; color: #726C5C; text-align: center;">Scope</th>
+              <th style="padding: 8px 10px; font-size: 11.5px; font-family: monospace; text-transform: uppercase; color: #726C5C; text-align: right;">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${lineItemsHtml}
+          </tbody>
+        </table>
+
+        <!-- Totals Summary -->
+        <div style="margin-top: 16px; padding-top: 14px; border-top: 1px solid #E8E4DC;">
+          <div style="display: flex; justify-content: space-between; font-size: 13.5px; color: #726C5C; margin-bottom: 6px;">
+            <span>Subtotal:</span>
+            <span>${formatAmt(quotation.subtotal)}</span>
+          </div>
+          ${
+            quotation.discount > 0
+              ? `<div style="display: flex; justify-content: space-between; font-size: 13.5px; color: #75801F; margin-bottom: 6px;">
+                   <span>Studio Partner Discount:</span>
+                   <span>- ${formatAmt(quotation.discount)}</span>
+                 </div>`
+              : ""
+          }
+          ${
+            quotation.taxRate > 0
+              ? `<div style="display: flex; justify-content: space-between; font-size: 13.5px; color: #726C5C; margin-bottom: 6px;">
+                   <span>GST / Tax (${quotation.taxRate}%):</span>
+                   <span>+ ${formatAmt(quotation.taxAmount)}</span>
+                 </div>`
+              : ""
+          }
+          <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; color: #17150F; padding-top: 10px; border-top: 2px solid #17150F; margin-top: 8px;">
+            <span>Total Investment:</span>
+            <span style="color: #75801F;">${formatAmt(quotation.totalAmount)}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Execution Terms Grid -->
+      <div style="background: #FFFFFF; border: 1px solid #E8E4DC; border-radius: 12px; padding: 18px 20px; margin-bottom: 24px; font-size: 13.5px;">
+        <div style="margin-bottom: 12px;">
+          <strong style="color: #726C5C; font-size: 11.5px; font-family: monospace; text-transform: uppercase;">Estimated Timeline:</strong>
+          <div style="color: #17150F; font-weight: 600; margin-top: 2px;">${quotation.timeline}</div>
+        </div>
+        <div style="margin-bottom: 12px;">
+          <strong style="color: #726C5C; font-size: 11.5px; font-family: monospace; text-transform: uppercase;">Payment Milestones:</strong>
+          <div style="color: #17150F; font-weight: 500; margin-top: 2px;">${quotation.paymentSchedule}</div>
+        </div>
+        <div style="margin-bottom: 12px;">
+          <strong style="color: #726C5C; font-size: 11.5px; font-family: monospace; text-transform: uppercase;">Validity:</strong>
+          <div style="color: #17150F; margin-top: 2px;">This estimate is valid until ${validUntilFormatted}.</div>
+        </div>
+        ${
+          techChipsHtml
+            ? `<div>
+                 <strong style="color: #726C5C; font-size: 11.5px; font-family: monospace; text-transform: uppercase; display: block; margin-bottom: 6px;">Recommended Stack:</strong>
+                 <div>${techChipsHtml}</div>
+               </div>`
+            : ""
+        }
+        ${
+          quotation.termsAndNotes
+            ? `<div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid #E8E4DC; color: #726C5C; font-size: 12.5px; line-height: 1.5;">
+                 <strong>Notes &amp; Inclusions:</strong><br/>
+                 ${quotation.termsAndNotes.replace(/\n/g, "<br/>")}
+               </div>`
+            : ""
+        }
+      </div>
+
+      <!-- CTA Button -->
+      <div style="text-align: center; margin: 32px 0 24px;">
+        <a href="${quoteUrl}" style="background: #17150F; color: #FAF8F5; padding: 14px 32px; text-decoration: none; border-radius: 999px; font-size: 15px; font-weight: 600; display: inline-block;">
+          View &amp; Accept Proposal Online &rarr;
+        </a>
+        <div style="font-size: 12px; color: #8F8978; margin-top: 10px;">
+          Or copy link: <a href="${quoteUrl}" style="color: #75801F;">${quoteUrl}</a>
+        </div>
+      </div>
+
+      <!-- Footer Note -->
+      <div style="border-top: 1px solid #E8E4DC; padding-top: 20px; font-size: 12.5px; color: #8F8978; line-height: 1.5;">
+        To proceed with this quotation or request scope adjustments, simply reply directly to this email.<br/>
+        <strong>Kiln Studio</strong> — Bespoke design and software engineering, in-house, start to finish.
+      </div>
+    </div>
+  `;
+
+  const textItems = quotation.lineItems
+    .map(
+      (item, idx) =>
+        `${idx + 1}. ${item.title}: ${formatAmt(item.amount)} (${item.hours ? `${item.hours} hrs` : "Included"})\n   ${item.description}`
+    )
+    .join("\n\n");
+
+  const text = `Kiln Studio — Project Quotation [${quotation.quotationNumber}]
+Project: ${quotation.projectTitle}
+Client: ${quotation.clientName} (${quotation.clientCompany || ""})
+Total: ${formatAmt(quotation.totalAmount)}
+Timeline: ${quotation.timeline}
+Payment Terms: ${quotation.paymentSchedule}
+Valid Until: ${validUntilFormatted}
+
+OVERVIEW:
+${quotation.overview}
+
+DELIVERABLES:
+${textItems}
+
+SUBTOTAL: ${formatAmt(quotation.subtotal)}
+${quotation.discount > 0 ? `DISCOUNT: - ${formatAmt(quotation.discount)}\n` : ""}${quotation.taxRate > 0 ? `TAX (${quotation.taxRate}%): + ${formatAmt(quotation.taxAmount)}\n` : ""}TOTAL INVESTMENT: ${formatAmt(quotation.totalAmount)}
+
+View & Accept Online: ${quoteUrl}
+
+To accept or adjust this quotation, reply directly to this email.
+Kiln Studio`;
+
+  return sendEmail({
+    to: quotation.clientEmail,
+    name: quotation.clientName,
+    subject,
+    html,
+    text,
+  });
+}

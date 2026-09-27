@@ -57,6 +57,12 @@ export default function Header() {
             About
           </Link>
           <Link
+            href="/career"
+            className={pathname === "/career" || pathname === "/careers" ? "active" : ""}
+          >
+            Careers
+          </Link>
+          <Link
             href="/#faq"
           >
             FAQ
@@ -130,10 +136,18 @@ export default function Header() {
               <span>About Kiln</span>
             </Link>
             <Link
-              href="/#faq"
+              href="/career"
+              className={pathname === "/career" || pathname === "/careers" ? "active" : ""}
               onClick={() => setMobileMenuOpen(false)}
             >
               <span className="mobile-idx">05</span>
+              <span>Careers</span>
+            </Link>
+            <Link
+              href="/#faq"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <span className="mobile-idx">06</span>
               <span>FAQ</span>
             </Link>
             <Link
@@ -141,7 +155,7 @@ export default function Header() {
               onClick={() => setMobileMenuOpen(false)}
               style={{ color: "var(--accent)" }}
             >
-              <span className="mobile-idx">06</span>
+              <span className="mobile-idx">07</span>
               <span>Client Portal</span>
             </Link>
           </nav>

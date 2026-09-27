@@ -244,3 +244,55 @@ model TeamMember {
   updatedAt    DateTime @updatedAt
 }
 
+model CareerApplication {
+  id           String   @id @default(cuid())
+  type         String   // "JOB" | "INTERNSHIP" | "FREELANCING"
+  name         String
+  email        String
+  phone        String?
+  location     String?
+  role         String
+  experience   String?
+  portfolioUrl String?
+  githubUrl    String?
+  linkedinUrl  String?
+  resumeUrl    String?
+  rateOrSalary String?
+  availability String?
+  skills       String[] @default([])
+  coverNote    String   @db.Text
+  metadata     Json?
+  status       String   @default("new") // "new" | "reviewing" | "shortlisted" | "interviewed" | "hired" | "rejected" | "archived"
+  adminNotes   String?  @db.Text
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model ProjectQuotation {
+  id              String    @id @default(cuid())
+  quotationNumber String    @unique
+  clientName      String
+  clientEmail     String
+  clientPhone     String?
+  clientCompany   String?
+  projectTitle    String
+  overview        String    @db.Text
+  currency        String    @default("INR") // "INR" | "USD"
+  subtotal        Float
+  discount        Float     @default(0)
+  taxRate         Float     @default(0) // e.g. 18 for 18% GST or 0
+  taxAmount       Float     @default(0)
+  totalAmount     Float
+  timeline        String
+  paymentSchedule String
+  validUntil      DateTime
+  lineItems       Json
+  techStack       String[]  @default([])
+  termsAndNotes   String?   @db.Text
+  status          String    @default("DRAFT") // "DRAFT" | "SENT" | "ACCEPTED" | "DECLINED" | "EXPIRED"
+  sentAt          DateTime?
+  viewToken       String    @unique @default(cuid())
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+

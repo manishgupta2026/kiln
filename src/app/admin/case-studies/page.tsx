@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { CaseStudyRecord } from "@/lib/case-studies-db";
+import AdminNavbar from "@/components/AdminNavbar";
 
 export default function AdminCaseStudiesPage() {
   const [caseStudies, setCaseStudies] = useState<CaseStudyRecord[]>([]);
@@ -118,7 +119,12 @@ export default function AdminCaseStudiesPage() {
   };
 
   return (
-    <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "40px 20px" }}>
+    <>
+      <AdminNavbar
+        currentTitle="Case Studies"
+        currentSubtitle="Homepage Top-3 and Full /work Showcase"
+      />
+      <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "40px 20px" }}>
       {/* Top Header */}
       <div
         style={{
@@ -565,6 +571,7 @@ export default function AdminCaseStudiesPage() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, use } from "react";
 import Link from "next/link";
+import AdminNavbar from "@/components/AdminNavbar";
 
 interface BriefDetail {
   id: string;
@@ -234,7 +235,12 @@ export default function AdminBriefDetailPage({
     : null;
 
   return (
-    <div style={{ maxWidth: "880px", margin: "0 auto", padding: "40px 20px" }}>
+    <>
+      <AdminNavbar
+        currentTitle="Brief Review"
+        currentSubtitle={brief.name ? `Client: ${brief.name} (${brief.projectType})` : undefined}
+      />
+      <div style={{ maxWidth: "880px", margin: "0 auto", padding: "40px 20px" }}>
       <Link
         href="/admin"
         style={{
@@ -737,6 +743,7 @@ export default function AdminBriefDetailPage({
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }

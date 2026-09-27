@@ -16,6 +16,7 @@ export default function Footer({ showNote = true }: FooterProps) {
             <Link href="/work">Work</Link>
             <Link href="/#offerings">Offerings</Link>
             <Link href="/about">About</Link>
+            <Link href="/career">Careers</Link>
             <Link href="/#faq">FAQ</Link>
             <Link href="/#brief">Start a project</Link>
             <Link href="/login" style={{ color: "var(--accent)" }}>

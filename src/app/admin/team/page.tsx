@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { TeamMemberRecord } from "@/lib/team-db";
+import AdminNavbar from "@/components/AdminNavbar";
 
 export default function AdminTeamPage() {
   const [team, setTeam] = useState<TeamMemberRecord[]>([]);
@@ -139,7 +140,13 @@ export default function AdminTeamPage() {
   };
 
   return (
-    <div style={{ maxWidth: "1000px", margin: "0 auto", padding: "40px 20px" }}>
+    <>
+      <AdminNavbar
+        currentTitle="Team CMS"
+        currentSubtitle="Studio Team Roster & Roles"
+        badgeCounts={{ totalBriefs: team.length }}
+      />
+      <div style={{ maxWidth: "1000px", margin: "0 auto", padding: "40px 20px" }}>
       {/* Header */}
       <div
         style={{
@@ -477,6 +484,7 @@ export default function AdminTeamPage() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }

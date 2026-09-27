@@ -1,0 +1,43 @@
+[
+  {
+    "id": "local_qt_1790527515391_h75vi",
+    "quotationNumber": "KLN-QT-2026-5992",
+    "clientName": "Manish",
+    "clientEmail": "manishgupta7656@gmail.com",
+    "clientPhone": "+918986825613",
+    "clientCompany": "Manish",
+    "projectTitle": "Web Dev",
+    "overview": "Custom software design & development scope.",
+    "currency": "INR",
+    "subtotal": 1492,
+    "discount": 0,
+    "taxRate": 18,
+    "taxAmount": 269,
+    "totalAmount": 1761,
+    "timeline": "4 – 6 Weeks",
+    "paymentSchedule": "40% Advance Deposit, 40% Staging Approval, 20% Production Handover",
+    "validUntil": "2026-10-11T00:00:00.000Z",
+    "lineItems": [
+      {
+        "id": "item_1790527343292",
+        "title": "Core Platform Architecture & UI Implementation",
+        "description": "Next.js 15, TypeScript, Tailwind CSS, responsive components, and database schema.",
+        "hours": 80,
+        "amount": 1492
+      }
+    ],
+    "techStack": [
+      "Next.js",
+      "TypeScript",
+      "PostgreSQL",
+      "Tailwind CSS",
+      "Figma"
+    ],
+    "termsAndNotes": "1. Includes 30 days of post-deployment monitoring and bug fixing.\n2. Full intellectual property and source code ownership transfer upon final disbursement.\n3. Hosting and third-party API subscriptions (e.g. AWS, OpenAI, Razorpay) are billed directly to client accounts.",
+    "status": "SENT",
+    "sentAt": "2026-09-27T16:45:15.390Z",
+    "viewToken": "qt_1790527515390_q10kpsv",
+    "createdAt": "2026-09-27T16:45:15.391Z",
+    "updatedAt": "2026-09-27T16:45:15.391Z"
+  }
+]
