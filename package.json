@@ -5,11 +5,17 @@
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
+    "build:worker": "opennextjs-cloudflare build",
+    "preview": "opennextjs-cloudflare preview",
+    "deploy:worker": "opennextjs-cloudflare build && wrangler deploy",
     "start": "next start",
     "lint": "next lint",
     "postinstall": "prisma generate"
   },
   "dependencies": {
+    "@neondatabase/serverless": "^1.2.0",
+    "@opennextjs/cloudflare": "^1.20.13",
+    "@prisma/adapter-neon": "^6.19.3",
     "@prisma/client": "^6.4.1",
     "@types/nodemailer": "^8.0.1",
     "@vercel/analytics": "^2.0.1",
@@ -19,6 +25,7 @@
     "nodemailer": "^9.0.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "ws": "^8.22.0",
     "zod": "^3.24.2"
   },
   "devDependencies": {
@@ -26,7 +33,9 @@
     "@types/node": "^22.13.4",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
+    "@types/ws": "^8.18.2",
     "prisma": "^6.4.1",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "wrangler": "^4.154.0"
   }
 }

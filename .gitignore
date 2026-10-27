@@ -37,3 +37,8 @@ next-env.d.ts
 # Internal design docs & scratch scripts
 /frontend_design/
 /scratch/
+
+# Cloudflare & OpenNext
+.open-next/
+.wrangler/
+
