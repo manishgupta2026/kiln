@@ -39,7 +39,7 @@ export default async function ClientDashboardPage() {
     return (
       <div style={{ textAlign: "center", padding: "60px 20px" }}>
         <div className="section-label" style={{ marginBottom: "8px" }}>
-          Welcome to Kiln
+          Welcome to Digigrantha
         </div>
         <h2 style={{ fontFamily: "var(--display)", fontSize: "28px", marginBottom: "12px" }}>
           No active projects yet

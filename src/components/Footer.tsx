@@ -10,7 +10,7 @@ export default function Footer({ showNote = true }: FooterProps) {
       <div className="wrap">
         <div className="footer-inner">
           <Link href="/" className="logo">
-            Kiln<span>.</span>
+            Digigrantha<span>.</span>
           </Link>
           <div className="footer-links">
             <Link href="/work">Work</Link>
@@ -28,7 +28,7 @@ export default function Footer({ showNote = true }: FooterProps) {
         {showNote && (
           <div className="footer-bottom">
             <div className="footer-note">
-              © 2026 Kiln Studio. Design and development, in-house, start to finish.
+              © 2026 Digigrantha Studio. Design and development, in-house, start to finish.
             </div>
           </div>
         )}

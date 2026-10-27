@@ -262,8 +262,8 @@ export default function AdminNavbar({
         <div className="admin-nav-container">
           {/* Left Brand & Studio Pill */}
           <div className="admin-nav-brand-group">
-            <Link href="/admin" className="admin-nav-logo" title="Kiln Admin Studio">
-              Kiln<span className="admin-nav-logo-dot">.</span>
+            <Link href="/admin" className="admin-nav-logo" title="Digigrantha Admin Studio">
+              Digigrantha<span className="admin-nav-logo-dot">.</span>
             </Link>
 
             <div className="admin-nav-status-badge">
@@ -313,7 +313,7 @@ export default function AdminNavbar({
               target="_blank"
               rel="noopener noreferrer"
               className="admin-nav-btn-link"
-              title="View Public Kiln Website (opens in new tab)"
+              title="View Public Digigrantha Website (opens in new tab)"
             >
               <span>Visit Site</span>
               <span className="admin-nav-ext-arrow">↗</span>
@@ -368,7 +368,7 @@ export default function AdminNavbar({
           <div className="admin-drawer-header">
             <div>
               <div className="admin-drawer-logo">
-                Kiln<span>.</span> Studio
+                Digigrantha<span>.</span> Studio
               </div>
               <div className="admin-drawer-status">
                 <span className="admin-nav-pulse-dot" />

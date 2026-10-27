@@ -56,7 +56,7 @@ function LoginForm() {
     >
       <div style={{ marginBottom: "24px" }}>
         <div className="section-label" style={{ marginBottom: "4px" }}>
-          Kiln Workspace
+          Digigrantha Workspace
         </div>
         <h1 style={{ fontFamily: "var(--display)", fontSize: "28px", fontWeight: 400, color: "var(--ink)" }}>
           Sign in to your portal
@@ -196,7 +196,7 @@ export default function LoginPage() {
       {/* Top Header */}
       <header style={{ padding: "24px 32px", borderBottom: "1px solid var(--line)" }}>
         <Link href="/" className="logo">
-          Kiln<span>.</span>
+          Digigrantha<span>.</span>
         </Link>
       </header>
 

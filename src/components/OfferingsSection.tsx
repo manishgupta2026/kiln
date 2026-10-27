@@ -31,7 +31,7 @@ const offerings: Offering[] = [
   },
   {
     idx: "05",
-    title: "The Kiln experience",
+    title: "The Digigrantha experience",
     desc: "No status calls. No black boxes. A private portal with real-time phase tracking, direct developer comms, and one-click sign-off gates.",
   },
 ];

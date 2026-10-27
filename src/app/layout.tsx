@@ -27,7 +27,7 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Kiln — Tell us what you're building",
+  title: "Digigrantha — Tell us what you're building",
   description: "Design & development studio. Real products. Real numbers.",
 };
 

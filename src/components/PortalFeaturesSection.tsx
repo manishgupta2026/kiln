@@ -156,7 +156,7 @@ export default function PortalFeaturesSection() {
       <div className="wrap">
         {/* Header */}
         <div className="portal-features-head reveal">
-          <div className="section-label">The Kiln Experience</div>
+          <div className="section-label">The Digigrantha Experience</div>
           <h2 className="section-title" style={{ marginBottom: 0 }}>
             No status calls. No black boxes. A dedicated portal for your build.
           </h2>

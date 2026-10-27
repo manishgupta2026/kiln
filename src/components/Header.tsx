@@ -34,7 +34,7 @@ export default function Header() {
       <div className="nav-inner">
         {/* Brand Logo */}
         <Link href="/" className="logo" onClick={() => setMobileMenuOpen(false)}>
-          Kiln<span>.</span>
+          Digigrantha<span>.</span>
         </Link>
 
         {/* Desktop Nav Links */}
@@ -133,7 +133,7 @@ export default function Header() {
               onClick={() => setMobileMenuOpen(false)}
             >
               <span className="mobile-idx">04</span>
-              <span>About Kiln</span>
+              <span>About Digigrantha</span>
             </Link>
             <Link
               href="/career"

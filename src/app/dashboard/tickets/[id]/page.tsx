@@ -182,7 +182,7 @@ export default function ClientTicketDetailPage({
                         borderRadius: "999px",
                       }}
                     >
-                      Kiln Team
+                      Digigrantha Team
                     </span>
                   )}
                 </div>

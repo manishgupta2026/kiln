@@ -20,7 +20,7 @@ export default function HeroIntake() {
   const handleStart = () => {
     // Dispatch prefill event to BriefForm
     window.dispatchEvent(
-      new CustomEvent("kiln-prefill-brief", {
+      new CustomEvent("digigrantha-prefill-brief", {
         detail: {
           description: inputValue,
           projectType: selectedChip,

@@ -180,7 +180,7 @@ export default function CareerForm() {
         rateOrSalary: expectedCtc ? `Expected: ${expectedCtc}${currentCtc ? ` (Current: ${currentCtc})` : ""}` : null,
         availability: noticePeriod,
         skills: finalSkills,
-        coverNote: jobNote || "Interested in joining Kiln full-time.",
+        coverNote: jobNote || "Interested in joining Digigrantha full-time.",
         metadata: {
           currentCompany: currentCompany || null,
           currentCtc: currentCtc || null,
@@ -329,7 +329,7 @@ export default function CareerForm() {
           <div>
             <div className="career-intro-tag">High-Velocity Contracting &amp; Retainers</div>
             <p>
-              Partner with Kiln on specialized modules, design systems, rapid prototypes, or performance optimizations.
+              Partner with Digigrantha on specialized modules, design systems, rapid prototypes, or performance optimizations.
               Clear milestones, prompt weekly/monthly disbursements, and asynchronous respect for your time.
             </p>
           </div>
@@ -344,7 +344,7 @@ export default function CareerForm() {
             Application Received!
           </h2>
           <p style={{ color: "var(--muted)", maxWidth: "560px", margin: "0 auto 24px", lineHeight: 1.6 }}>
-            Thank you for applying for a <strong>{activeTab.toLowerCase()}</strong> position at Kiln.
+            Thank you for applying for a <strong>{activeTab.toLowerCase()}</strong> position at Digigrantha.
             We personally review every GitHub repository, portfolio link, and background note.
             If your craftsmanship matches what we&apos;re building, we will reach out directly via WhatsApp or email.
           </p>
@@ -610,7 +610,7 @@ export default function CareerForm() {
               </div>
 
               <div className="field field-full" style={{ marginBottom: "18px" }}>
-                <label htmlFor="jNote">Why Kiln? / What drives your craftsmanship? *</label>
+                <label htmlFor="jNote">Why Digigrantha? / What drives your craftsmanship? *</label>
                 <textarea
                   id="jNote"
                   required
@@ -769,7 +769,7 @@ export default function CareerForm() {
               </div>
 
               <div className="field field-full" style={{ marginBottom: "18px" }}>
-                <label htmlFor="iGoals">What do you hope to learn &amp; build at Kiln? *</label>
+                <label htmlFor="iGoals">What do you hope to learn &amp; build at Digigrantha? *</label>
                 <textarea
                   id="iGoals"
                   required

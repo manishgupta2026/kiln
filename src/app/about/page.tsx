@@ -8,7 +8,7 @@ import { getTeamMembers } from "@/lib/team-db";
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "About — Kiln",
+  title: "About — Digigrantha",
   description: "A small team, on purpose. Design and development, in-house, start to finish.",
 };
 
@@ -16,7 +16,7 @@ const MILESTONES = [
   "Shipped CourseHunt — a course aggregator now used by 1,000+ students every day.",
   "Built TradeSage — an algorithmic trading system live on real capital, currently running at a 60.5% win rate.",
   "Shipped Coppter — 4 role-based portals for a construction management platform, from zero to live deployment.",
-  "Expanded Kiln into an in-house studio — bringing engineering, project management, and private client portals under one roof to ship products end-to-end.",
+  "Expanded Digigrantha into an in-house studio — bringing engineering, project management, and private client portals under one roof to ship products end-to-end.",
 ];
 
 export default async function AboutPage() {
@@ -33,7 +33,7 @@ export default async function AboutPage() {
             <div className="eyebrow reveal">About</div>
             <h1 className="reveal">A small team, on purpose.</h1>
             <p className="page-sub reveal">
-              Kiln isn&apos;t a big studio pretending to be boutique. It&apos;s a small one that
+              Digigrantha isn&apos;t a big studio pretending to be boutique. It&apos;s a small one that
               stayed small on purpose — because that&apos;s what lets us actually build the whole
               thing, ourselves, instead of managing a project through five layers of people.
             </p>

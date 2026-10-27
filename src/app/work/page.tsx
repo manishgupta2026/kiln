@@ -10,7 +10,7 @@ import { getCaseStudies } from "@/lib/case-studies-db";
 export const revalidate = 60; // 1 minute revalidation so admin edits reflect quickly
 
 export const metadata: Metadata = {
-  title: "Work — Kiln",
+  title: "Work — Digigrantha",
   description: "Full archive of products we've shipped and what's in the oven.",
 };
 

@@ -33,7 +33,7 @@ export async function sendEmail(options: EmailOptions): Promise<{ success: boole
       });
 
       await transporter.sendMail({
-        from: `"Kiln Studio" <${smtpUser}>`,
+        from: `"Digigrantha Studio" <${smtpUser}>`,
         to: `"${options.name}" <${options.to}>`,
         subject: options.subject,
         html: options.html,
@@ -53,9 +53,9 @@ export async function sendEmail(options: EmailOptions): Promise<{ success: boole
   if (resendApiKey) {
     // If FROM_EMAIL is not configured or uses an unverified placeholder, default to Resend test domain
     const fromEmail =
-      process.env.FROM_EMAIL && !process.env.FROM_EMAIL.includes("team@kiln.design")
+      process.env.FROM_EMAIL && !process.env.FROM_EMAIL.includes("team@digigrantha.com") && !process.env.FROM_EMAIL.includes("team@kiln.design")
         ? process.env.FROM_EMAIL
-        : "Kiln Studio <onboarding@resend.dev>";
+        : "Digigrantha Studio <onboarding@resend.dev>";
 
     try {
       const res = await fetch("https://api.resend.com/emails", {
@@ -106,7 +106,7 @@ export async function sendCallScheduledEmail(
   meetingUrl?: string | null,
   notes?: string | null
 ) {
-  const subject = `Discovery Call Confirmed — Kiln Studio`;
+  const subject = `Discovery Call Confirmed — Digigrantha Studio`;
 
   const formattedDate = new Date(scheduledDate).toLocaleDateString("en-US", {
     weekday: "long",
@@ -144,12 +144,12 @@ export async function sendCallScheduledEmail(
       </div>
       <p style="font-size: 13.5px; color: #8F8978; line-height: 1.5;">
         Looking forward to speaking with you.<br/>
-        Kiln Engineering Team
+        Digigrantha Engineering Team
       </p>
     </div>
   `;
 
-  const text = `Hi ${name},\n\nWe've scheduled your discovery call for:\n${formattedDate}\n\nMeeting link/details: ${meetingUrl || "We will call your phone number directly."}\n\n${notes ? `Agenda: ${notes}\n\n` : ""}Looking forward to speaking with you.\nKiln Studio`;
+  const text = `Hi ${name},\n\nWe've scheduled your discovery call for:\n${formattedDate}\n\nMeeting link/details: ${meetingUrl || "We will call your phone number directly."}\n\n${notes ? `Agenda: ${notes}\n\n` : ""}Looking forward to speaking with you.\nDigigrantha Studio`;
 
   return sendEmail({ to, name, subject, html, text });
 }
@@ -161,11 +161,11 @@ export async function sendOnboardingEmail(
   role: "CLIENT" | "DEVELOPER"
 ) {
   const roleName = role === "DEVELOPER" ? "developer workspace" : "project portal";
-  const subject = `Your Kiln ${roleName} is ready`;
+  const subject = `Your Digigrantha ${roleName} is ready`;
 
   const html = `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px 24px; background: #FAF8F5; color: #17150F;">
-      <h1 style="font-family: Georgia, serif; font-size: 24px; font-weight: normal; margin-bottom: 16px;">Welcome to Kiln.</h1>
+      <h1 style="font-family: Georgia, serif; font-size: 24px; font-weight: normal; margin-bottom: 16px;">Welcome to Digigrantha.</h1>
       <p style="font-size: 15px; line-height: 1.6; color: #4A463B; margin-bottom: 24px;">
         Hi ${name},<br/><br/>
         Your project has been converted into an active build. You can now access real-time status updates, submit tickets, and chat directly with your assigned development team without scheduling a call.
@@ -183,20 +183,20 @@ export async function sendOnboardingEmail(
     </div>
   `;
 
-  const text = `Hi ${name},\n\nYour Kiln ${roleName} is ready. Access real-time status updates, submit tickets, and chat with your assigned team directly.\n\nSet up your password here:\n${inviteUrl}\n\nThis single-use link is valid for 48 hours.`;
+  const text = `Hi ${name},\n\nYour Digigrantha ${roleName} is ready. Access real-time status updates, submit tickets, and chat with your assigned team directly.\n\nSet up your password here:\n${inviteUrl}\n\nThis single-use link is valid for 48 hours.`;
 
   return sendEmail({ to, name, subject, html, text });
 }
 
 export async function sendPasswordResetEmail(to: string, name: string, resetUrl: string) {
-  const subject = "Reset your Kiln password";
+  const subject = "Reset your Digigrantha password";
 
   const html = `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px 24px; background: #FAF8F5; color: #17150F;">
       <h1 style="font-family: Georgia, serif; font-size: 24px; font-weight: normal; margin-bottom: 16px;">Reset your password.</h1>
       <p style="font-size: 15px; line-height: 1.6; color: #4A463B; margin-bottom: 24px;">
         Hi ${name},<br/><br/>
-        We received a request to reset your password for your Kiln account. Click the button below to choose a new password.
+        We received a request to reset your password for your Digigrantha account. Click the button below to choose a new password.
       </p>
       <div style="margin: 32px 0;">
         <a href="${resetUrl}" style="background: #17150F; color: #FAF8F5; padding: 12px 24px; text-decoration: none; border-radius: 999px; font-size: 14px; font-weight: 500; display: inline-block;">
@@ -210,7 +210,7 @@ export async function sendPasswordResetEmail(to: string, name: string, resetUrl:
     </div>
   `;
 
-  const text = `Hi ${name},\n\nWe received a request to reset your password for your Kiln account.\n\nReset your password here:\n${resetUrl}\n\nThis link is valid for 48 hours. If you did not request this, ignore this email.`;
+  const text = `Hi ${name},\n\nWe received a request to reset your password for your Digigrantha account.\n\nReset your password here:\n${resetUrl}\n\nThis link is valid for 48 hours. If you did not request this, ignore this email.`;
 
   return sendEmail({ to, name, subject, html, text });
 }
@@ -267,7 +267,7 @@ export async function sendQuotationEmail(
     year: "numeric",
   });
 
-  const origin = options?.baseUrl || process.env.NEXTAUTH_URL || "https://kiln.design";
+  const origin = options?.baseUrl || process.env.NEXTAUTH_URL || "https://digigrantha.com";
   const quoteUrl = `${origin}/quote/${quotation.viewToken}`;
 
   const lineItemsHtml = quotation.lineItems
@@ -305,7 +305,7 @@ export async function sendQuotationEmail(
       <!-- Brand & Header -->
       <div style="display: flex; justify-content: space-between; align-items: baseline; border-bottom: 2px solid #17150F; padding-bottom: 16px; margin-bottom: 24px;">
         <div style="font-family: Georgia, serif; font-size: 28px; font-weight: bold; color: #17150F;">
-          Kiln<span style="color: #75801F;">.</span>
+          Digigrantha<span style="color: #75801F;">.</span>
         </div>
         <div style="font-family: monospace; font-size: 11.5px; color: #726C5C; text-align: right;">
           ESTIMATE / PROPOSAL<br/>
@@ -432,7 +432,7 @@ export async function sendQuotationEmail(
       <!-- Footer Note -->
       <div style="border-top: 1px solid #E8E4DC; padding-top: 20px; font-size: 12.5px; color: #8F8978; line-height: 1.5;">
         To proceed with this quotation or request scope adjustments, simply reply directly to this email.<br/>
-        <strong>Kiln Studio</strong> — Bespoke design and software engineering, in-house, start to finish.
+        <strong>Digigrantha Studio</strong> — Bespoke design and software engineering, in-house, start to finish.
       </div>
     </div>
   `;
@@ -444,7 +444,7 @@ export async function sendQuotationEmail(
     )
     .join("\n\n");
 
-  const text = `Kiln Studio — Project Quotation [${quotation.quotationNumber}]
+  const text = `Digigrantha Studio — Project Quotation [${quotation.quotationNumber}]
 Project: ${quotation.projectTitle}
 Client: ${quotation.clientName} (${quotation.clientCompany || ""})
 Total: ${formatAmt(quotation.totalAmount)}
@@ -464,7 +464,7 @@ ${quotation.discount > 0 ? `DISCOUNT: - ${formatAmt(quotation.discount)}\n` : ""
 View & Accept Online: ${quoteUrl}
 
 To accept or adjust this quotation, reply directly to this email.
-Kiln Studio`;
+Digigrantha Studio`;
 
   return sendEmail({
     to: quotation.clientEmail,

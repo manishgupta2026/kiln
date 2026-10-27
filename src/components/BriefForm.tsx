@@ -47,9 +47,9 @@ export default function BriefForm() {
       }
     };
 
-    window.addEventListener("kiln-prefill-brief", handlePrefill);
+    window.addEventListener("digigrantha-prefill-brief", handlePrefill);
     return () => {
-      window.removeEventListener("kiln-prefill-brief", handlePrefill);
+      window.removeEventListener("digigrantha-prefill-brief", handlePrefill);
     };
   }, []);
 

@@ -379,7 +379,7 @@ export default function AdminQuotationsPage() {
         >
           <div>
             <h1 className="admin-title" style={{ margin: 0 }}>
-              Kiln <span>Quotations &amp; Estimator</span>
+              Digigrantha <span>Quotations &amp; Estimator</span>
             </h1>
             <div style={{ fontFamily: "var(--mono)", fontSize: "12px", color: "var(--muted)", marginTop: "4px" }}>
               Indian Market Price Intelligence, Bespoke Scope Proposals &amp; Direct Mail Dispatch
@@ -801,7 +801,7 @@ export default function AdminQuotationsPage() {
                 <textarea
                   required
                   rows={3}
-                  placeholder="Summarize the core technical deliverable, target users, and why Kiln's architecture was chosen."
+                  placeholder="Summarize the core technical deliverable, target users, and why Digigrantha's architecture was chosen."
                   value={overview}
                   onChange={(e) => setOverview(e.target.value)}
                   style={{ width: "100%", padding: "9px 12px", borderRadius: "8px", border: "1px solid var(--line)", background: "var(--card)", fontSize: "13px", lineHeight: 1.5 }}

@@ -181,7 +181,7 @@ export default function AdminCareersPage() {
         >
           <div>
             <h1 className="admin-title" style={{ margin: 0 }}>
-              Kiln <span>Careers &amp; Talent</span>
+              Digigrantha <span>Careers &amp; Talent</span>
             </h1>
             <div style={{ fontFamily: "var(--mono)", fontSize: "12px", color: "var(--muted)", marginTop: "4px" }}>
               Review Inbound Job, Internship, and Freelance Submissions

@@ -5,9 +5,9 @@ import ScrollReveal from "@/components/ScrollReveal";
 import CareerForm from "@/components/CareerForm";
 
 export const metadata: Metadata = {
-  title: "Careers — Kiln Studio",
+  title: "Careers — Digigrantha Studio",
   description:
-    "Join Kiln. Opportunities for Full-time Engineers & Designers, Interns, and Freelance Specialists.",
+    "Join Digigrantha. Opportunities for Full-time Engineers & Designers, Interns, and Freelance Specialists.",
 };
 
 const VALUES = [
@@ -43,10 +43,10 @@ export default function CareerPage() {
         {/* HERO SECTION */}
         <section className="page-head" style={{ paddingBottom: "24px" }}>
           <div className="wrap">
-            <div className="eyebrow reveal">Careers at Kiln</div>
+            <div className="eyebrow reveal">Careers at Digigrantha</div>
             <h1 className="reveal">Build software with high agency.</h1>
             <p className="page-sub reveal" style={{ maxWidth: "680px" }}>
-              Kiln is a small, deliberate engineering &amp; design studio. We don&apos;t hire warm bodies
+              Digigrantha is a small, deliberate engineering &amp; design studio. We don&apos;t hire warm bodies
               for desks — we partner with craftspeople who care deeply about product feel, type, speed,
               and code cleanliness.
             </p>
@@ -63,7 +63,7 @@ export default function CareerPage() {
         {/* VALUES SECTION */}
         <section className="milestones" style={{ borderTop: "1px solid var(--line)", padding: "60px 0" }}>
           <div className="wrap">
-            <div className="section-label reveal">Why Kiln</div>
+            <div className="section-label reveal">Why Digigrantha</div>
             <h2 className="section-title reveal" style={{ fontSize: "32px", marginBottom: "32px" }}>
               How we like to build
             </h2>

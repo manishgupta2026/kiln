@@ -2,11 +2,11 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 
-const SESSION_COOKIE = "kiln_session";
+const SESSION_COOKIE = "digigrantha_session";
 const JWT_SECRET = new TextEncoder().encode(
   process.env.NEXTAUTH_SECRET ||
     process.env.ADMIN_JWT_SECRET ||
-    "kiln-production-client-portal-jwt-secret-2026"
+    "digigrantha-production-client-portal-jwt-secret-2026"
 );
 
 export async function middleware(request: NextRequest) {

@@ -8,10 +8,24 @@ export async function POST(req: NextRequest) {
   try {
     const { email, password } = await req.json();
 
-    const lookupEmail = (email || "admin@kiln.design").toLowerCase();
-    const user = await prisma.user.findUnique({
-      where: { email: lookupEmail },
-    });
+    const inputEmail = email ? (email as string).toLowerCase().trim() : null;
+    let user = null;
+
+    if (inputEmail) {
+      user = await prisma.user.findUnique({
+        where: { email: inputEmail },
+      });
+    } else {
+      user = await prisma.user.findFirst({
+        where: {
+          role: "ADMIN",
+          email: { in: ["admin@digigrantha.com", "admin@kiln.design"] },
+        },
+      });
+      if (!user) {
+        user = await prisma.user.findFirst({ where: { role: "ADMIN" } });
+      }
+    }
 
     if (!user || user.role !== "ADMIN" || !user.passwordHash) {
       return NextResponse.json(

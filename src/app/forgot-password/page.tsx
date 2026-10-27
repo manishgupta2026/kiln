@@ -38,7 +38,7 @@ export default function ForgotPasswordPage() {
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "var(--bg)" }}>
       <header style={{ padding: "24px 32px", borderBottom: "1px solid var(--line)" }}>
         <Link href="/" className="logo">
-          Kiln<span>.</span>
+          Digigrantha<span>.</span>
         </Link>
       </header>
 

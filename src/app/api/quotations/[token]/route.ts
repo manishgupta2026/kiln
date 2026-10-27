@@ -36,7 +36,7 @@ export async function POST(
       });
       return NextResponse.json({
         success: true,
-        message: "Quotation accepted! Kiln will reach out with onboarding instructions.",
+        message: "Quotation accepted! Digigrantha will reach out with onboarding instructions.",
         data: updated,
       });
     } else if (action === "DECLINE") {

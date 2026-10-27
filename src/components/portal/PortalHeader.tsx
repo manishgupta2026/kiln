@@ -47,7 +47,7 @@ export default function PortalHeader({ user, projectTitle }: PortalHeaderProps) 
     >
       <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
         <Link href={rootPath} className="logo" style={{ fontSize: "20px" }}>
-          Kiln<span>.</span>
+          Digigrantha<span>.</span>
         </Link>
         <span
           style={{

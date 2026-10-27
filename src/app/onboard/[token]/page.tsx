@@ -61,7 +61,7 @@ export default function OnboardPage({ params }: OnboardPageProps) {
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "var(--bg)" }}>
       <header style={{ padding: "24px 32px", borderBottom: "1px solid var(--line)" }}>
         <Link href="/" className="logo">
-          Kiln<span>.</span>
+          Digigrantha<span>.</span>
         </Link>
       </header>
 
@@ -79,7 +79,7 @@ export default function OnboardPage({ params }: OnboardPageProps) {
         >
           <div style={{ marginBottom: "24px" }}>
             <div className="section-label" style={{ marginBottom: "4px" }}>
-              Welcome to Kiln
+              Welcome to Digigrantha
             </div>
             <h1 style={{ fontFamily: "var(--display)", fontSize: "28px", fontWeight: 400, color: "var(--ink)" }}>
               Set up your password

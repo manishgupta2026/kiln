@@ -1001,7 +1001,7 @@ export default function AdminDashboardPage() {
         >
           <div>
             <h1 className="admin-title" style={{ margin: 0 }}>
-              Kiln <span>Admin Studio</span>
+              Digigrantha <span>Admin Studio</span>
             </h1>
             <div style={{ fontFamily: "var(--mono)", fontSize: "12px", color: "var(--muted)", marginTop: "4px" }}>
               Client Portal Hub, Engineering Roster &amp; Live Site CMS
@@ -1275,7 +1275,7 @@ export default function AdminDashboardPage() {
                         <td>
                           <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
                             <a
-                              href={`mailto:${brief.email}?subject=Re:%20Kiln%20Project%20Brief`}
+                              href={`mailto:${brief.email}?subject=Re:%20Digigrantha%20Project%20Brief`}
                               style={{ color: "var(--accent)", textDecoration: "underline", fontSize: "13px" }}
                             >
                               {brief.email}
@@ -1662,7 +1662,7 @@ export default function AdminDashboardPage() {
                       <input
                         type="email"
                         required
-                        placeholder="dev@kiln.design"
+                        placeholder="dev@digigrantha.com"
                         value={devEmail}
                         onChange={(e) => setDevEmail(e.target.value)}
                         style={{ width: "100%", border: "none", borderBottom: "1px solid var(--line)", background: "none", padding: "8px 0", outline: "none" }}
@@ -2518,7 +2518,7 @@ export default function AdminDashboardPage() {
                     <textarea
                       required
                       rows={4}
-                      placeholder="Describe background, focus areas, and role at Kiln..."
+                      placeholder="Describe background, focus areas, and role at Digigrantha..."
                       value={teamForm.bio}
                       onChange={(e) => setTeamForm({ ...teamForm, bio: e.target.value })}
                       style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid var(--line)", background: "var(--card)", fontSize: "14px", resize: "vertical", lineHeight: 1.5 }}

@@ -329,7 +329,7 @@ export default function AdminDevelopersPage() {
                   <input
                     type="email"
                     required
-                    placeholder="alex@kiln.design"
+                    placeholder="alex@digigrantha.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     style={{

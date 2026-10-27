@@ -200,7 +200,7 @@ export const DESIGN_TIERS: DesignTier[] = [
     name: "Clean Standard UI System",
     inr: 0,
     usd: 0,
-    description: "Accessible, responsive component system using Kiln core design tokens.",
+    description: "Accessible, responsive component system using Digigrantha core design tokens.",
   },
   {
     id: "bespoke_figma",

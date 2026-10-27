@@ -54,7 +54,7 @@ async function main() {
   });
   console.log("✓ Seeded Trust section configuration to SiteSetting table");
 
-  // 2. Seed Case Studies (Kiln's Public Portfolio)
+  // 2. Seed Case Studies (Digigrantha's Public Portfolio)
   // Remove any legacy Zafby records completely
   try {
     await prisma.caseStudy.deleteMany({
@@ -153,7 +153,7 @@ async function main() {
       name: "Deepak Kumar",
       role: "Project Manager",
       avatar: "D",
-      bio: "Deepak keeps Kiln's builds on schedule and razor-focused on client objectives. He coordinates sprint milestones, unblocks engineering decisions, and ensures every deliverable ships on time.",
+      bio: "Deepak keeps Digigrantha's builds on schedule and razor-focused on client objectives. He coordinates sprint milestones, unblocks engineering decisions, and ensures every deliverable ships on time.",
       displayOrder: 2,
     },
     {
@@ -167,7 +167,7 @@ async function main() {
       name: "Kartik",
       role: "Developer",
       avatar: "K",
-      bio: "Kartik specializes in core systems, database engineering, and reliable backend services. He ensures Kiln's platforms are fast, secure, and built to scale under production traffic.",
+      bio: "Kartik specializes in core systems, database engineering, and reliable backend services. He ensures Digigrantha's platforms are fast, secure, and built to scale under production traffic.",
       displayOrder: 4,
     },
   ];

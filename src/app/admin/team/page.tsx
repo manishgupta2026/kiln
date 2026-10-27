@@ -457,7 +457,7 @@ export default function AdminTeamPage() {
                 <textarea
                   required
                   rows={4}
-                  placeholder="Describe their background, focus areas, and role at Kiln..."
+                  placeholder="Describe their background, focus areas, and role at Digigrantha..."
                   value={formData.bio}
                   onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
                   style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid var(--line)", background: "var(--card)", fontSize: "14px", resize: "vertical", lineHeight: 1.5 }}
