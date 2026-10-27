@@ -48,7 +48,7 @@ interface DeveloperItem {
 }
 
 export default function AdminDashboardPage() {
-  const [activeTab, setActiveTab] = useState<"briefs" | "portalProjects" | "developers" | "trust" | "projects" | "team" | "careers" | "quotations">("briefs");
+  const [activeTab, setActiveTab] = useState<"briefs" | "portalProjects" | "developers" | "trust" | "projects" | "team" | "careers" | "quotations" | "invoices">("briefs");
 
   // Briefs State
   const [briefs, setBriefs] = useState<BriefItem[]>([]);
@@ -282,9 +282,13 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     if (typeof window !== "undefined") {
       const p = new URLSearchParams(window.location.search).get("tab");
+      if (p === "invoices") {
+        router.replace("/admin/invoices");
+        return;
+      }
       if (
         p &&
-        ["briefs", "portalProjects", "developers", "trust", "projects", "team", "careers", "quotations"].includes(p)
+        ["briefs", "portalProjects", "developers", "trust", "projects", "team", "careers", "quotations", "invoices"].includes(p)
       ) {
         setActiveTab(p as any);
       }
@@ -1164,6 +1168,18 @@ export default function AdminDashboardPage() {
           title="Open Dedicated Quotations & Indian Market Price Estimator"
         >
           <span>Quotations Studio</span>
+          <span style={{ fontSize: "11px", color: "var(--accent)" }}>
+            ↗
+          </span>
+        </Link>
+
+        <Link
+          href="/admin/invoices"
+          className="chip"
+          style={{ display: "flex", alignItems: "center", gap: "8px", textDecoration: "none" }}
+          title="Open Dedicated Invoices & Billing Management"
+        >
+          <span>🧾 Invoices &amp; Billing</span>
           <span style={{ fontSize: "11px", color: "var(--accent)" }}>
             ↗
           </span>
@@ -4061,6 +4077,24 @@ export default function AdminDashboardPage() {
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {activeTab === "invoices" && (
+        <div style={{ textAlign: "center", padding: "80px 20px", background: "var(--card)", borderRadius: "12px", border: "1px solid var(--line)", margin: "20px 0" }}>
+          <div style={{ fontSize: "36px", marginBottom: "12px" }}>🧾</div>
+          <h2 style={{ fontFamily: "var(--serif)", fontSize: "24px", margin: "0 0 8px 0" }}>Invoices &amp; Billing Studio</h2>
+          <p style={{ fontFamily: "var(--mono)", fontSize: "13px", color: "var(--muted)", maxWidth: "480px", margin: "0 auto 20px auto" }}>
+            Create tax invoices, configure Indian bank &amp; UPI remittance, preview print-optimized PDFs, and dispatch directly to client inboxes.
+          </p>
+          <Link
+            href="/admin/invoices"
+            className="btn-primary"
+            style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "8px", padding: "10px 22px", fontSize: "14px" }}
+          >
+            <span>Open Invoices Studio</span>
+            <span>↗</span>
+          </Link>
         </div>
       )}
       </div>

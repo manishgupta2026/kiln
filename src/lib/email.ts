@@ -474,3 +474,294 @@ Digigrantha Studio`;
     text,
   });
 }
+
+export async function sendInvoiceEmail(
+  invoice: {
+    id: string;
+    invoiceNumber: string;
+    clientName: string;
+    clientEmail: string;
+    clientCompany?: string | null;
+    projectTitle: string;
+    currency: "INR" | "USD";
+    subtotal: number;
+    discount: number;
+    taxRate: number;
+    taxAmount: number;
+    totalAmount: number;
+    issueDate: string;
+    dueDate: string;
+    lineItems: Array<{
+      id: string;
+      title: string;
+      description?: string;
+      quantity: number;
+      rate: number;
+      amount: number;
+    }>;
+    bankDetails?: {
+      accountName?: string;
+      bankName?: string;
+      accountNumber?: string;
+      ifscCode?: string;
+      swiftCode?: string | null;
+      upiId?: string | null;
+      paymentLink?: string | null;
+    } | null;
+    paymentTerms?: string | null;
+    notes?: string | null;
+    viewToken: string;
+  },
+  options?: {
+    customSubject?: string;
+    customNote?: string;
+    baseUrl?: string;
+  }
+) {
+  const formatAmt = (num: number) => {
+    if (invoice.currency === "INR") {
+      return `₹${Number(num).toLocaleString("en-IN")}`;
+    }
+    return `$${Number(num).toLocaleString("en-US")}`;
+  };
+
+  const formattedDueDate = new Date(invoice.dueDate).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+
+  const formattedIssueDate = new Date(invoice.issueDate).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+
+  const origin = options?.baseUrl || process.env.NEXTAUTH_URL || "https://digigrantha.com";
+  const invoiceUrl = `${origin}/invoice/${invoice.viewToken}`;
+
+  const subject =
+    options?.customSubject ||
+    `Invoice ${invoice.invoiceNumber} from Digigrantha Studio — ${formatAmt(invoice.totalAmount)}`;
+
+  const lineItemsHtml = invoice.lineItems
+    .map(
+      (item) => `
+      <tr style="border-bottom: 1px solid #E8E4DC;">
+        <td style="padding: 12px 10px; font-size: 13.5px; color: #17150F; vertical-align: top;">
+          <strong>${item.title}</strong>
+          ${item.description ? `<div style="font-size: 12px; color: #726C5C; margin-top: 4px; line-height: 1.4;">${item.description}</div>` : ""}
+        </td>
+        <td style="padding: 12px 10px; font-size: 13px; color: #726C5C; text-align: center; font-family: monospace; vertical-align: top;">
+          ${item.quantity || 1}
+        </td>
+        <td style="padding: 12px 10px; font-size: 13px; color: #726C5C; text-align: right; font-family: monospace; vertical-align: top;">
+          ${formatAmt(item.rate)}
+        </td>
+        <td style="padding: 12px 10px; font-size: 13.5px; font-weight: 600; color: #17150F; text-align: right; font-family: monospace; vertical-align: top;">
+          ${formatAmt(item.amount)}
+        </td>
+      </tr>
+    `
+    )
+    .join("");
+
+  const bank = invoice.bankDetails;
+
+  const html = `
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 640px; margin: 0 auto; padding: 36px 24px; background: #FAF8F5; color: #17150F;">
+      
+      <!-- Brand & Header -->
+      <div style="display: flex; justify-content: space-between; align-items: baseline; border-bottom: 2px solid #17150F; padding-bottom: 16px; margin-bottom: 24px;">
+        <div>
+          <div style="font-family: Georgia, serif; font-size: 28px; font-weight: bold; color: #17150F;">
+            Digigrantha<span style="color: #75801F;">.</span>
+          </div>
+          <div style="font-size: 12px; color: #726C5C; margin-top: 4px; font-family: monospace;">
+            TAX INVOICE &amp; PAYMENT NOTICE
+          </div>
+        </div>
+        <div style="font-family: monospace; font-size: 12px; color: #726C5C; text-align: right;">
+          INVOICE NO.<br/>
+          <strong style="color: #17150F; font-size: 14px;">${invoice.invoiceNumber}</strong>
+        </div>
+      </div>
+
+      <!-- Bill To & Summary Meta Grid -->
+      <div style="background: #FFFFFF; border: 1px solid #E8E4DC; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="vertical-align: top; width: 50%;">
+              <div style="font-size: 11px; font-family: monospace; text-transform: uppercase; color: #75801F; margin-bottom: 4px;">Billed To</div>
+              <div style="font-size: 15px; font-weight: 600; color: #17150F;">${invoice.clientName}</div>
+              ${invoice.clientCompany ? `<div style="font-size: 13px; color: #726C5C; margin-top: 2px;">${invoice.clientCompany}</div>` : ""}
+              <div style="font-size: 13px; color: #726C5C; margin-top: 2px;">${invoice.clientEmail}</div>
+            </td>
+            <td style="vertical-align: top; width: 50%; text-align: right;">
+              <div style="font-size: 11px; font-family: monospace; text-transform: uppercase; color: #75801F; margin-bottom: 4px;">Invoice Details</div>
+              <div style="font-size: 13px; color: #726C5C;">Issued: <strong>${formattedIssueDate}</strong></div>
+              <div style="font-size: 13px; color: #991b1b; margin-top: 4px;">Due Date: <strong>${formattedDueDate}</strong></div>
+              <div style="font-size: 13px; color: #17150F; margin-top: 4px;">Project: <strong>${invoice.projectTitle}</strong></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      ${
+        options?.customNote
+          ? `<div style="background: #FFFFFF; border-left: 3px solid #75801F; padding: 14px 18px; border-radius: 4px; margin-bottom: 24px; font-size: 14px; line-height: 1.55; color: #4A463B;">
+               ${options.customNote.replace(/\n/g, "<br/>")}
+             </div>`
+          : ""
+      }
+
+      <!-- Line Items Table -->
+      <div style="background: #FFFFFF; border: 1px solid #E8E4DC; border-radius: 12px; padding: 18px 20px; margin-bottom: 24px;">
+        <table style="width: 100%; border-collapse: collapse; text-align: left;">
+          <thead>
+            <tr style="border-bottom: 1.5px solid #17150F;">
+              <th style="padding: 8px 10px; font-size: 11.5px; font-family: monospace; text-transform: uppercase; color: #726C5C;">Description</th>
+              <th style="padding: 8px 10px; font-size: 11.5px; font-family: monospace; text-transform: uppercase; color: #726C5C; text-align: center;">Qty</th>
+              <th style="padding: 8px 10px; font-size: 11.5px; font-family: monospace; text-transform: uppercase; color: #726C5C; text-align: right;">Rate</th>
+              <th style="padding: 8px 10px; font-size: 11.5px; font-family: monospace; text-transform: uppercase; color: #726C5C; text-align: right;">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${lineItemsHtml}
+          </tbody>
+        </table>
+
+        <!-- Totals Summary -->
+        <div style="margin-top: 16px; padding-top: 14px; border-top: 1px solid #E8E4DC;">
+          <div style="display: flex; justify-content: space-between; font-size: 13.5px; color: #726C5C; margin-bottom: 6px;">
+            <span>Subtotal:</span>
+            <span>${formatAmt(invoice.subtotal)}</span>
+          </div>
+          ${
+            invoice.discount > 0
+              ? `<div style="display: flex; justify-content: space-between; font-size: 13.5px; color: #75801F; margin-bottom: 6px;">
+                   <span>Discount Applied:</span>
+                   <span>- ${formatAmt(invoice.discount)}</span>
+                 </div>`
+              : ""
+          }
+          ${
+            invoice.taxRate > 0
+              ? `<div style="display: flex; justify-content: space-between; font-size: 13.5px; color: #726C5C; margin-bottom: 6px;">
+                   <span>GST / Tax (${invoice.taxRate}%):</span>
+                   <span>+ ${formatAmt(invoice.taxAmount)}</span>
+                 </div>`
+              : ""
+          }
+          <div style="display: flex; justify-content: space-between; font-size: 19px; font-weight: bold; color: #17150F; padding-top: 10px; border-top: 2px solid #17150F; margin-top: 8px;">
+            <span>Total Balance Due:</span>
+            <span style="color: #75801F;">${formatAmt(invoice.totalAmount)}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment Instructions / Bank Details -->
+      ${
+        bank
+          ? `
+      <div style="background: #FFFFFF; border: 1px solid #E8E4DC; border-radius: 12px; padding: 20px; margin-bottom: 24px; font-size: 13px;">
+        <div style="font-size: 11px; font-family: monospace; text-transform: uppercase; color: #75801F; margin-bottom: 12px; letter-spacing: 0.05em;">
+          Remittance &amp; Wire Transfer Details
+        </div>
+        <table style="width: 100%; border-collapse: collapse; font-size: 13px; color: #4A463B;">
+          <tr>
+            <td style="padding: 4px 0; width: 38%; color: #726C5C;">Beneficiary Name:</td>
+            <td style="padding: 4px 0; font-weight: 600; color: #17150F;">${bank.accountName || "Digigrantha Studio"}</td>
+          </tr>
+          <tr>
+            <td style="padding: 4px 0; color: #726C5C;">Bank:</td>
+            <td style="padding: 4px 0; font-weight: 500; color: #17150F;">${bank.bankName || "HDFC Bank"}</td>
+          </tr>
+          <tr>
+            <td style="padding: 4px 0; color: #726C5C;">Account Number:</td>
+            <td style="padding: 4px 0; font-family: monospace; font-weight: 600; color: #17150F;">${bank.accountNumber || "—"}</td>
+          </tr>
+          <tr>
+            <td style="padding: 4px 0; color: #726C5C;">IFSC Code:</td>
+            <td style="padding: 4px 0; font-family: monospace; font-weight: 600; color: #17150F;">${bank.ifscCode || "—"}</td>
+          </tr>
+          ${
+            bank.upiId
+              ? `<tr>
+                   <td style="padding: 4px 0; color: #726C5C;">Instant UPI ID:</td>
+                   <td style="padding: 4px 0; font-family: monospace; font-weight: 600; color: #75801F;">${bank.upiId}</td>
+                 </tr>`
+              : ""
+          }
+          ${
+            bank.swiftCode
+              ? `<tr>
+                   <td style="padding: 4px 0; color: #726C5C;">SWIFT Code (USD):</td>
+                   <td style="padding: 4px 0; font-family: monospace; color: #17150F;">${bank.swiftCode}</td>
+                 </tr>`
+              : ""
+          }
+        </table>
+      </div>
+      `
+          : ""
+      }
+
+      <!-- CTA Buttons -->
+      <div style="text-align: center; margin: 32px 0 20px;">
+        <a href="${invoiceUrl}" style="background: #17150F; color: #FAF8F5; padding: 14px 34px; text-decoration: none; border-radius: 999px; font-size: 15px; font-weight: 600; display: inline-block;">
+          View Invoice &amp; Download PDF &rarr;
+        </a>
+        <div style="font-size: 12px; color: #8F8978; margin-top: 10px;">
+          Direct web link: <a href="${invoiceUrl}" style="color: #75801F;">${invoiceUrl}</a>
+        </div>
+      </div>
+
+      <!-- Footer Note -->
+      <div style="border-top: 1px solid #E8E4DC; padding-top: 20px; font-size: 12.5px; color: #8F8978; line-height: 1.5;">
+        After making payment, please reply to this email with your transaction UTR / receipt so we can issue your paid confirmation.<br/>
+        <strong>Digigrantha Studio</strong> — Engineering &amp; digital craft.
+      </div>
+    </div>
+  `;
+
+  const textItems = invoice.lineItems
+    .map(
+      (item, idx) =>
+        `${idx + 1}. ${item.title} (Qty: ${item.quantity || 1} @ ${formatAmt(item.rate)}) = ${formatAmt(item.amount)}`
+    )
+    .join("\n");
+
+  const text = `Digigrantha Studio — Tax Invoice [${invoice.invoiceNumber}]
+Project: ${invoice.projectTitle}
+Client: ${invoice.clientName} (${invoice.clientCompany || ""})
+Amount Due: ${formatAmt(invoice.totalAmount)}
+Issued: ${formattedIssueDate}
+Due Date: ${formattedDueDate}
+
+LINE ITEMS:
+${textItems}
+
+SUBTOTAL: ${formatAmt(invoice.subtotal)}
+${invoice.discount > 0 ? `DISCOUNT: - ${formatAmt(invoice.discount)}\n` : ""}${invoice.taxRate > 0 ? `TAX (${invoice.taxRate}%): + ${formatAmt(invoice.taxAmount)}\n` : ""}TOTAL: ${formatAmt(invoice.totalAmount)}
+
+REMITTANCE DETAILS:
+A/C Name: ${bank?.accountName || "Digigrantha Studio"}
+Bank: ${bank?.bankName || "HDFC Bank"}
+Account: ${bank?.accountNumber || "—"}
+IFSC: ${bank?.ifscCode || "—"}
+${bank?.upiId ? `UPI: ${bank.upiId}\n` : ""}
+View & Download PDF: ${invoiceUrl}
+
+Please reply with the payment confirmation once sent.
+Digigrantha Studio`;
+
+  return sendEmail({
+    to: invoice.clientEmail,
+    name: invoice.clientName,
+    subject,
+    html,
+    text,
+  });
+}
+

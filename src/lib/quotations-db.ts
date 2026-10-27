@@ -73,7 +73,7 @@ function writeLocalStore(items: ProjectQuotationRecord[]) {
 export function generateQuotationNumber(): string {
   const year = new Date().getFullYear();
   const randomSuffix = Math.floor(1000 + Math.random() * 9000);
-  return `KLN-QT-${year}-${randomSuffix}`;
+  return `DG-QT-${year}-${randomSuffix}`;
 }
 
 export async function createQuotation(data: {

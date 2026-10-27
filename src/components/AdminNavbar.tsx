@@ -175,6 +175,14 @@ export default function AdminNavbar({
       category: "operations",
     },
     {
+      id: "invoices",
+      label: "Invoices & Billing",
+      shortLabel: "Invoices",
+      icon: "🧾",
+      href: "/admin/invoices",
+      category: "operations",
+    },
+    {
       id: "careers",
       label: "Careers & Talent",
       shortLabel: "Careers",
@@ -243,6 +251,7 @@ export default function AdminNavbar({
     }
 
     if (item.href === pathname) return true;
+    if (item.id === "invoices" && pathname.startsWith("/admin/invoices")) return true;
     if (item.id === "quotations" && pathname.startsWith("/admin/quotations")) return true;
     if (item.id === "careers" && pathname.startsWith("/admin/careers")) return true;
     if (item.id === "team" && pathname.startsWith("/admin/team")) return true;
