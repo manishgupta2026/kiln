@@ -16,16 +16,19 @@ export interface EmailOptions {
 
 export async function sendEmail(options: EmailOptions): Promise<{ success: boolean; error?: string }> {
   syncCloudflareEnv();
-  // 1. Check for Gmail / Custom SMTP credentials first
-  const smtpUser = process.env.SMTP_USER || process.env.GMAIL_USER;
-  const smtpPass = process.env.SMTP_PASS || process.env.GMAIL_APP_PASSWORD;
-  const smtpHost = process.env.SMTP_HOST || (process.env.GMAIL_USER ? "smtp.gmail.com" : undefined);
+
+  const errors: string[] = [];
+
+  // 1. Priority 1: Zoho Work Mail / Custom SMTP (Official Domain)
+  const smtpUser = process.env.SMTP_USER;
+  const smtpPass = process.env.SMTP_PASS;
+  const smtpHost = process.env.SMTP_HOST || "smtp.zoho.in";
   const smtpPort = process.env.SMTP_PORT ? parseInt(process.env.SMTP_PORT, 10) : 465;
 
   if (smtpUser && smtpPass) {
     try {
       const transporter = nodemailer.createTransport({
-        host: smtpHost || "smtp.gmail.com",
+        host: smtpHost,
         port: smtpPort,
         secure: smtpPort === 465,
         auth: {
@@ -44,18 +47,49 @@ export async function sendEmail(options: EmailOptions): Promise<{ success: boole
         text: options.text,
       });
 
-      console.log(`[EMAIL SENT VIA GMAIL/SMTP] To: ${options.to} (${options.subject})`);
+      console.log(`[EMAIL SENT VIA ZOHO WORK MAIL] To: ${options.to} (${options.subject})`);
       return { success: true };
     } catch (err: any) {
-      console.error("[SMTP ERROR] Failed to send email via SMTP:", err.message);
-      return { success: false, error: err.message };
+      console.warn("[ZOHO SMTP FAILED - ATTEMPTING FALLBACK]:", err.message);
+      errors.push(`Zoho SMTP error: ${err.message}`);
     }
   }
 
-  // 2. Check for Resend API key
+  // 2. Priority 2: Gmail SMTP Fallback
+  const gmailUser = process.env.GMAIL_USER;
+  const gmailPass = process.env.GMAIL_APP_PASSWORD;
+
+  if (gmailUser && gmailPass) {
+    try {
+      const transporter = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 465,
+        secure: true,
+        auth: {
+          user: gmailUser,
+          pass: gmailPass.replace(/\s+/g, ""),
+        },
+      });
+
+      await transporter.sendMail({
+        from: `"Digigrantha Studio" <${gmailUser}>`,
+        to: `"${options.name}" <${options.to}>`,
+        subject: options.subject,
+        html: options.html,
+        text: options.text,
+      });
+
+      console.log(`[EMAIL SENT VIA GMAIL FALLBACK] To: ${options.to} (${options.subject})`);
+      return { success: true };
+    } catch (err: any) {
+      console.warn("[GMAIL SMTP FAILED - ATTEMPTING RESEND FALLBACK]:", err.message);
+      errors.push(`Gmail error: ${err.message}`);
+    }
+  }
+
+  // 3. Priority 3: Resend API Fallback
   const resendApiKey = process.env.RESEND_API_KEY;
   if (resendApiKey) {
-    // If FROM_EMAIL is not configured or uses an unverified placeholder, default to Resend test domain
     const fromEmail =
       process.env.FROM_EMAIL && !process.env.FROM_EMAIL.includes("team@digigrantha.com") && !process.env.FROM_EMAIL.includes("team@kiln.design")
         ? process.env.FROM_EMAIL
@@ -77,23 +111,27 @@ export async function sendEmail(options: EmailOptions): Promise<{ success: boole
         }),
       });
 
-      if (!res.ok) {
-        const errorData = await res.json();
-        console.error("[RESEND ERROR]", errorData);
-        return { success: false, error: errorData.message || "Failed to send email via Resend" };
+      if (res.ok) {
+        console.log(`[EMAIL SENT VIA RESEND FALLBACK] From: ${fromEmail} -> To: ${options.to} (${options.subject})`);
+        return { success: true };
+      } else {
+        const errorData = await res.json().catch(() => ({}));
+        errors.push(`Resend error: ${errorData.message || "Failed"}`);
       }
-
-      console.log(`[EMAIL SENT VIA RESEND] From: ${fromEmail} -> To: ${options.to} (${options.subject})`);
-      return { success: true };
     } catch (err: any) {
-      console.error("[RESEND ERROR] Failed to dispatch email via Resend:", err.message);
-      return { success: false, error: err.message };
+      console.warn("[RESEND API FAILED]:", err.message);
+      errors.push(`Resend error: ${err.message}`);
     }
   }
 
-  // 3. Local Development Fallback: Log email details cleanly to console
+  // If configured providers all failed
+  if (errors.length > 0) {
+    return { success: false, error: errors.join(" | ") };
+  }
+
+  // 4. Local Development Fallback: Log email details cleanly to console
   console.log("=================================================");
-  console.log(`[LOCAL EMAIL DISPATCH - To send real emails, add GMAIL_USER & GMAIL_APP_PASSWORD or RESEND_API_KEY to .env]`);
+  console.log(`[LOCAL EMAIL DISPATCH - No email providers configured]`);
   console.log(`To: ${options.name} <${options.to}>`);
   console.log(`Subject: ${options.subject}`);
   console.log(`Body:`);

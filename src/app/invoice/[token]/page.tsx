@@ -104,6 +104,19 @@ export default function PublicInvoicePage({ params }: PageProps) {
 
   const bank = invoice.bankDetails;
 
+  const handlePrintPdf = () => {
+    const originalTitle = document.title;
+    const fileName = invoice.invoiceNumber || `DG-INV-${invoice.id.slice(-6).toUpperCase()}`;
+    document.title = fileName;
+    const restore = () => {
+      document.title = originalTitle;
+      window.removeEventListener("afterprint", restore);
+    };
+    window.addEventListener("afterprint", restore);
+    window.print();
+    setTimeout(restore, 2000);
+  };
+
   return (
     <>
       {/* Print Stylesheet for razor-sharp multi-page 1-page & 2-page print rendering */}
@@ -111,35 +124,48 @@ export default function PublicInvoicePage({ params }: PageProps) {
         @media print {
           @page {
             size: A4 portrait;
-            margin: 12mm 14mm 15mm 14mm;
+            margin: 8mm 10mm;
           }
-          body, html {
+          html, body {
             background: #ffffff !important;
-            color: #000000 !important;
+            color: #17150F !important;
             margin: 0 !important;
             padding: 0 !important;
+            overflow: visible !important;
+            height: auto !important;
+            width: 100% !important;
           }
-          .no-print {
-            display: none !important;
+          /* Hide all page UI, navigation, buttons, top bars */
+          body * {
+            visibility: hidden !important;
           }
-          .invoice-card {
-            box-shadow: none !important;
-            border: none !important;
-            padding: 0 !important;
+          /* Display strictly the printable invoice sheet and its children */
+          #printable-invoice-sheet,
+          #printable-invoice-sheet * {
+            visibility: visible !important;
+          }
+          #printable-invoice-sheet {
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
             max-width: 100% !important;
             margin: 0 !important;
+            padding: 12px 16px !important;
+            border: none !important;
+            box-shadow: none !important;
             border-radius: 0 !important;
+            background: #ffffff !important;
           }
-          .keep-together {
-            page-break-inside: avoid !important;
-            break-inside: avoid !important;
+          .no-print,
+          .no-print * {
+            display: none !important;
+            visibility: hidden !important;
           }
+          .keep-together,
           tr {
             page-break-inside: avoid !important;
             break-inside: avoid !important;
-          }
-          .print-header {
-            display: block !important;
           }
           * {
             -webkit-print-color-adjust: exact !important;
@@ -192,7 +218,7 @@ export default function PublicInvoicePage({ params }: PageProps) {
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
             <button
               type="button"
-              onClick={() => window.print()}
+              onClick={handlePrintPdf}
               style={{
                 background: "#17150F",
                 color: "#FAF8F5",
@@ -214,6 +240,7 @@ export default function PublicInvoicePage({ params }: PageProps) {
 
         {/* Main Printable Invoice Card */}
         <div
+          id="printable-invoice-sheet"
           className="invoice-card"
           style={{
             maxWidth: "840px",

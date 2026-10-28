@@ -99,52 +99,186 @@ export default function PublicQuotePage({
     year: "numeric",
   });
 
+  const handlePrintPdf = () => {
+    const originalTitle = document.title;
+    const fileName = quote.quotationNumber || `DG-QT-${quote.id.slice(-6).toUpperCase()}`;
+    document.title = fileName;
+    const restore = () => {
+      document.title = originalTitle;
+      window.removeEventListener("afterprint", restore);
+    };
+    window.addEventListener("afterprint", restore);
+    window.print();
+    setTimeout(restore, 2000);
+  };
+
   return (
-    <div style={{ background: "#FAF8F5", minHeight: "100vh", padding: "40px 20px" }}>
-      <div style={{ maxWidth: "820px", margin: "0 auto", background: "#FFFFFF", border: "1px solid #E8E4DC", borderRadius: "20px", padding: "48px 44px", boxShadow: "0 20px 50px -20px rgba(23, 21, 15, 0.12)" }}>
-        
-        {/* Top Header */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", borderBottom: "2px solid #17150F", paddingBottom: "24px", marginBottom: "32px", flexWrap: "wrap", gap: "16px" }}>
-          <div>
-            <Link href="/" style={{ fontFamily: "Georgia, serif", fontSize: "34px", fontWeight: "bold", color: "#17150F", textDecoration: "none" }}>
-              Digigrantha<span style={{ color: "#75801F" }}>.</span>
+    <>
+      {/* Print Stylesheet for clean single-sheet / multi-sheet PDF generation */}
+      <style jsx global>{`
+        @media print {
+          @page {
+            size: A4 portrait;
+            margin: 8mm 10mm;
+          }
+          html, body {
+            background: #ffffff !important;
+            color: #17150F !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: visible !important;
+            height: auto !important;
+            width: 100% !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          body * {
+            visibility: hidden !important;
+          }
+          #printable-quote-sheet,
+          #printable-quote-sheet * {
+            visibility: visible !important;
+          }
+          #printable-quote-sheet {
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 12px 16px !important;
+            border: none !important;
+            box-shadow: none !important;
+            border-radius: 0 !important;
+            background: #ffffff !important;
+          }
+          .no-print,
+          .no-print * {
+            display: none !important;
+            visibility: hidden !important;
+          }
+          .keep-together,
+          tr {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+          }
+          * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+        }
+      `}</style>
+
+      <div style={{ background: "#FAF8F5", minHeight: "100vh", padding: "40px 20px" }}>
+        {/* Top Floating Control Bar (Hidden when printing) */}
+        <div
+          className="no-print"
+          style={{
+            maxWidth: "820px",
+            margin: "0 auto 20px",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: "12px",
+            padding: "12px 18px",
+            background: "#FFFFFF",
+            border: "1px solid #E8E4DC",
+            borderRadius: "14px",
+            boxShadow: "0 4px 20px -8px rgba(0,0,0,0.06)",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <Link
+              href="/"
+              style={{
+                fontFamily: "monospace",
+                fontSize: "12.5px",
+                color: "#726C5C",
+                textDecoration: "none",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "4px",
+              }}
+            >
+              ← Digigrantha Public Site
             </Link>
-            <div style={{ fontFamily: "monospace", fontSize: "12px", color: "#726C5C", marginTop: "4px" }}>
-              Bespoke Design &amp; Software Studio
-            </div>
+            <span style={{ color: "#E8E4DC" }}>|</span>
+            <span style={{ fontFamily: "monospace", fontSize: "12px", color: "#17150F", fontWeight: 600 }}>
+              {quote.quotationNumber}
+            </span>
           </div>
 
-          <div style={{ textAlign: "right" }}>
-            <div style={{ fontFamily: "monospace", fontSize: "11px", textTransform: "uppercase", color: "#726C5C", letterSpacing: "0.06em" }}>
-              Formal Quotation
-            </div>
-            <div style={{ fontFamily: "monospace", fontSize: "16px", fontWeight: "bold", color: "#17150F", marginTop: "2px" }}>
-              {quote.quotationNumber}
-            </div>
-            <div style={{ marginTop: "6px" }}>
-              <span
-                style={{
-                  fontFamily: "monospace",
-                  fontSize: "11px",
-                  padding: "3px 10px",
-                  borderRadius: "999px",
-                  fontWeight: 600,
-                  background: isAccepted ? "#dcfce7" : quote.status === "SENT" ? "#e0e7ff" : "#eae7dd",
-                  color: isAccepted ? "#166534" : quote.status === "SENT" ? "#3730a3" : "#726C5C",
-                }}
-              >
-                {quote.status}
-              </span>
-            </div>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <button
+              type="button"
+              onClick={handlePrintPdf}
+              style={{
+                background: "#17150F",
+                color: "#FAF8F5",
+                border: "none",
+                padding: "8px 18px",
+                borderRadius: "999px",
+                fontSize: "13px",
+                fontWeight: 600,
+                cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
+              }}
+            >
+              <span>🖨️</span> Print / Save PDF
+            </button>
           </div>
         </div>
 
-        {/* Action message */}
-        {actionMessage && (
-          <div style={{ background: "#dcfce7", color: "#166534", padding: "14px 18px", borderRadius: "10px", fontFamily: "monospace", fontSize: "13px", marginBottom: "24px" }}>
-            {actionMessage}
+        <div
+          id="printable-quote-sheet"
+          style={{ maxWidth: "820px", margin: "0 auto", background: "#FFFFFF", border: "1px solid #E8E4DC", borderRadius: "20px", padding: "48px 44px", boxShadow: "0 20px 50px -20px rgba(23, 21, 15, 0.12)" }}
+        >
+          
+          {/* Top Header */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", borderBottom: "2px solid #17150F", paddingBottom: "24px", marginBottom: "32px", flexWrap: "wrap", gap: "16px" }}>
+            <div>
+              <Link href="/" style={{ fontFamily: "Georgia, serif", fontSize: "34px", fontWeight: "bold", color: "#17150F", textDecoration: "none" }}>
+                Digigrantha<span style={{ color: "#75801F" }}>.</span>
+              </Link>
+              <div style={{ fontFamily: "monospace", fontSize: "12px", color: "#726C5C", marginTop: "4px" }}>
+                Bespoke Design &amp; Software Studio
+              </div>
+            </div>
+
+            <div style={{ textAlign: "right" }}>
+              <div style={{ fontFamily: "monospace", fontSize: "11px", textTransform: "uppercase", color: "#726C5C", letterSpacing: "0.06em" }}>
+                Formal Quotation
+              </div>
+              <div style={{ fontFamily: "monospace", fontSize: "16px", fontWeight: "bold", color: "#17150F", marginTop: "2px" }}>
+                {quote.quotationNumber}
+              </div>
+              <div style={{ marginTop: "6px" }}>
+                <span
+                  style={{
+                    fontFamily: "monospace",
+                    fontSize: "11px",
+                    padding: "3px 10px",
+                    borderRadius: "999px",
+                    fontWeight: 600,
+                    background: isAccepted ? "#dcfce7" : quote.status === "SENT" ? "#e0e7ff" : "#eae7dd",
+                    color: isAccepted ? "#166534" : quote.status === "SENT" ? "#3730a3" : "#726C5C",
+                  }}
+                >
+                  {quote.status}
+                </span>
+              </div>
+            </div>
           </div>
-        )}
+
+          {/* Action message */}
+          {actionMessage && (
+            <div className="no-print" style={{ background: "#dcfce7", color: "#166534", padding: "14px 18px", borderRadius: "10px", fontFamily: "monospace", fontSize: "13px", marginBottom: "24px" }}>
+              {actionMessage}
+            </div>
+          )}
 
         {/* Client & Project Header Grid */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "20px", background: "#FAF8F5", padding: "20px 24px", borderRadius: "14px", border: "1px solid #E8E4DC", marginBottom: "32px" }}>
@@ -289,8 +423,11 @@ export default function PublicQuotePage({
           </div>
         )}
 
-        {/* Bottom Actions Bar */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px", borderTop: "2px solid #17150F", paddingTop: "28px" }}>
+        {/* Bottom Actions Bar (Hidden when printing) */}
+        <div
+          className="no-print"
+          style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px", borderTop: "2px solid #17150F", paddingTop: "28px" }}
+        >
           <div>
             <div style={{ fontSize: "13px", color: "#726C5C" }}>Questions regarding this estimate?</div>
             <a href={`mailto:team@digigrantha.com?subject=Question on ${quote.quotationNumber}`} style={{ fontSize: "14px", color: "#17150F", fontWeight: 600, textDecoration: "underline" }}>
@@ -301,7 +438,7 @@ export default function PublicQuotePage({
           <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
             <button
               type="button"
-              onClick={() => window.print()}
+              onClick={handlePrintPdf}
               style={{
                 fontFamily: "monospace",
                 fontSize: "13px",
@@ -347,5 +484,6 @@ export default function PublicQuotePage({
 
       </div>
     </div>
+    </>
   );
 }
