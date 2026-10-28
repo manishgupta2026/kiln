@@ -12,5 +12,12 @@
   },
   "observability": {
     "enabled": true
+  },
+  "keep_vars": true,
+  "vars": {
+    "SMTP_HOST": "smtp.zoho.in",
+    "SMTP_PORT": "465",
+    "SMTP_USER": "team@digigrantha.com",
+    "FROM_EMAIL": "Digigrantha <team@digigrantha.com>"
   }
 }

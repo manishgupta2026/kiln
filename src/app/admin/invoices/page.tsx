@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import AdminNavbar from "@/components/AdminNavbar";
 import { ProjectInvoiceRecord, InvoiceLineItem, DEFAULT_BANK_DETAILS, BankDetails } from "@/types/invoice";
+import { DIGITAL_SIGNATURE_SRC } from "@/lib/signature-data";
 
 const STATUS_OPTIONS = [
   { value: "DRAFT", label: "Draft", bg: "#eae7dd", color: "var(--muted)" },
@@ -57,7 +58,7 @@ export default function AdminInvoicesPage() {
   const [issueDate, setIssueDate] = useState(() => new Date().toISOString().split("T")[0]);
   const [dueDate, setDueDate] = useState(() => {
     const d = new Date();
-    d.setDate(d.getDate() + 14);
+    d.setDate(d.getDate() + 2);
     return d.toISOString().split("T")[0];
   });
   const [lineItems, setLineItems] = useState<InvoiceLineItem[]>([
@@ -71,8 +72,8 @@ export default function AdminInvoicesPage() {
     },
   ]);
   const [bankDetails, setBankDetails] = useState<BankDetails>(DEFAULT_BANK_DETAILS);
-  const [paymentTerms, setPaymentTerms] = useState("Full payment due within 14 days of invoice date via NEFT/IMPS/UPI.");
-  const [notes, setNotes] = useState("Thank you for partnering with Digigrantha. Please email remittance advice to team@digigrantha.com once transferred.");
+  const [paymentTerms, setPaymentTerms] = useState("Full payment due within 2 days of invoice date via NEFT/IMPS/UPI.");
+  const [notes, setNotes] = useState("Thank you for partnering with DigiGrantha.");
 
   // Autosave State
   const [autoSaveStatus, setAutoSaveStatus] = useState<"saved" | "saving" | null>(null);
@@ -324,7 +325,7 @@ export default function AdminInvoicesPage() {
     setTaxRate(18);
     setIssueDate(new Date().toISOString().split("T")[0]);
     const due = new Date();
-    due.setDate(due.getDate() + 14);
+    due.setDate(due.getDate() + 2);
     setDueDate(due.toISOString().split("T")[0]);
     setLineItems([
       {
@@ -337,8 +338,8 @@ export default function AdminInvoicesPage() {
       },
     ]);
     setBankDetails(DEFAULT_BANK_DETAILS);
-    setPaymentTerms("Full payment due within 14 days of invoice date via NEFT/IMPS/UPI.");
-    setNotes("Thank you for partnering with Digigrantha. Please email remittance advice to team@digigrantha.com once transferred.");
+    setPaymentTerms("Full payment due within 2 days of invoice date via NEFT/IMPS/UPI.");
+    setNotes("Thank you for partnering with DigiGrantha.");
   };
 
   const handleRestoreDraft = () => {
@@ -393,7 +394,7 @@ export default function AdminInvoicesPage() {
     setTaxRate(18);
     setIssueDate(new Date().toISOString().split("T")[0]);
     const due = new Date();
-    due.setDate(due.getDate() + 14);
+    due.setDate(due.getDate() + 2);
     setDueDate(due.toISOString().split("T")[0]);
     setLineItems([
       {
@@ -406,8 +407,8 @@ export default function AdminInvoicesPage() {
       },
     ]);
     setBankDetails(DEFAULT_BANK_DETAILS);
-    setPaymentTerms("Full payment due within 14 days of invoice date via NEFT/IMPS/UPI.");
-    setNotes("Thank you for partnering with Digigrantha. Please email remittance advice to team@digigrantha.com once transferred.");
+    setPaymentTerms("Full payment due within 2 days of invoice date via NEFT/IMPS/UPI.");
+    setNotes("Thank you for partnering with DigiGrantha.");
     setHasRestoredDraft(false);
     setAutoSaveStatus(null);
     setAutoSavedAt(null);
@@ -629,7 +630,7 @@ export default function AdminInvoicesPage() {
           >
             <div>
               <h1 className="admin-title" style={{ margin: 0, fontSize: "28px" }}>
-                Digigrantha <span>Invoices &amp; Billing</span>
+                DigiGrantha <span>Invoices &amp; Billing</span>
               </h1>
               <div style={{ fontFamily: "var(--mono)", fontSize: "12px", color: "var(--muted)", marginTop: "4px" }}>
                 Tax Invoices, Multi-page PDF Dispatch, Wire Remittance &amp; Real-time Payment Tracking
@@ -1417,7 +1418,7 @@ export default function AdminInvoicesPage() {
             {/* Bank Remittance Details */}
             <div style={{ background: "var(--bg)", border: "1px solid var(--line)", borderRadius: "12px", padding: "18px 20px", marginBottom: "24px" }}>
               <div style={{ fontFamily: "var(--mono)", fontSize: "11.5px", textTransform: "uppercase", color: "var(--accent)", letterSpacing: "0.06em", fontWeight: 700, marginBottom: "14px" }}>
-                Bank Remittance &amp; Wire Settlement Details
+                Bank Details
               </div>
 
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "14px" }}>
@@ -1440,7 +1441,7 @@ export default function AdminInvoicesPage() {
                   </label>
                   <input
                     type="text"
-                    placeholder="e.g. Digigrantha Studio"
+                    placeholder="e.g. DigiGrantha"
                     value={bankDetails.accountName || ""}
                     onChange={(e) => setBankDetails({ ...bankDetails, accountName: e.target.value })}
                     style={{ width: "100%", padding: "8px 12px", borderRadius: "8px", border: "1px solid var(--line)", background: "var(--card)", fontSize: "13px" }}
@@ -1746,7 +1747,7 @@ export default function AdminInvoicesPage() {
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", borderBottom: "2px solid #17150F", paddingBottom: "14px", marginBottom: "18px" }}>
                     <div>
                       <div style={{ fontFamily: "Georgia, serif", fontSize: "28px", fontWeight: "bold", color: "#17150F", letterSpacing: "-0.02em" }}>
-                        Digigrantha<span style={{ color: "#75801F" }}>.</span>
+                        DigiGrantha<span style={{ color: "#75801F" }}>.</span>
                       </div>
                       <div style={{ fontFamily: "monospace", fontSize: "10.5px", color: "#726C5C", marginTop: "3px", letterSpacing: "0.06em", textTransform: "uppercase" }}>
                         Official Tax Invoice &amp; Remittance Memo
@@ -1757,9 +1758,6 @@ export default function AdminInvoicesPage() {
                       <div style={{ fontSize: "10px", color: "#726C5C", textTransform: "uppercase" }}>Invoice Number</div>
                       <div style={{ fontSize: "16px", fontWeight: 700, color: "#17150F", marginTop: "1px" }}>
                         {invoiceNumber || "DG-INV-2026-XXXX"}
-                      </div>
-                      <div style={{ fontSize: "10.5px", color: "#166534", background: "#dcfce7", display: "inline-block", padding: "1px 7px", borderRadius: "999px", marginTop: "3px", fontWeight: 600 }}>
-                        READY TO SEND
                       </div>
                     </div>
                   </div>
@@ -1872,7 +1870,7 @@ export default function AdminInvoicesPage() {
                     </div>
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "8px", fontSize: "12px", color: "#4A463B" }}>
                       <div><span style={{ color: "#726C5C" }}>Bank Name:</span> <strong>{bankDetails.bankName || "ICICI Bank"}</strong></div>
-                      <div><span style={{ color: "#726C5C" }}>Receiver Name:</span> <strong>{bankDetails.accountName || "Digigrantha Studio"}</strong></div>
+                      <div><span style={{ color: "#726C5C" }}>Receiver Name:</span> <strong>{bankDetails.accountName || "Digigrantha"}</strong></div>
                       <div><span style={{ color: "#726C5C" }}>A/C Number:</span> <strong style={{ fontFamily: "monospace" }}>{bankDetails.accountNumber || "—"}</strong></div>
                       <div><span style={{ color: "#726C5C" }}>IFSC Code:</span> <strong style={{ fontFamily: "monospace" }}>{bankDetails.ifscCode || "—"}</strong></div>
                       {bankDetails.branchName && (
@@ -1884,13 +1882,26 @@ export default function AdminInvoicesPage() {
                     </div>
                   </div>
 
-                  {/* Terms & Notes */}
-                  {(paymentTerms || notes) && (
-                    <div className="keep-together" style={{ fontSize: "11px", color: "#726C5C", lineHeight: 1.4, borderTop: "1px solid #E8E4DC", paddingTop: "8px" }}>
+                  {/* Terms, Notes & Authorized Digital Signature */}
+                  <div className="keep-together" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", borderTop: "1px solid #E8E4DC", paddingTop: "10px", marginTop: "8px", flexWrap: "wrap", gap: "12px" }}>
+                    <div style={{ fontSize: "11px", color: "#726C5C", lineHeight: 1.4, maxWidth: "440px" }}>
                       {paymentTerms && <div><strong>Terms:</strong> {paymentTerms}</div>}
                       {notes && <div style={{ marginTop: "2px" }}><strong>Notes:</strong> {notes}</div>}
                     </div>
-                  )}
+                    <div style={{ textAlign: "right", minWidth: "160px" }}>
+                      <div style={{ height: "42px", display: "flex", alignItems: "flex-end", justifyContent: "flex-end" }}>
+                        <img
+                          src={DIGITAL_SIGNATURE_SRC}
+                          alt="Authorized Signature"
+                          style={{ maxHeight: "40px", maxWidth: "150px", objectFit: "contain", mixBlendMode: "multiply" }}
+                        />
+                      </div>
+                      <div style={{ borderTop: "1px solid #17150F", width: "140px", marginLeft: "auto", margin: "4px 0 3px auto" }} />
+                      <div style={{ fontFamily: "var(--mono)", fontSize: "9.5px", color: "#726C5C", textTransform: "uppercase" }}>
+                        Authorized Signature
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 

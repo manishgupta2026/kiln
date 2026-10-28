@@ -76,7 +76,7 @@ export default function PublicQuotePage({
       <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "20px", textAlign: "center" }}>
         <h1 style={{ fontFamily: "var(--display)", fontSize: "32px", marginBottom: "12px" }}>Quotation Unavailable</h1>
         <p style={{ color: "var(--muted)", maxWidth: "460px", marginBottom: "24px" }}>
-          {error || "This quotation could not be loaded. Please check the URL or contact Digigrantha Studio."}
+          {error || "This quotation could not be loaded. Please check the URL or contact Digigrantha."}
         </p>
         <Link href="/" className="btn-primary">
           Back to Digigrantha Homepage →
@@ -201,7 +201,7 @@ export default function PublicQuotePage({
                 gap: "4px",
               }}
             >
-              ← Digigrantha Public Site
+              ← DigiGrantha Public Site
             </Link>
             <span style={{ color: "#E8E4DC" }}>|</span>
             <span style={{ fontFamily: "monospace", fontSize: "12px", color: "#17150F", fontWeight: 600 }}>
@@ -241,7 +241,7 @@ export default function PublicQuotePage({
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", borderBottom: "2px solid #17150F", paddingBottom: "24px", marginBottom: "32px", flexWrap: "wrap", gap: "16px" }}>
             <div>
               <Link href="/" style={{ fontFamily: "Georgia, serif", fontSize: "34px", fontWeight: "bold", color: "#17150F", textDecoration: "none" }}>
-                Digigrantha<span style={{ color: "#75801F" }}>.</span>
+                DigiGrantha<span style={{ color: "#75801F" }}>.</span>
               </Link>
               <div style={{ fontFamily: "monospace", fontSize: "12px", color: "#726C5C", marginTop: "4px" }}>
                 Bespoke Design &amp; Software Studio

@@ -28,7 +28,7 @@ export default function Footer({ showNote = true }: FooterProps) {
         {showNote && (
           <div className="footer-bottom">
             <div className="footer-note">
-              © 2026 Digigrantha Studio. Design and development, in-house, start to finish.
+              © 2026 Digigrantha. Design and development, in-house, start to finish.
             </div>
           </div>
         )}

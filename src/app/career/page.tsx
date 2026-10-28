@@ -5,7 +5,7 @@ import ScrollReveal from "@/components/ScrollReveal";
 import CareerForm from "@/components/CareerForm";
 
 export const metadata: Metadata = {
-  title: "Careers — Digigrantha Studio",
+  title: "Careers — Digigrantha",
   description:
     "Join Digigrantha. Opportunities for Full-time Engineers & Designers, Interns, and Freelance Specialists.",
 };

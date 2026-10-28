@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
       taxAmount: Number(body.taxAmount) || 0,
       totalAmount: Number(body.totalAmount) || 0,
       issueDate: body.issueDate || new Date().toISOString(),
-      dueDate: body.dueDate || new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
+      dueDate: body.dueDate || new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
       lineItems: body.lineItems || [],
       paymentTerms: body.paymentTerms,
       bankDetails: body.bankDetails,

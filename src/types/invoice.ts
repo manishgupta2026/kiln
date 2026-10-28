@@ -49,7 +49,7 @@ export interface ProjectInvoiceRecord {
 }
 
 export const DEFAULT_BANK_DETAILS: BankDetails = {
-  accountName: "Digigrantha Studio",
+  accountName: "Deepak Kumar",
   bankName: "HDFC Bank",
   accountNumber: "50200084920193",
   ifscCode: "HDFC0000240",

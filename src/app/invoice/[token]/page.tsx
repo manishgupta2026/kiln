@@ -3,6 +3,7 @@
 import { useEffect, useState, use } from "react";
 import Link from "next/link";
 import { ProjectInvoiceRecord } from "@/types/invoice";
+import { DIGITAL_SIGNATURE_SRC } from "@/lib/signature-data";
 
 interface PageProps {
   params: Promise<{ token: string }>;
@@ -71,7 +72,7 @@ export default function PublicInvoicePage({ params }: PageProps) {
           Invoice Unavailable
         </h1>
         <p style={{ color: "#726C5C", maxWidth: "460px", marginBottom: "24px", fontSize: "14.5px" }}>
-          {error || "This invoice link could not be loaded. Please contact Digigrantha Studio."}
+          {error || "This invoice link could not be loaded. Please contact Digigrantha."}
         </p>
         <Link href="/" className="btn-primary" style={{ textDecoration: "none", background: "#17150F", color: "#FAF8F5", padding: "12px 24px", borderRadius: "999px" }}>
           Back to Digigrantha Homepage →
@@ -207,7 +208,7 @@ export default function PublicInvoicePage({ params }: PageProps) {
                 gap: "4px",
               }}
             >
-              ← Digigrantha Public Site
+              ← DigiGrantha Public Site
             </Link>
             <span style={{ color: "#E8E4DC" }}>|</span>
             <span style={{ fontFamily: "monospace", fontSize: "12px", color: "#17150F", fontWeight: 600 }}>
@@ -277,7 +278,7 @@ export default function PublicInvoicePage({ params }: PageProps) {
                   letterSpacing: "-0.02em",
                 }}
               >
-                Digigrantha<span style={{ color: "#75801F" }}>.</span>
+                DigiGrantha<span style={{ color: "#75801F" }}>.</span>
               </Link>
               <div style={{ fontFamily: "monospace", fontSize: "12px", color: "#726C5C", marginTop: "4px" }}>
                 Bespoke Design &amp; Software Studio · digigrantha.com
@@ -299,7 +300,7 @@ export default function PublicInvoicePage({ params }: PageProps) {
                     color: isPaid ? "#166534" : isOverdue ? "#991b1b" : "#92400e",
                   }}
                 >
-                  {isPaid ? "PAID" : isOverdue ? "OVERDUE" : "PAYMENT DUE"}
+                  {isPaid ? "PAID" : isOverdue ? "OVERDUE" : "PAYMENT INFO"}
                 </span>
               </div>
               <div style={{ fontFamily: "Georgia, serif", fontSize: "22px", fontWeight: "bold", color: "#17150F" }}>
@@ -492,7 +493,7 @@ export default function PublicInvoicePage({ params }: PageProps) {
             <div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
                 <div style={{ fontFamily: "monospace", fontSize: "11px", textTransform: "uppercase", color: "#75801F", letterSpacing: "0.06em", fontWeight: 700 }}>
-                  Bank Remittance / Wire Info
+                  Bank Details
                 </div>
                 <button
                   type="button"
@@ -514,7 +515,7 @@ export default function PublicInvoicePage({ params }: PageProps) {
               </div>
 
               <div style={{ fontSize: "13px", color: "#4A463B", lineHeight: 1.6 }}>
-                <div><span style={{ color: "#726C5C" }}>Receiver / Beneficiary:</span> <strong>{bank?.accountName || "Digigrantha Studio"}</strong></div>
+                <div><span style={{ color: "#726C5C" }}>Receiver / Beneficiary:</span> <strong>{bank?.accountName || "DigiGrantha"}</strong></div>
                 <div><span style={{ color: "#726C5C" }}>Bank Name:</span> <strong>{bank?.bankName || "HDFC Bank"}</strong></div>
                 <div><span style={{ color: "#726C5C" }}>A/C Number:</span> <strong style={{ fontFamily: "monospace" }}>{bank?.accountNumber || "—"}</strong></div>
                 <div><span style={{ color: "#726C5C" }}>IFSC Code:</span> <strong style={{ fontFamily: "monospace" }}>{bank?.ifscCode || "—"}</strong></div>
@@ -588,18 +589,22 @@ export default function PublicInvoicePage({ params }: PageProps) {
           >
             <div style={{ maxWidth: "480px" }}>
               <div style={{ fontFamily: "monospace", fontSize: "11px", textTransform: "uppercase", color: "#726C5C", marginBottom: "4px" }}>
-                Notes &amp; Inclusions
+                Notes
               </div>
               <div style={{ fontSize: "12.5px", color: "#726C5C", lineHeight: 1.5, whiteSpace: "pre-line" }}>
-                {invoice.notes || "Thank you for partnering with Digigrantha. Please email remittance advice to team@digigrantha.com once transferred."}
+                {invoice.notes || "Thank you for partnering with DigiGrantha."}
               </div>
             </div>
 
             <div style={{ textAlign: "right", minWidth: "180px" }}>
-              <div style={{ fontFamily: "Georgia, serif", fontSize: "18px", fontStyle: "italic", color: "#17150F", marginBottom: "4px" }}>
-                Digigrantha Studio
+              <div style={{ height: "48px", display: "flex", alignItems: "flex-end", justifyContent: "flex-end" }}>
+                <img
+                  src={DIGITAL_SIGNATURE_SRC}
+                  alt="Authorized Signature"
+                  style={{ maxHeight: "46px", maxWidth: "160px", objectFit: "contain", mixBlendMode: "multiply" }}
+                />
               </div>
-              <div style={{ borderTop: "1px solid #17150F", width: "160px", marginLeft: "auto", margin: "8px 0 4px auto" }} />
+              <div style={{ borderTop: "1px solid #17150F", width: "160px", marginLeft: "auto", margin: "4px 0 4px auto" }} />
               <div style={{ fontFamily: "monospace", fontSize: "10.5px", color: "#726C5C", textTransform: "uppercase" }}>
                 Authorized Signature
               </div>

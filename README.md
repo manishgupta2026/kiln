@@ -1,4 +1,4 @@
-# Digigrantha Studio — Editorial Digital Product Studio
+# Digigrantha — Editorial Digital Product Studio
 
 > **Digigrantha** is a full-stack digital product and web development studio website built with Next.js 15 (App Router), TypeScript, Prisma ORM, and Neon PostgreSQL. Designed with an editorial, typography-first aesthetic (Instrument Serif + IBM Plex Mono) and backed by a private admin CMS for managing client briefs, project archives, and site settings.
 
@@ -141,4 +141,4 @@ To access the private studio admin dashboard:
 
 ## 📄 License
 
-MIT © Digigrantha Studio
+MIT © Digigrantha

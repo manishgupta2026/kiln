@@ -37,7 +37,7 @@ export async function sendEmail(options: EmailOptions): Promise<{ success: boole
         },
       });
 
-      const fromAddress = process.env.FROM_EMAIL || `"Digigrantha Studio" <${smtpUser}>`;
+      const fromAddress = process.env.FROM_EMAIL || `"Digigrantha" <${smtpUser}>`;
 
       await transporter.sendMail({
         from: fromAddress,
@@ -72,7 +72,7 @@ export async function sendEmail(options: EmailOptions): Promise<{ success: boole
       });
 
       await transporter.sendMail({
-        from: `"Digigrantha Studio" <${gmailUser}>`,
+        from: `"Digigrantha" <${gmailUser}>`,
         to: `"${options.name}" <${options.to}>`,
         subject: options.subject,
         html: options.html,
@@ -93,7 +93,7 @@ export async function sendEmail(options: EmailOptions): Promise<{ success: boole
     const fromEmail =
       process.env.FROM_EMAIL && !process.env.FROM_EMAIL.includes("team@digigrantha.com") && !process.env.FROM_EMAIL.includes("team@kiln.design")
         ? process.env.FROM_EMAIL
-        : "Digigrantha Studio <onboarding@resend.dev>";
+        : "Digigrantha <onboarding@resend.dev>";
 
     try {
       const res = await fetch("https://api.resend.com/emails", {
@@ -148,7 +148,7 @@ export async function sendCallScheduledEmail(
   meetingUrl?: string | null,
   notes?: string | null
 ) {
-  const subject = `Discovery Call Confirmed — Digigrantha Studio`;
+  const subject = `Discovery Call Confirmed — Digigrantha`;
 
   const formattedDate = new Date(scheduledDate).toLocaleDateString("en-US", {
     weekday: "long",
@@ -170,19 +170,17 @@ export async function sendCallScheduledEmail(
       <div style="background: #FFFFFF; border: 1px solid #E8E4DC; border-radius: 12px; padding: 20px; margin: 24px 0;">
         <div style="font-size: 12px; font-family: monospace; text-transform: uppercase; color: #75801F; margin-bottom: 6px;">Date & Time</div>
         <div style="font-size: 16px; font-weight: 600; color: #17150F; margin-bottom: 14px;">${formattedDate}</div>
-        ${
-          meetingUrl
-            ? `<div style="font-size: 12px; font-family: monospace; text-transform: uppercase; color: #75801F; margin-bottom: 6px;">Meeting Link</div>
+        ${meetingUrl
+      ? `<div style="font-size: 12px; font-family: monospace; text-transform: uppercase; color: #75801F; margin-bottom: 6px;">Meeting Link</div>
                <a href="${meetingUrl}" style="color: #17150F; font-size: 14px; text-decoration: underline; word-break: break-all;">${meetingUrl}</a>`
-            : `<div style="font-size: 13.5px; color: #726C5C;">Our engineering team will dial your phone number at the scheduled time.</div>`
-        }
-        ${
-          notes
-            ? `<div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid #E8E4DC; font-size: 13.5px; color: #726C5C;">
+      : `<div style="font-size: 13.5px; color: #726C5C;">Our engineering team will dial your phone number at the scheduled time.</div>`
+    }
+        ${notes
+      ? `<div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid #E8E4DC; font-size: 13.5px; color: #726C5C;">
                  <strong>Agenda:</strong> ${notes}
                </div>`
-            : ""
-        }
+      : ""
+    }
       </div>
       <p style="font-size: 13.5px; color: #8F8978; line-height: 1.5;">
         Looking forward to speaking with you.<br/>
@@ -191,7 +189,7 @@ export async function sendCallScheduledEmail(
     </div>
   `;
 
-  const text = `Hi ${name},\n\nWe've scheduled your discovery call for:\n${formattedDate}\n\nMeeting link/details: ${meetingUrl || "We will call your phone number directly."}\n\n${notes ? `Agenda: ${notes}\n\n` : ""}Looking forward to speaking with you.\nDigigrantha Studio`;
+  const text = `Hi ${name},\n\nWe've scheduled your discovery call for:\n${formattedDate}\n\nMeeting link/details: ${meetingUrl || "We will call your phone number directly."}\n\n${notes ? `Agenda: ${notes}\n\n` : ""}Looking forward to speaking with you.\nDigigrantha`;
 
   return sendEmail({ to, name, subject, html, text });
 }
@@ -361,13 +359,12 @@ export async function sendQuotationEmail(
       </h2>
       ${quotation.clientCompany ? `<div style="font-size: 13.5px; color: #726C5C; margin-bottom: 16px;"><strong>Company:</strong> ${quotation.clientCompany}</div>` : ""}
 
-      ${
-        options?.customNote
-          ? `<div style="background: #FFFFFF; border-left: 3px solid #75801F; padding: 14px 18px; border-radius: 4px; margin-bottom: 24px; font-size: 14px; line-height: 1.55; color: #4A463B;">
+      ${options?.customNote
+      ? `<div style="background: #FFFFFF; border-left: 3px solid #75801F; padding: 14px 18px; border-radius: 4px; margin-bottom: 24px; font-size: 14px; line-height: 1.55; color: #4A463B;">
                ${options.customNote.replace(/\n/g, "<br/>")}
              </div>`
-          : ""
-      }
+      : ""
+    }
 
       <!-- Project Overview -->
       <div style="background: #FFFFFF; border: 1px solid #E8E4DC; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
@@ -406,22 +403,20 @@ export async function sendQuotationEmail(
             <span>Subtotal:</span>
             <span>${formatAmt(quotation.subtotal)}</span>
           </div>
-          ${
-            quotation.discount > 0
-              ? `<div style="display: flex; justify-content: space-between; font-size: 13.5px; color: #75801F; margin-bottom: 6px;">
+          ${quotation.discount > 0
+      ? `<div style="display: flex; justify-content: space-between; font-size: 13.5px; color: #75801F; margin-bottom: 6px;">
                    <span>Studio Partner Discount:</span>
                    <span>- ${formatAmt(quotation.discount)}</span>
                  </div>`
-              : ""
-          }
-          ${
-            quotation.taxRate > 0
-              ? `<div style="display: flex; justify-content: space-between; font-size: 13.5px; color: #726C5C; margin-bottom: 6px;">
+      : ""
+    }
+          ${quotation.taxRate > 0
+      ? `<div style="display: flex; justify-content: space-between; font-size: 13.5px; color: #726C5C; margin-bottom: 6px;">
                    <span>GST / Tax (${quotation.taxRate}%):</span>
                    <span>+ ${formatAmt(quotation.taxAmount)}</span>
                  </div>`
-              : ""
-          }
+      : ""
+    }
           <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; color: #17150F; padding-top: 10px; border-top: 2px solid #17150F; margin-top: 8px;">
             <span>Total Investment:</span>
             <span style="color: #75801F;">${formatAmt(quotation.totalAmount)}</span>
@@ -443,22 +438,20 @@ export async function sendQuotationEmail(
           <strong style="color: #726C5C; font-size: 11.5px; font-family: monospace; text-transform: uppercase;">Validity:</strong>
           <div style="color: #17150F; margin-top: 2px;">This estimate is valid until ${validUntilFormatted}.</div>
         </div>
-        ${
-          techChipsHtml
-            ? `<div>
+        ${techChipsHtml
+      ? `<div>
                  <strong style="color: #726C5C; font-size: 11.5px; font-family: monospace; text-transform: uppercase; display: block; margin-bottom: 6px;">Recommended Stack:</strong>
                  <div>${techChipsHtml}</div>
                </div>`
-            : ""
-        }
-        ${
-          quotation.termsAndNotes
-            ? `<div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid #E8E4DC; color: #726C5C; font-size: 12.5px; line-height: 1.5;">
+      : ""
+    }
+        ${quotation.termsAndNotes
+      ? `<div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid #E8E4DC; color: #726C5C; font-size: 12.5px; line-height: 1.5;">
                  <strong>Notes &amp; Inclusions:</strong><br/>
                  ${quotation.termsAndNotes.replace(/\n/g, "<br/>")}
                </div>`
-            : ""
-        }
+      : ""
+    }
       </div>
 
       <!-- CTA Button -->
@@ -474,7 +467,7 @@ export async function sendQuotationEmail(
       <!-- Footer Note -->
       <div style="border-top: 1px solid #E8E4DC; padding-top: 20px; font-size: 12.5px; color: #8F8978; line-height: 1.5;">
         To proceed with this quotation or request scope adjustments, simply reply directly to this email.<br/>
-        <strong>Digigrantha Studio</strong> — Bespoke design and software engineering, in-house, start to finish.
+        <strong>Digigrantha</strong> — Bespoke design and software engineering, in-house, start to finish.
       </div>
     </div>
   `;
@@ -486,7 +479,7 @@ export async function sendQuotationEmail(
     )
     .join("\n\n");
 
-  const text = `Digigrantha Studio — Project Quotation [${quotation.quotationNumber}]
+  const text = `Digigrantha — Project Quotation [${quotation.quotationNumber}]
 Project: ${quotation.projectTitle}
 Client: ${quotation.clientName} (${quotation.clientCompany || ""})
 Total: ${formatAmt(quotation.totalAmount)}
@@ -506,7 +499,7 @@ ${quotation.discount > 0 ? `DISCOUNT: - ${formatAmt(quotation.discount)}\n` : ""
 View & Accept Online: ${quoteUrl}
 
 To accept or adjust this quotation, reply directly to this email.
-Digigrantha Studio`;
+Digigrantha`;
 
   return sendEmail({
     to: quotation.clientEmail,
@@ -584,7 +577,7 @@ export async function sendInvoiceEmail(
 
   const subject =
     options?.customSubject ||
-    `Invoice ${invoice.invoiceNumber} from Digigrantha Studio — ${formatAmt(invoice.totalAmount)}`;
+    `Invoice ${invoice.invoiceNumber} from DigiGrantha — ${formatAmt(invoice.totalAmount)}`;
 
   const lineItemsHtml = invoice.lineItems
     .map(
@@ -617,7 +610,7 @@ export async function sendInvoiceEmail(
       <div style="display: flex; justify-content: space-between; align-items: baseline; border-bottom: 2px solid #17150F; padding-bottom: 16px; margin-bottom: 24px;">
         <div>
           <div style="font-family: Georgia, serif; font-size: 28px; font-weight: bold; color: #17150F;">
-            Digigrantha<span style="color: #75801F;">.</span>
+            DigiGrantha<span style="color: #75801F;">.</span>
           </div>
           <div style="font-size: 12px; color: #726C5C; margin-top: 4px; font-family: monospace;">
             TAX INVOICE &amp; PAYMENT NOTICE
@@ -649,13 +642,12 @@ export async function sendInvoiceEmail(
         </table>
       </div>
 
-      ${
-        options?.customNote
-          ? `<div style="background: #FFFFFF; border-left: 3px solid #75801F; padding: 14px 18px; border-radius: 4px; margin-bottom: 24px; font-size: 14px; line-height: 1.55; color: #4A463B;">
+      ${options?.customNote
+      ? `<div style="background: #FFFFFF; border-left: 3px solid #75801F; padding: 14px 18px; border-radius: 4px; margin-bottom: 24px; font-size: 14px; line-height: 1.55; color: #4A463B;">
                ${options.customNote.replace(/\n/g, "<br/>")}
              </div>`
-          : ""
-      }
+      : ""
+    }
 
       <!-- Line Items Table -->
       <div style="background: #FFFFFF; border: 1px solid #E8E4DC; border-radius: 12px; padding: 18px 20px; margin-bottom: 24px;">
@@ -679,22 +671,20 @@ export async function sendInvoiceEmail(
             <span>Subtotal:</span>
             <span>${formatAmt(invoice.subtotal)}</span>
           </div>
-          ${
-            invoice.discount > 0
-              ? `<div style="display: flex; justify-content: space-between; font-size: 13.5px; color: #75801F; margin-bottom: 6px;">
+          ${invoice.discount > 0
+      ? `<div style="display: flex; justify-content: space-between; font-size: 13.5px; color: #75801F; margin-bottom: 6px;">
                    <span>Discount Applied:</span>
                    <span>- ${formatAmt(invoice.discount)}</span>
                  </div>`
-              : ""
-          }
-          ${
-            invoice.taxRate > 0
-              ? `<div style="display: flex; justify-content: space-between; font-size: 13.5px; color: #726C5C; margin-bottom: 6px;">
+      : ""
+    }
+          ${invoice.taxRate > 0
+      ? `<div style="display: flex; justify-content: space-between; font-size: 13.5px; color: #726C5C; margin-bottom: 6px;">
                    <span>GST / Tax (${invoice.taxRate}%):</span>
                    <span>+ ${formatAmt(invoice.taxAmount)}</span>
                  </div>`
-              : ""
-          }
+      : ""
+    }
           <div style="display: flex; justify-content: space-between; font-size: 19px; font-weight: bold; color: #17150F; padding-top: 10px; border-top: 2px solid #17150F; margin-top: 8px;">
             <span>Total Balance Due:</span>
             <span style="color: #75801F;">${formatAmt(invoice.totalAmount)}</span>
@@ -703,17 +693,16 @@ export async function sendInvoiceEmail(
       </div>
 
       <!-- Payment Instructions / Bank Details -->
-      ${
-        bank
-          ? `
+      ${bank
+      ? `
       <div style="background: #FFFFFF; border: 1px solid #E8E4DC; border-radius: 12px; padding: 20px; margin-bottom: 24px; font-size: 13px;">
         <div style="font-size: 11px; font-family: monospace; text-transform: uppercase; color: #75801F; margin-bottom: 12px; letter-spacing: 0.05em;">
-          Remittance &amp; Wire Transfer Details
+          Bank Details
         </div>
         <table style="width: 100%; border-collapse: collapse; font-size: 13px; color: #4A463B;">
           <tr>
             <td style="padding: 4px 0; width: 38%; color: #726C5C;">Beneficiary Name:</td>
-            <td style="padding: 4px 0; font-weight: 600; color: #17150F;">${bank.accountName || "Digigrantha Studio"}</td>
+            <td style="padding: 4px 0; font-weight: 600; color: #17150F;">${bank.accountName || "DigiGrantha"}</td>
           </tr>
           <tr>
             <td style="padding: 4px 0; color: #726C5C;">Bank:</td>
@@ -727,35 +716,32 @@ export async function sendInvoiceEmail(
             <td style="padding: 4px 0; color: #726C5C;">IFSC Code:</td>
             <td style="padding: 4px 0; font-family: monospace; font-weight: 600; color: #17150F;">${bank.ifscCode || "—"}</td>
           </tr>
-          ${
-            bank.branchName
-              ? `<tr>
+          ${bank.branchName
+        ? `<tr>
                    <td style="padding: 4px 0; color: #726C5C;">Branch:</td>
                    <td style="padding: 4px 0; font-weight: 500; color: #17150F;">${bank.branchName}</td>
                  </tr>`
-              : ""
-          }
-          ${
-            bank.upiId
-              ? `<tr>
+        : ""
+      }
+          ${bank.upiId
+        ? `<tr>
                    <td style="padding: 4px 0; color: #726C5C;">Instant UPI ID:</td>
                    <td style="padding: 4px 0; font-family: monospace; font-weight: 600; color: #75801F;">${bank.upiId}</td>
                  </tr>`
-              : ""
-          }
-          ${
-            bank.swiftCode
-              ? `<tr>
+        : ""
+      }
+          ${bank.swiftCode
+        ? `<tr>
                    <td style="padding: 4px 0; color: #726C5C;">SWIFT Code (USD):</td>
                    <td style="padding: 4px 0; font-family: monospace; color: #17150F;">${bank.swiftCode}</td>
                  </tr>`
-              : ""
-          }
+        : ""
+      }
         </table>
       </div>
       `
-          : ""
-      }
+      : ""
+    }
 
       <!-- CTA Buttons -->
       <div style="text-align: center; margin: 32px 0 20px;">
@@ -770,7 +756,7 @@ export async function sendInvoiceEmail(
       <!-- Footer Note -->
       <div style="border-top: 1px solid #E8E4DC; padding-top: 20px; font-size: 12.5px; color: #8F8978; line-height: 1.5;">
         After making payment, please reply to this email with your transaction UTR / receipt so we can issue your paid confirmation.<br/>
-        <strong>Digigrantha Studio</strong> — Engineering &amp; digital craft.
+        <strong>DigiGrantha</strong> — Engineering &amp; digital craft.
       </div>
     </div>
   `;
@@ -782,7 +768,7 @@ export async function sendInvoiceEmail(
     )
     .join("\n");
 
-  const text = `Digigrantha Studio — Tax Invoice [${invoice.invoiceNumber}]
+  const text = `DigiGrantha — Tax Invoice [${invoice.invoiceNumber}]
 Project: ${invoice.projectTitle}
 Client: ${invoice.clientName} (${invoice.clientCompany || ""})
 Amount Due: ${formatAmt(invoice.totalAmount)}
@@ -796,7 +782,7 @@ SUBTOTAL: ${formatAmt(invoice.subtotal)}
 ${invoice.discount > 0 ? `DISCOUNT: - ${formatAmt(invoice.discount)}\n` : ""}${invoice.taxRate > 0 ? `TAX (${invoice.taxRate}%): + ${formatAmt(invoice.taxAmount)}\n` : ""}TOTAL: ${formatAmt(invoice.totalAmount)}
 
 REMITTANCE DETAILS:
-A/C Name: ${bank?.accountName || "Digigrantha Studio"}
+A/C Name: ${bank?.accountName || "Digigrantha"}
 Bank: ${bank?.bankName || "HDFC Bank"}
 Account: ${bank?.accountNumber || "—"}
 IFSC: ${bank?.ifscCode || "—"}
@@ -804,7 +790,7 @@ ${bank?.branchName ? `Branch: ${bank.branchName}\n` : ""}${bank?.upiId ? `UPI: $
 View & Download PDF: ${invoiceUrl}
 
 Please reply with the payment confirmation once sent.
-Digigrantha Studio`;
+Digigrantha`;
 
   return sendEmail({
     to: invoice.clientEmail,
