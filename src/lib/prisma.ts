@@ -2,6 +2,7 @@ import { neonConfig } from "@neondatabase/serverless";
 import { PrismaNeon } from "@prisma/adapter-neon";
 import { PrismaClient } from "@prisma/client";
 import ws from "ws";
+import { getEnv, syncCloudflareEnv } from "@/lib/env";
 
 export * from "@/types/portal";
 
@@ -10,23 +11,50 @@ if (typeof WebSocket === "undefined") {
   neonConfig.webSocketConstructor = ws;
 }
 
-function createPrismaClient() {
-  const connectionString = process.env.DATABASE_URL;
-  if (connectionString) {
-    try {
-      const adapter = new PrismaNeon({ connectionString });
-      return new PrismaClient({ adapter, log: ["error", "warn"] });
-    } catch {
-      return new PrismaClient({ log: ["error", "warn"] });
-    }
-  }
-  return new PrismaClient({ log: ["error", "warn"] });
+export function getDatabaseUrl(): string | undefined {
+  return getEnv("DATABASE_URL") || getEnv("DIRECT_URL");
 }
 
-const globalForPrisma = globalThis as unknown as {
-  prisma: any;
-};
+let _prismaInstance: any = null;
 
-export const prisma: any = globalForPrisma.prisma ?? createPrismaClient();
+export function getPrismaClient(): any {
+  syncCloudflareEnv();
+  const dbUrl = getDatabaseUrl();
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+  // If already instantiated with the Neon adapter, return it
+  if (_prismaInstance && _prismaInstance.__hasAdapter) {
+    return _prismaInstance;
+  }
+
+  if (dbUrl) {
+    try {
+      const adapter = new PrismaNeon({ connectionString: dbUrl });
+      const client = new PrismaClient({ adapter, log: ["error", "warn"] });
+      (client as any).__hasAdapter = true;
+      _prismaInstance = client;
+      return client;
+    } catch (err) {
+      console.warn("PrismaNeon adapter init failed:", err);
+    }
+  }
+
+  if (!_prismaInstance) {
+    _prismaInstance = new PrismaClient({ log: ["error", "warn"] });
+  }
+
+  return _prismaInstance;
+}
+
+// Lazy Proxy: guarantees prisma client is resolved dynamically on first query inside request context
+export const prisma: any = new Proxy({}, {
+  get(_target, prop) {
+    const client: any = getPrismaClient();
+    const value = client[prop];
+    return typeof value === "function" ? value.bind(client) : value;
+  },
+  set(_target, prop, value) {
+    const client: any = getPrismaClient();
+    client[prop] = value;
+    return true;
+  },
+});

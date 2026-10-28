@@ -2,12 +2,17 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 
+import { getEnv } from "@/lib/env";
+
 const SESSION_COOKIE = "digigrantha_session";
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.NEXTAUTH_SECRET ||
-    process.env.ADMIN_JWT_SECRET ||
-    "digigrantha-production-client-portal-jwt-secret-2026"
-);
+
+function getJwtSecret(): Uint8Array {
+  const secret =
+    getEnv("NEXTAUTH_SECRET") ||
+    getEnv("ADMIN_JWT_SECRET") ||
+    "digigrantha-production-client-portal-jwt-secret-2026";
+  return new TextEncoder().encode(secret);
+}
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -22,7 +27,7 @@ export async function middleware(request: NextRequest) {
     }
 
     try {
-      const { payload } = await jwtVerify(token, JWT_SECRET);
+      const { payload } = await jwtVerify(token, getJwtSecret());
       const role = payload.role as string;
       if (role !== "CLIENT" && role !== "ADMIN") {
         if (role === "DEVELOPER") {
@@ -45,7 +50,7 @@ export async function middleware(request: NextRequest) {
     }
 
     try {
-      const { payload } = await jwtVerify(token, JWT_SECRET);
+      const { payload } = await jwtVerify(token, getJwtSecret());
       const role = payload.role as string;
       if (role !== "DEVELOPER" && role !== "ADMIN") {
         if (role === "CLIENT") {
@@ -73,7 +78,7 @@ export async function middleware(request: NextRequest) {
     }
 
     try {
-      const { payload } = await jwtVerify(token, JWT_SECRET);
+      const { payload } = await jwtVerify(token, getJwtSecret());
       const role = payload.role as string;
       if (role !== "ADMIN") {
         if (role === "DEVELOPER") return NextResponse.redirect(new URL("/dev", request.url));

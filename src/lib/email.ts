@@ -4,6 +4,7 @@
  */
 
 import nodemailer from "nodemailer";
+import { syncCloudflareEnv } from "@/lib/env";
 
 export interface EmailOptions {
   to: string;
@@ -14,6 +15,7 @@ export interface EmailOptions {
 }
 
 export async function sendEmail(options: EmailOptions): Promise<{ success: boolean; error?: string }> {
+  syncCloudflareEnv();
   // 1. Check for Gmail / Custom SMTP credentials first
   const smtpUser = process.env.SMTP_USER || process.env.GMAIL_USER;
   const smtpPass = process.env.SMTP_PASS || process.env.GMAIL_APP_PASSWORD;

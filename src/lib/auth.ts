@@ -4,13 +4,17 @@ import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma, Role } from "@/lib/prisma";
 
+import { getEnv } from "@/lib/env";
+
 export const SESSION_COOKIE = "digigrantha_session";
 
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.NEXTAUTH_SECRET ||
-    process.env.ADMIN_JWT_SECRET ||
-    "digigrantha-production-client-portal-jwt-secret-2026"
-);
+function getJwtSecret(): Uint8Array {
+  const secret =
+    getEnv("NEXTAUTH_SECRET") ||
+    getEnv("ADMIN_JWT_SECRET") ||
+    "digigrantha-production-client-portal-jwt-secret-2026";
+  return new TextEncoder().encode(secret);
+}
 
 export interface SessionUser {
   userId: string;
@@ -37,12 +41,12 @@ export async function signSessionToken(user: SessionUser): Promise<string> {
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime("7d")
-    .sign(JWT_SECRET);
+    .sign(getJwtSecret());
 }
 
 export async function verifySessionToken(token: string): Promise<SessionUser | null> {
   try {
-    const { payload } = await jwtVerify(token, JWT_SECRET);
+    const { payload } = await jwtVerify(token, getJwtSecret());
     return {
       userId: payload.userId as string,
       email: payload.email as string,
