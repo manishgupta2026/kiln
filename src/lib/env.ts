@@ -1,19 +1,20 @@
+import { getCloudflareContext } from "@opennextjs/cloudflare";
+
 /**
  * Environment variable resolution helper for Node.js and Cloudflare Workers (OpenNext)
  */
-
 export function getEnv(key: string): string | undefined {
   // 1. Direct process.env check
   if (typeof process !== "undefined" && process.env?.[key]) {
     return process.env[key];
   }
 
-  // 2. OpenNext Cloudflare global context symbol (sync, fast, non-throwing)
+  // 2. OpenNext official getCloudflareContext API
   try {
-    const cfSymbol = Symbol.for("__cloudflare-context__");
-    const cfContext = (globalThis as any)[cfSymbol];
-    if (cfContext?.env?.[key]) {
-      const val = String(cfContext.env[key]);
+    const cf = getCloudflareContext();
+    const cfEnv = cf?.env as any;
+    if (cfEnv?.[key]) {
+      const val = String(cfEnv[key]);
       if (typeof process !== "undefined" && process.env) {
         process.env[key] = val;
       }
@@ -21,13 +22,12 @@ export function getEnv(key: string): string | undefined {
     }
   } catch {}
 
-  // 3. OpenNext getCloudflareContext API
+  // 3. OpenNext Cloudflare global context symbol (sync, fast fallback)
   try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { getCloudflareContext } = require("@opennextjs/cloudflare");
-    const cf = getCloudflareContext();
-    if (cf?.env?.[key]) {
-      const val = String(cf.env[key]);
+    const cfSymbol = Symbol.for("__cloudflare-context__");
+    const cfContext = (globalThis as any)[cfSymbol];
+    if (cfContext?.env?.[key]) {
+      const val = String(cfContext.env[key]);
       if (typeof process !== "undefined" && process.env) {
         process.env[key] = val;
       }
@@ -57,19 +57,18 @@ export function syncCloudflareEnv(): Record<string, any> {
   }
 
   try {
-    const cfSymbol = Symbol.for("__cloudflare-context__");
-    const cfContext = (globalThis as any)[cfSymbol];
-    if (cfContext?.env) {
-      Object.assign(env, cfContext.env);
+    const cf = getCloudflareContext();
+    const cfEnv = cf?.env as any;
+    if (cfEnv) {
+      Object.assign(env, cfEnv);
     }
   } catch {}
 
   try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { getCloudflareContext } = require("@opennextjs/cloudflare");
-    const cf = getCloudflareContext();
-    if (cf?.env) {
-      Object.assign(env, cf.env);
+    const cfSymbol = Symbol.for("__cloudflare-context__");
+    const cfContext = (globalThis as any)[cfSymbol];
+    if (cfContext?.env) {
+      Object.assign(env, cfContext.env);
     }
   } catch {}
 

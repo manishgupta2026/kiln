@@ -85,12 +85,13 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     console.error("Login route error:", error);
     const dbUrl = getDatabaseUrl();
+    const errorDetails = error?.message || String(error);
     return NextResponse.json(
       {
         success: false,
         error: !dbUrl
-          ? "Database connection string (DATABASE_URL) is not set in Cloudflare Worker settings."
-          : (error.message || "Authentication failed. Please try again."),
+          ? `Database connection string (DATABASE_URL) is not set in Cloudflare Worker settings. [Debug: ${errorDetails}]`
+          : `Login failed: ${errorDetails}`,
       },
       { status: 500 }
     );
