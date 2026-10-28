@@ -10,9 +10,8 @@ if (typeof WebSocket === "undefined") {
   neonConfig.webSocketConstructor = ws;
 }
 
-const connectionString = process.env.DATABASE_URL;
-
 function createPrismaClient() {
+  const connectionString = process.env.DATABASE_URL;
   if (connectionString) {
     try {
       const adapter = new PrismaNeon({ connectionString });

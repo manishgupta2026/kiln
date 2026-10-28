@@ -25,9 +25,18 @@ export async function POST(request: NextRequest) {
     }
 
     const { email, password } = parsed.data;
-    const user = await prisma.user.findUnique({
-      where: { email: email.toLowerCase() },
+    const normalizedEmail = email.toLowerCase().trim();
+
+    let user = await prisma.user.findUnique({
+      where: { email: normalizedEmail },
     });
+
+    // Support both new digigrantha domain, legacy kiln domain, or admin username
+    if (!user && (normalizedEmail === "admin@digigrantha.com" || normalizedEmail === "admin@kiln.design" || normalizedEmail === "admin")) {
+      user = await prisma.user.findFirst({
+        where: { role: "ADMIN" },
+      });
+    }
 
     if (!user || !user.passwordHash) {
       return NextResponse.json(
@@ -70,8 +79,14 @@ export async function POST(request: NextRequest) {
     return response;
   } catch (error: any) {
     console.error("Login route error:", error);
+    const hasDbUrl = !!process.env.DATABASE_URL;
     return NextResponse.json(
-      { success: false, error: "Authentication failed. Please try again." },
+      {
+        success: false,
+        error: !hasDbUrl
+          ? "Database connection string (DATABASE_URL) is not set in Cloudflare Worker settings."
+          : (error.message || "Authentication failed. Please try again."),
+      },
       { status: 500 }
     );
   }
