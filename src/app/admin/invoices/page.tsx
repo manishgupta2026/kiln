@@ -33,6 +33,7 @@ export default function AdminInvoicesPage() {
   const [modalMode, setModalMode] = useState<"create" | "edit">("create");
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
 
   // Send Email Modal State
   const [showSendModal, setShowSendModal] = useState(false);
@@ -73,6 +74,12 @@ export default function AdminInvoicesPage() {
   const [paymentTerms, setPaymentTerms] = useState("Full payment due within 14 days of invoice date via NEFT/IMPS/UPI.");
   const [notes, setNotes] = useState("Thank you for partnering with Digigrantha. Please email remittance advice to team@digigrantha.com once transferred.");
 
+  // Autosave State
+  const [autoSaveStatus, setAutoSaveStatus] = useState<"saved" | "saving" | null>(null);
+  const [autoSavedAt, setAutoSavedAt] = useState<string | null>(null);
+  const [hasRestoredDraft, setHasRestoredDraft] = useState(false);
+  const [hasUnsavedLocalDraft, setHasUnsavedLocalDraft] = useState(false);
+
   const loadInvoices = async () => {
     try {
       setLoading(true);
@@ -105,12 +112,132 @@ export default function AdminInvoicesPage() {
   useEffect(() => {
     loadInvoices();
     loadAvailableQuotes();
+    try {
+      const saved = localStorage.getItem("digigrantha_invoice_draft_v1");
+      if (saved) {
+        setHasUnsavedLocalDraft(true);
+      }
+    } catch {}
   }, []);
 
   // Compute subtotal, tax amount, total
   const subtotal = lineItems.reduce((acc, item) => acc + (Number(item.amount) || 0), 0);
   const taxAmount = Math.round((subtotal - discount) * (taxRate / 100));
   const totalAmount = Math.max(0, subtotal - discount + taxAmount);
+
+  // Autosave Effect: debounced localStorage sync + background DB update in edit mode
+  useEffect(() => {
+    if (!showModal) return;
+
+    const hasAnyContent =
+      clientName.trim() ||
+      projectTitle.trim() ||
+      clientEmail.trim() ||
+      clientCompany.trim() ||
+      lineItems.some((li) => li.title.trim());
+
+    if (!hasAnyContent) return;
+
+    setAutoSaveStatus("saving");
+
+    const timer = setTimeout(async () => {
+      const nowStr = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+
+      // 1. Always save in-progress state to localStorage
+      try {
+        const draftObj = {
+          invoiceNumber,
+          clientName,
+          clientEmail,
+          clientPhone,
+          clientCompany,
+          clientAddress,
+          clientGstin,
+          projectTitle,
+          overview,
+          currency,
+          discount,
+          taxRate,
+          issueDate,
+          dueDate,
+          lineItems,
+          bankDetails,
+          paymentTerms,
+          notes,
+          lastSavedAt: nowStr,
+        };
+        localStorage.setItem("digigrantha_invoice_draft_v1", JSON.stringify(draftObj));
+        setHasUnsavedLocalDraft(true);
+      } catch (err) {
+        console.warn("Could not save to localStorage:", err);
+      }
+
+      // 2. If editing an existing invoice in the database, sync to DB as well
+      if (modalMode === "edit" && editingId) {
+        try {
+          await fetch(`/api/admin/invoices/${editingId}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              invoiceNumber: invoiceNumber.trim() || undefined,
+              clientName: clientName.trim(),
+              clientEmail: clientEmail.trim(),
+              clientPhone: clientPhone.trim() || null,
+              clientCompany: clientCompany.trim() || null,
+              clientAddress: clientAddress.trim() || null,
+              clientGstin: clientGstin.trim() || null,
+              projectTitle: projectTitle.trim(),
+              overview: overview.trim() || null,
+              currency,
+              subtotal,
+              discount,
+              taxRate,
+              taxAmount,
+              totalAmount,
+              issueDate: new Date(issueDate).toISOString(),
+              dueDate: new Date(dueDate).toISOString(),
+              lineItems,
+              paymentTerms,
+              bankDetails,
+              notes,
+            }),
+          });
+        } catch (dbErr) {
+          console.warn("Background db autosave failed:", dbErr);
+        }
+      }
+
+      setAutoSaveStatus("saved");
+      setAutoSavedAt(nowStr);
+    }, 700);
+
+    return () => clearTimeout(timer);
+  }, [
+    showModal,
+    modalMode,
+    editingId,
+    invoiceNumber,
+    clientName,
+    clientEmail,
+    clientPhone,
+    clientCompany,
+    clientAddress,
+    clientGstin,
+    projectTitle,
+    overview,
+    currency,
+    discount,
+    taxRate,
+    issueDate,
+    dueDate,
+    lineItems,
+    bankDetails,
+    paymentTerms,
+    notes,
+    subtotal,
+    taxAmount,
+    totalAmount,
+  ]);
 
   // Line items handlers
   const handleItemChange = (index: number, field: keyof InvoiceLineItem, value: any) => {
@@ -175,7 +302,94 @@ export default function AdminInvoicesPage() {
     }
   };
 
+  const handleClearDraft = () => {
+    try {
+      localStorage.removeItem("digigrantha_invoice_draft_v1");
+    } catch {}
+    setHasRestoredDraft(false);
+    setHasUnsavedLocalDraft(false);
+    setAutoSaveStatus(null);
+    setAutoSavedAt(null);
+    setInvoiceNumber("");
+    setClientName("");
+    setClientEmail("");
+    setClientPhone("");
+    setClientCompany("");
+    setClientAddress("");
+    setClientGstin("");
+    setProjectTitle("");
+    setOverview("");
+    setCurrency("INR");
+    setDiscount(0);
+    setTaxRate(18);
+    setIssueDate(new Date().toISOString().split("T")[0]);
+    const due = new Date();
+    due.setDate(due.getDate() + 14);
+    setDueDate(due.toISOString().split("T")[0]);
+    setLineItems([
+      {
+        id: "item_1",
+        title: "Digital Product Architecture & Engineering",
+        description: "Milestone deliverable as agreed in project brief.",
+        quantity: 1,
+        rate: 150000,
+        amount: 150000,
+      },
+    ]);
+    setBankDetails(DEFAULT_BANK_DETAILS);
+    setPaymentTerms("Full payment due within 14 days of invoice date via NEFT/IMPS/UPI.");
+    setNotes("Thank you for partnering with Digigrantha. Please email remittance advice to team@digigrantha.com once transferred.");
+  };
+
   const handleOpenCreateModal = () => {
+    // Check if there is an in-progress draft in localStorage
+    try {
+      const saved = localStorage.getItem("digigrantha_invoice_draft_v1");
+      if (saved) {
+        const draft = JSON.parse(saved);
+        setModalMode("create");
+        setEditingId(null);
+        setInvoiceNumber(draft.invoiceNumber || "");
+        setClientName(draft.clientName || "");
+        setClientEmail(draft.clientEmail || "");
+        setClientPhone(draft.clientPhone || "");
+        setClientCompany(draft.clientCompany || "");
+        setClientAddress(draft.clientAddress || "");
+        setClientGstin(draft.clientGstin || "");
+        setProjectTitle(draft.projectTitle || "");
+        setOverview(draft.overview || "");
+        setCurrency(draft.currency || "INR");
+        setDiscount(draft.discount || 0);
+        setTaxRate(draft.taxRate !== undefined ? draft.taxRate : 18);
+        setIssueDate(draft.issueDate || new Date().toISOString().split("T")[0]);
+        setDueDate(draft.dueDate || (() => { const d = new Date(); d.setDate(d.getDate() + 14); return d.toISOString().split("T")[0]; })());
+        setLineItems(
+          draft.lineItems && draft.lineItems.length > 0
+            ? draft.lineItems
+            : [
+                {
+                  id: "item_1",
+                  title: "Digital Product Architecture & Engineering",
+                  description: "Milestone deliverable as agreed in project brief.",
+                  quantity: 1,
+                  rate: 150000,
+                  amount: 150000,
+                },
+              ]
+        );
+        setBankDetails(draft.bankDetails || DEFAULT_BANK_DETAILS);
+        setPaymentTerms(draft.paymentTerms || "Full payment due within 14 days of invoice date via NEFT/IMPS/UPI.");
+        setNotes(draft.notes || "Thank you for partnering with Digigrantha. Please email remittance advice to team@digigrantha.com once transferred.");
+        setHasRestoredDraft(true);
+        setAutoSaveStatus("saved");
+        setAutoSavedAt(draft.lastSavedAt || null);
+        setShowModal(true);
+        return;
+      }
+    } catch (e) {
+      console.warn("Failed to restore draft:", e);
+    }
+
     setModalMode("create");
     setEditingId(null);
     setInvoiceNumber("");
@@ -205,6 +419,11 @@ export default function AdminInvoicesPage() {
       },
     ]);
     setBankDetails(DEFAULT_BANK_DETAILS);
+    setPaymentTerms("Full payment due within 14 days of invoice date via NEFT/IMPS/UPI.");
+    setNotes("Thank you for partnering with Digigrantha. Please email remittance advice to team@digigrantha.com once transferred.");
+    setHasRestoredDraft(false);
+    setAutoSaveStatus(null);
+    setAutoSavedAt(null);
     setShowModal(true);
   };
 
@@ -292,6 +511,11 @@ export default function AdminInvoicesPage() {
           ? `Invoice ${data.data.invoiceNumber} saved & sent to ${clientEmail}!`
           : `Invoice ${data.data.invoiceNumber} saved successfully.`
       );
+      try {
+        localStorage.removeItem("digigrantha_invoice_draft_v1");
+      } catch {}
+      setHasRestoredDraft(false);
+      setHasUnsavedLocalDraft(false);
       setShowModal(false);
       loadInvoices();
     } catch (err: any) {
@@ -436,6 +660,32 @@ export default function AdminInvoicesPage() {
             <div style={{ background: "#fee2e2", color: "#991b1b", padding: "12px 18px", borderRadius: "10px", marginBottom: "20px", fontSize: "13.5px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <span>⚠ {errorMsg}</span>
               <button type="button" onClick={() => setErrorMsg(null)} style={{ background: "none", border: "none", color: "#991b1b", cursor: "pointer", fontWeight: "bold" }}>✕</button>
+            </div>
+          )}
+
+          {/* Draft In-Progress Banner */}
+          {hasUnsavedLocalDraft && !showModal && (
+            <div style={{ background: "#fef9c3", border: "1px solid #fde047", padding: "12px 18px", borderRadius: "10px", marginBottom: "20px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "10px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "13px", color: "#854d0e" }}>
+                <span>📝</span>
+                <span>You have an autosaved invoice draft in progress.</span>
+              </div>
+              <div style={{ display: "flex", gap: "8px" }}>
+                <button
+                  type="button"
+                  onClick={handleOpenCreateModal}
+                  style={{ background: "#854d0e", color: "#fff", border: "none", padding: "6px 14px", borderRadius: "6px", fontSize: "12px", cursor: "pointer", fontWeight: 600 }}
+                >
+                  Resume Draft ↗
+                </button>
+                <button
+                  type="button"
+                  onClick={handleClearDraft}
+                  style={{ background: "none", border: "1px solid #ca8a04", padding: "6px 14px", borderRadius: "6px", fontSize: "12px", cursor: "pointer", color: "#854d0e" }}
+                >
+                  Discard
+                </button>
+              </div>
             </div>
           )}
 
@@ -780,23 +1030,51 @@ export default function AdminInvoicesPage() {
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px", borderBottom: "1px solid var(--line)", paddingBottom: "16px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px", borderBottom: "1px solid var(--line)", paddingBottom: "16px", flexWrap: "wrap", gap: "10px" }}>
               <div>
-                <h2 style={{ fontFamily: "var(--display)", fontSize: "24px", margin: 0, color: "var(--ink)" }}>
-                  {modalMode === "create" ? "Generate Tax Invoice" : `Edit Invoice ${invoiceNumber}`}
-                </h2>
+                <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
+                  <h2 style={{ fontFamily: "var(--display)", fontSize: "24px", margin: 0, color: "var(--ink)" }}>
+                    {modalMode === "create" ? "Generate Tax Invoice" : `Edit Invoice ${invoiceNumber}`}
+                  </h2>
+                  {autoSaveStatus === "saving" && (
+                    <span style={{ fontSize: "11px", fontFamily: "var(--mono)", color: "#b45309", background: "#fef3c7", padding: "2px 8px", borderRadius: "999px", display: "inline-flex", alignItems: "center", gap: "4px" }}>
+                      <span style={{ display: "inline-block", width: "6px", height: "6px", borderRadius: "50%", background: "#f59e0b" }}></span>
+                      Autosaving draft...
+                    </span>
+                  )}
+                  {autoSaveStatus === "saved" && autoSavedAt && (
+                    <span style={{ fontSize: "11px", fontFamily: "var(--mono)", color: "#166534", background: "#dcfce7", padding: "2px 8px", borderRadius: "999px", display: "inline-flex", alignItems: "center", gap: "4px" }}>
+                      <span style={{ display: "inline-block", width: "6px", height: "6px", borderRadius: "50%", background: "#16a34a" }}></span>
+                      Autosaved ({autoSavedAt})
+                    </span>
+                  )}
+                </div>
                 <div style={{ fontFamily: "var(--mono)", fontSize: "12px", color: "var(--muted)", marginTop: "2px" }}>
-                  Configured with multi-page print breakdown, GST calculation &amp; instant bank remittance
+                  Progress is autosaved so you can complete invoice details anytime
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setShowModal(false)}
-                style={{ background: "none", border: "none", fontSize: "20px", cursor: "pointer", color: "var(--muted)" }}
+                style={{ background: "none", border: "none", fontSize: "20px", cursor: "pointer", color: "var(--muted)", padding: "4px 8px" }}
               >
                 ✕
               </button>
             </div>
+
+            {/* Restored Draft Alert Banner */}
+            {hasRestoredDraft && modalMode === "create" && (
+              <div style={{ background: "#fef9c3", border: "1px solid #fde047", padding: "10px 14px", borderRadius: "8px", marginBottom: "18px", display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "12px", color: "#854d0e" }}>
+                <span>💾 Restored your in-progress draft from earlier. You can continue filling remaining details.</span>
+                <button
+                  type="button"
+                  onClick={handleClearDraft}
+                  style={{ background: "none", border: "1px solid #ca8a04", padding: "3px 10px", borderRadius: "4px", fontSize: "11px", cursor: "pointer", color: "#854d0e", fontWeight: 600 }}
+                >
+                  Discard &amp; Start Fresh
+                </button>
+              </div>
+            )}
 
             {/* Quick Import from Quotations Dropdown (only in create mode) */}
             {modalMode === "create" && availableQuotes.length > 0 && (
@@ -1081,86 +1359,496 @@ export default function AdminInvoicesPage() {
               </div>
             </div>
 
-            {/* Bank Details & Payment Notes */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "16px", marginBottom: "24px" }}>
-              <div>
-                <label style={{ display: "block", fontSize: "11px", fontFamily: "var(--mono)", color: "var(--muted)", marginBottom: "4px" }}>
-                  Bank A/C Number
-                </label>
-                <input
-                  type="text"
-                  value={bankDetails.accountNumber}
-                  onChange={(e) => setBankDetails({ ...bankDetails, accountNumber: e.target.value })}
-                  style={{ width: "100%", padding: "8px 12px", borderRadius: "8px", border: "1px solid var(--line)", background: "var(--bg)", fontSize: "13px" }}
-                />
+            {/* Bank Remittance Details */}
+            <div style={{ background: "var(--bg)", border: "1px solid var(--line)", borderRadius: "12px", padding: "18px 20px", marginBottom: "24px" }}>
+              <div style={{ fontFamily: "var(--mono)", fontSize: "11.5px", textTransform: "uppercase", color: "var(--accent)", letterSpacing: "0.06em", fontWeight: 700, marginBottom: "14px" }}>
+                Bank Remittance &amp; Wire Settlement Details
               </div>
 
-              <div>
-                <label style={{ display: "block", fontSize: "11px", fontFamily: "var(--mono)", color: "var(--muted)", marginBottom: "4px" }}>
-                  IFSC Code
-                </label>
-                <input
-                  type="text"
-                  value={bankDetails.ifscCode}
-                  onChange={(e) => setBankDetails({ ...bankDetails, ifscCode: e.target.value })}
-                  style={{ width: "100%", padding: "8px 12px", borderRadius: "8px", border: "1px solid var(--line)", background: "var(--bg)", fontSize: "13px" }}
-                />
-              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "14px" }}>
+                <div>
+                  <label style={{ display: "block", fontSize: "11px", fontFamily: "var(--mono)", color: "var(--muted)", marginBottom: "4px" }}>
+                    Bank Name *
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. HDFC Bank, ICICI Bank"
+                    value={bankDetails.bankName || ""}
+                    onChange={(e) => setBankDetails({ ...bankDetails, bankName: e.target.value })}
+                    style={{ width: "100%", padding: "8px 12px", borderRadius: "8px", border: "1px solid var(--line)", background: "var(--card)", fontSize: "13px" }}
+                  />
+                </div>
 
-              <div>
-                <label style={{ display: "block", fontSize: "11px", fontFamily: "var(--mono)", color: "var(--muted)", marginBottom: "4px" }}>
-                  UPI ID (VPA)
-                </label>
-                <input
-                  type="text"
-                  value={bankDetails.upiId || ""}
-                  onChange={(e) => setBankDetails({ ...bankDetails, upiId: e.target.value })}
-                  style={{ width: "100%", padding: "8px 12px", borderRadius: "8px", border: "1px solid var(--line)", background: "var(--bg)", fontSize: "13px" }}
-                />
+                <div>
+                  <label style={{ display: "block", fontSize: "11px", fontFamily: "var(--mono)", color: "var(--muted)", marginBottom: "4px" }}>
+                    Receiver Name (Account Holder) *
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Digigrantha Studio"
+                    value={bankDetails.accountName || ""}
+                    onChange={(e) => setBankDetails({ ...bankDetails, accountName: e.target.value })}
+                    style={{ width: "100%", padding: "8px 12px", borderRadius: "8px", border: "1px solid var(--line)", background: "var(--card)", fontSize: "13px" }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: "block", fontSize: "11px", fontFamily: "var(--mono)", color: "var(--muted)", marginBottom: "4px" }}>
+                    Bank A/C Number *
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 50200084920193"
+                    value={bankDetails.accountNumber || ""}
+                    onChange={(e) => setBankDetails({ ...bankDetails, accountNumber: e.target.value })}
+                    style={{ width: "100%", padding: "8px 12px", borderRadius: "8px", border: "1px solid var(--line)", background: "var(--card)", fontSize: "13px" }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: "block", fontSize: "11px", fontFamily: "var(--mono)", color: "var(--muted)", marginBottom: "4px" }}>
+                    IFSC Code *
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. HDFC0000240"
+                    value={bankDetails.ifscCode || ""}
+                    onChange={(e) => setBankDetails({ ...bankDetails, ifscCode: e.target.value.toUpperCase() })}
+                    style={{ width: "100%", padding: "8px 12px", borderRadius: "8px", border: "1px solid var(--line)", background: "var(--card)", fontSize: "13px" }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: "block", fontSize: "11px", fontFamily: "var(--mono)", color: "var(--muted)", marginBottom: "4px" }}>
+                    Branch Name
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Koramangala, Bengaluru"
+                    value={bankDetails.branchName || ""}
+                    onChange={(e) => setBankDetails({ ...bankDetails, branchName: e.target.value })}
+                    style={{ width: "100%", padding: "8px 12px", borderRadius: "8px", border: "1px solid var(--line)", background: "var(--card)", fontSize: "13px" }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: "block", fontSize: "11px", fontFamily: "var(--mono)", color: "var(--muted)", marginBottom: "4px" }}>
+                    UPI ID (VPA)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. digigrantha@upi"
+                    value={bankDetails.upiId || ""}
+                    onChange={(e) => setBankDetails({ ...bankDetails, upiId: e.target.value })}
+                    style={{ width: "100%", padding: "8px 12px", borderRadius: "8px", border: "1px solid var(--line)", background: "var(--card)", fontSize: "13px" }}
+                  />
+                </div>
               </div>
             </div>
 
             {/* Bottom Actions */}
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: "12px", borderTop: "1px solid var(--line)", paddingTop: "20px" }}>
-              <button
-                type="button"
-                onClick={() => setShowModal(false)}
-                style={{ background: "none", border: "1px solid var(--line)", padding: "10px 18px", borderRadius: "999px", fontSize: "13px", cursor: "pointer" }}
-              >
-                Cancel
-              </button>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid var(--line)", paddingTop: "20px", flexWrap: "wrap", gap: "12px" }}>
+              <div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!clientName.trim() || !projectTitle.trim()) {
+                      alert("Please enter at least Client Name and Project Title to preview.");
+                      return;
+                    }
+                    setShowPreviewModal(true);
+                  }}
+                  style={{
+                    background: "var(--card)",
+                    border: "1px solid var(--accent)",
+                    color: "var(--accent)",
+                    padding: "10px 20px",
+                    borderRadius: "999px",
+                    fontSize: "13px",
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
+                  }}
+                >
+                  <span>👁️</span> Preview Invoice Before Sending
+                </button>
+              </div>
 
+              <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  style={{ background: "none", border: "1px solid var(--line)", padding: "10px 18px", borderRadius: "999px", fontSize: "13px", cursor: "pointer" }}
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="button"
+                  disabled={saving}
+                  onClick={() => handleSaveInvoice(false)}
+                  style={{
+                    background: "var(--bg)",
+                    border: "1px solid var(--ink)",
+                    color: "var(--ink)",
+                    padding: "10px 20px",
+                    borderRadius: "999px",
+                    fontSize: "13px",
+                    fontWeight: 600,
+                    cursor: "pointer",
+                  }}
+                >
+                  {saving ? "Saving…" : "Save as Draft"}
+                </button>
+
+                <button
+                  type="button"
+                  disabled={saving}
+                  onClick={() => handleSaveInvoice(true)}
+                  className="btn-primary"
+                  style={{
+                    padding: "10px 22px",
+                    fontSize: "13px",
+                    cursor: "pointer",
+                  }}
+                >
+                  {saving ? "Processing…" : "Save & Send Email"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================= LIVE INVOICE PREVIEW MODAL ================= */}
+      {showPreviewModal && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.65)",
+            backdropFilter: "blur(6px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 10000,
+            padding: "20px",
+          }}
+          onClick={() => setShowPreviewModal(false)}
+        >
+          <div
+            style={{
+              background: "#FAF8F5",
+              borderRadius: "20px",
+              width: "100%",
+              maxWidth: "920px",
+              maxHeight: "92vh",
+              overflowY: "auto",
+              boxShadow: "0 25px 60px rgba(0,0,0,0.35)",
+              border: "1px solid #E8E4DC",
+              display: "flex",
+              flexDirection: "column",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Top Toolbar */}
+            <div
+              style={{
+                padding: "14px 24px",
+                background: "#17150F",
+                color: "#FAF8F5",
+                borderRadius: "20px 20px 0 0",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                flexWrap: "wrap",
+                gap: "10px",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <span style={{ fontSize: "16px" }}>👁️</span>
+                <span style={{ fontFamily: "var(--mono)", fontSize: "13px", fontWeight: 600, letterSpacing: "0.04em" }}>
+                  INVOICE PREVIEW &amp; PROOFING
+                </span>
+                <span style={{ fontSize: "11px", background: "rgba(255,255,255,0.15)", padding: "2px 8px", borderRadius: "999px" }}>
+                  {invoiceNumber || "AUTO-GENERATED NUMBER"}
+                </span>
+              </div>
+
+              <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                <button
+                  type="button"
+                  onClick={() => window.print()}
+                  style={{
+                    background: "rgba(255,255,255,0.15)",
+                    color: "#FFFFFF",
+                    border: "none",
+                    padding: "7px 14px",
+                    borderRadius: "999px",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "5px",
+                  }}
+                >
+                  <span>🖨️</span> Print / Save PDF
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setShowPreviewModal(false)}
+                  style={{
+                    background: "#FFFFFF",
+                    color: "#17150F",
+                    border: "none",
+                    padding: "7px 14px",
+                    borderRadius: "999px",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    cursor: "pointer",
+                  }}
+                >
+                  ← Back to Edit
+                </button>
+              </div>
+            </div>
+
+            {/* Printable Invoice Sheet Container */}
+            <div style={{ padding: "32px 36px", flex: 1, background: "#FAF8F5" }}>
+              <div
+                style={{
+                  background: "#FFFFFF",
+                  border: "1px solid #E8E4DC",
+                  borderRadius: "16px",
+                  padding: "40px",
+                  boxShadow: "0 10px 30px rgba(0,0,0,0.04)",
+                }}
+              >
+                {/* Header */}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", borderBottom: "2px solid #17150F", paddingBottom: "20px", marginBottom: "28px" }}>
+                  <div>
+                    <div style={{ fontFamily: "Georgia, serif", fontSize: "32px", fontWeight: "bold", color: "#17150F" }}>
+                      Digigrantha<span style={{ color: "#75801F" }}>.</span>
+                    </div>
+                    <div style={{ fontFamily: "monospace", fontSize: "11px", color: "#726C5C", marginTop: "4px", letterSpacing: "0.06em", textTransform: "uppercase" }}>
+                      Official Tax Invoice &amp; Remittance Memo
+                    </div>
+                  </div>
+
+                  <div style={{ textAlign: "right", fontFamily: "monospace" }}>
+                    <div style={{ fontSize: "11px", color: "#726C5C", textTransform: "uppercase" }}>Invoice Number</div>
+                    <div style={{ fontSize: "17px", fontWeight: 700, color: "#17150F", marginTop: "2px" }}>
+                      {invoiceNumber || "DG-INV-2026-XXXX"}
+                    </div>
+                    <div style={{ fontSize: "11.5px", color: "#166534", background: "#dcfce7", display: "inline-block", padding: "2px 8px", borderRadius: "999px", marginTop: "4px", fontWeight: 600 }}>
+                      DRAFT / READY TO SEND
+                    </div>
+                  </div>
+                </div>
+
+                {/* Billed To & Project Meta */}
+                <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: "24px", marginBottom: "28px" }}>
+                  <div>
+                    <div style={{ fontFamily: "monospace", fontSize: "11px", textTransform: "uppercase", color: "#75801F", letterSpacing: "0.05em", fontWeight: 700, marginBottom: "6px" }}>
+                      Billed To (Client)
+                    </div>
+                    <div style={{ fontSize: "16px", fontWeight: 700, color: "#17150F" }}>{clientName || "Client Name"}</div>
+                    {clientCompany && <div style={{ fontSize: "13.5px", color: "#4A463B", marginTop: "2px" }}>{clientCompany}</div>}
+                    <div style={{ fontSize: "13px", color: "#726C5C", marginTop: "2px" }}>{clientEmail || "client@company.com"}</div>
+                    {clientPhone && <div style={{ fontSize: "12.5px", color: "#726C5C" }}>Phone: {clientPhone}</div>}
+                    {clientAddress && (
+                      <div style={{ fontSize: "12px", color: "#726C5C", marginTop: "4px", whiteSpace: "pre-line", lineHeight: 1.4 }}>
+                        {clientAddress}
+                      </div>
+                    )}
+                    {clientGstin && (
+                      <div style={{ fontSize: "12px", fontFamily: "monospace", color: "#17150F", marginTop: "4px" }}>
+                        GSTIN: <strong>{clientGstin}</strong>
+                      </div>
+                    )}
+                  </div>
+
+                  <div style={{ background: "#FAF8F5", border: "1px solid #E8E4DC", borderRadius: "10px", padding: "16px" }}>
+                    <div style={{ fontSize: "13px", marginBottom: "6px", display: "flex", justifyContent: "space-between" }}>
+                      <span style={{ color: "#726C5C" }}>Project:</span>
+                      <strong style={{ color: "#17150F", textAlign: "right" }}>{projectTitle || "Project Deliverable"}</strong>
+                    </div>
+                    <div style={{ fontSize: "13px", marginBottom: "6px", display: "flex", justifyContent: "space-between" }}>
+                      <span style={{ color: "#726C5C" }}>Issue Date:</span>
+                      <strong style={{ color: "#17150F" }}>{issueDate}</strong>
+                    </div>
+                    <div style={{ fontSize: "13px", marginBottom: "6px", display: "flex", justifyContent: "space-between" }}>
+                      <span style={{ color: "#726C5C" }}>Due Date:</span>
+                      <strong style={{ color: "#c93b2b" }}>{dueDate}</strong>
+                    </div>
+                    <div style={{ fontSize: "13px", display: "flex", justifyContent: "space-between" }}>
+                      <span style={{ color: "#726C5C" }}>Currency:</span>
+                      <strong style={{ color: "#17150F" }}>{currency}</strong>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Line Items Table */}
+                <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "20px" }}>
+                  <thead>
+                    <tr style={{ borderBottom: "1.5px solid #17150F" }}>
+                      <th style={{ padding: "8px 10px", fontFamily: "monospace", fontSize: "11px", textTransform: "uppercase", color: "#726C5C", textAlign: "left", width: "5%" }}>#</th>
+                      <th style={{ padding: "8px 10px", fontFamily: "monospace", fontSize: "11px", textTransform: "uppercase", color: "#726C5C", textAlign: "left" }}>Deliverable / Service</th>
+                      <th style={{ padding: "8px 10px", fontFamily: "monospace", fontSize: "11px", textTransform: "uppercase", color: "#726C5C", textAlign: "center", width: "10%" }}>Qty</th>
+                      <th style={{ padding: "8px 10px", fontFamily: "monospace", fontSize: "11px", textTransform: "uppercase", color: "#726C5C", textAlign: "right", width: "15%" }}>Rate</th>
+                      <th style={{ padding: "8px 10px", fontFamily: "monospace", fontSize: "11px", textTransform: "uppercase", color: "#726C5C", textAlign: "right", width: "18%" }}>Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {lineItems.map((item, idx) => (
+                      <tr key={item.id || idx} style={{ borderBottom: "1px solid #E8E4DC" }}>
+                        <td style={{ padding: "12px 10px", fontFamily: "monospace", fontSize: "12px", color: "#726C5C" }}>{idx + 1}</td>
+                        <td style={{ padding: "12px 10px" }}>
+                          <div style={{ fontSize: "14px", fontWeight: 600, color: "#17150F" }}>{item.title || "Untitled deliverable"}</div>
+                          {item.description && <div style={{ fontSize: "12px", color: "#726C5C", marginTop: "2px" }}>{item.description}</div>}
+                        </td>
+                        <td style={{ padding: "12px 10px", textAlign: "center", fontFamily: "monospace", fontSize: "13px" }}>{item.quantity || 1}</td>
+                        <td style={{ padding: "12px 10px", textAlign: "right", fontFamily: "monospace", fontSize: "13px" }}>
+                          {currency === "INR" ? `₹${(item.rate || 0).toLocaleString("en-IN")}` : `$${(item.rate || 0).toLocaleString("en-US")}`}
+                        </td>
+                        <td style={{ padding: "12px 10px", textAlign: "right", fontFamily: "monospace", fontSize: "13.5px", fontWeight: 600 }}>
+                          {currency === "INR" ? `₹${(item.amount || 0).toLocaleString("en-IN")}` : `$${(item.amount || 0).toLocaleString("en-US")}`}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                {/* Totals Summary */}
+                <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "28px" }}>
+                  <div style={{ width: "100%", maxWidth: "340px", background: "#FAF8F5", border: "1px solid #E8E4DC", borderRadius: "10px", padding: "16px" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", color: "#726C5C", marginBottom: "6px" }}>
+                      <span>Subtotal:</span>
+                      <span style={{ fontFamily: "monospace" }}>{currency === "INR" ? `₹${subtotal.toLocaleString("en-IN")}` : `$${subtotal.toLocaleString("en-US")}`}</span>
+                    </div>
+                    {discount > 0 && (
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", color: "#75801F", marginBottom: "6px" }}>
+                        <span>Discount:</span>
+                        <span style={{ fontFamily: "monospace" }}>- {currency === "INR" ? `₹${discount.toLocaleString("en-IN")}` : `$${discount.toLocaleString("en-US")}`}</span>
+                      </div>
+                    )}
+                    {taxRate > 0 && (
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", color: "#726C5C", marginBottom: "6px" }}>
+                        <span>GST / Tax ({taxRate}%):</span>
+                        <span style={{ fontFamily: "monospace" }}>+ {currency === "INR" ? `₹${taxAmount.toLocaleString("en-IN")}` : `$${taxAmount.toLocaleString("en-US")}`}</span>
+                      </div>
+                    )}
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "17px", fontWeight: 700, borderTop: "2px solid #17150F", paddingTop: "8px", marginTop: "6px" }}>
+                      <span>Total Balance:</span>
+                      <span style={{ color: "#75801F", fontFamily: "monospace" }}>
+                        {currency === "INR" ? `₹${totalAmount.toLocaleString("en-IN")}` : `$${totalAmount.toLocaleString("en-US")}`}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bank Wire Details (All 5 fields requested) */}
+                <div style={{ background: "#FAF8F5", border: "1px solid #E8E4DC", borderRadius: "12px", padding: "18px 22px", marginBottom: "20px" }}>
+                  <div style={{ fontFamily: "monospace", fontSize: "11px", textTransform: "uppercase", color: "#75801F", letterSpacing: "0.06em", fontWeight: 700, marginBottom: "12px" }}>
+                    Bank Remittance &amp; Wire Settlement Details
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "10px", fontSize: "13px", color: "#4A463B" }}>
+                    <div><span style={{ color: "#726C5C" }}>Bank Name:</span> <strong>{bankDetails.bankName || "HDFC Bank"}</strong></div>
+                    <div><span style={{ color: "#726C5C" }}>Receiver Name:</span> <strong>{bankDetails.accountName || "Digigrantha Studio"}</strong></div>
+                    <div><span style={{ color: "#726C5C" }}>A/C Number:</span> <strong style={{ fontFamily: "monospace" }}>{bankDetails.accountNumber || "—"}</strong></div>
+                    <div><span style={{ color: "#726C5C" }}>IFSC Code:</span> <strong style={{ fontFamily: "monospace" }}>{bankDetails.ifscCode || "—"}</strong></div>
+                    {bankDetails.branchName && (
+                      <div><span style={{ color: "#726C5C" }}>Branch Name:</span> <strong>{bankDetails.branchName}</strong></div>
+                    )}
+                    {bankDetails.upiId && (
+                      <div><span style={{ color: "#726C5C" }}>UPI ID (VPA):</span> <strong style={{ fontFamily: "monospace", color: "#75801F" }}>{bankDetails.upiId}</strong></div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Terms & Notes */}
+                {(paymentTerms || notes) && (
+                  <div style={{ fontSize: "12px", color: "#726C5C", lineHeight: 1.5, borderTop: "1px solid #E8E4DC", paddingTop: "14px" }}>
+                    {paymentTerms && <div><strong>Terms:</strong> {paymentTerms}</div>}
+                    {notes && <div style={{ marginTop: "4px" }}><strong>Notes:</strong> {notes}</div>}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Bottom Actions inside Preview Modal */}
+            <div
+              style={{
+                padding: "16px 24px",
+                background: "#FFFFFF",
+                borderTop: "1px solid #E8E4DC",
+                borderRadius: "0 0 20px 20px",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                flexWrap: "wrap",
+                gap: "12px",
+              }}
+            >
               <button
                 type="button"
-                disabled={saving}
-                onClick={() => handleSaveInvoice(false)}
+                onClick={() => setShowPreviewModal(false)}
                 style={{
-                  background: "var(--bg)",
-                  border: "1px solid var(--ink)",
-                  color: "var(--ink)",
-                  padding: "10px 20px",
+                  background: "none",
+                  border: "1px solid #E8E4DC",
+                  padding: "9px 18px",
                   borderRadius: "999px",
                   fontSize: "13px",
-                  fontWeight: 600,
                   cursor: "pointer",
+                  color: "#17150F",
                 }}
               >
-                {saving ? "Saving…" : "Save as Draft"}
+                ← Back to Edit Invoice
               </button>
 
-              <button
-                type="button"
-                disabled={saving}
-                onClick={() => handleSaveInvoice(true)}
-                className="btn-primary"
-                style={{
-                  padding: "10px 22px",
-                  fontSize: "13px",
-                  cursor: "pointer",
-                }}
-              >
-                {saving ? "Processing…" : "Save & Send Email"}
-              </button>
+              <div style={{ display: "flex", gap: "10px" }}>
+                <button
+                  type="button"
+                  disabled={saving}
+                  onClick={() => {
+                    handleSaveInvoice(false);
+                    setShowPreviewModal(false);
+                  }}
+                  style={{
+                    background: "none",
+                    border: "1px solid #17150F",
+                    padding: "9px 20px",
+                    borderRadius: "999px",
+                    fontSize: "13px",
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    color: "#17150F",
+                  }}
+                >
+                  Save as Draft
+                </button>
+
+                <button
+                  type="button"
+                  disabled={saving}
+                  onClick={() => {
+                    handleSaveInvoice(true);
+                    setShowPreviewModal(false);
+                  }}
+                  className="btn-primary"
+                  style={{
+                    padding: "9px 22px",
+                    fontSize: "13px",
+                    cursor: "pointer",
+                  }}
+                >
+                  {saving ? "Sending…" : "🚀 Confirm & Send Email"}
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -1204,6 +1892,24 @@ export default function AdminInvoicesPage() {
             <div style={{ background: "var(--bg)", padding: "12px 14px", borderRadius: "8px", border: "1px solid var(--line)", marginBottom: "16px", fontSize: "13px" }}>
               <div><strong>Recipient:</strong> {activeInvoiceForSend.clientName} ({activeInvoiceForSend.clientEmail})</div>
               <div style={{ marginTop: "4px" }}><strong>Invoice:</strong> {activeInvoiceForSend.invoiceNumber} — {activeInvoiceForSend.currency === "INR" ? `₹${activeInvoiceForSend.totalAmount.toLocaleString("en-IN")}` : `$${activeInvoiceForSend.totalAmount.toLocaleString("en-US")}`}</div>
+              <div style={{ marginTop: "8px", paddingTop: "8px", borderTop: "1px dashed var(--line)" }}>
+                <Link
+                  href={`/invoice/${activeInvoiceForSend.viewToken}`}
+                  target="_blank"
+                  style={{
+                    fontSize: "12px",
+                    fontFamily: "var(--mono)",
+                    color: "var(--accent)",
+                    textDecoration: "none",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "4px",
+                    fontWeight: 600,
+                  }}
+                >
+                  <span>👁️</span> Preview full client invoice in new tab ↗
+                </Link>
+              </div>
             </div>
 
             <div style={{ marginBottom: "20px" }}>

@@ -504,9 +504,9 @@ export async function sendInvoiceEmail(
       bankName?: string;
       accountNumber?: string;
       ifscCode?: string;
+      branchName?: string | null;
       swiftCode?: string | null;
       upiId?: string | null;
-      paymentLink?: string | null;
     } | null;
     paymentTerms?: string | null;
     notes?: string | null;
@@ -686,6 +686,14 @@ export async function sendInvoiceEmail(
             <td style="padding: 4px 0; font-family: monospace; font-weight: 600; color: #17150F;">${bank.ifscCode || "—"}</td>
           </tr>
           ${
+            bank.branchName
+              ? `<tr>
+                   <td style="padding: 4px 0; color: #726C5C;">Branch:</td>
+                   <td style="padding: 4px 0; font-weight: 500; color: #17150F;">${bank.branchName}</td>
+                 </tr>`
+              : ""
+          }
+          ${
             bank.upiId
               ? `<tr>
                    <td style="padding: 4px 0; color: #726C5C;">Instant UPI ID:</td>
@@ -750,7 +758,7 @@ A/C Name: ${bank?.accountName || "Digigrantha Studio"}
 Bank: ${bank?.bankName || "HDFC Bank"}
 Account: ${bank?.accountNumber || "—"}
 IFSC: ${bank?.ifscCode || "—"}
-${bank?.upiId ? `UPI: ${bank.upiId}\n` : ""}
+${bank?.branchName ? `Branch: ${bank.branchName}\n` : ""}${bank?.upiId ? `UPI: ${bank.upiId}\n` : ""}
 View & Download PDF: ${invoiceUrl}
 
 Please reply with the payment confirmation once sent.

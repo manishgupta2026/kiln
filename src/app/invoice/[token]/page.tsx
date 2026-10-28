@@ -48,7 +48,8 @@ export default function PublicInvoicePage({ params }: PageProps) {
 
   const handleCopyBank = () => {
     if (invoice?.bankDetails) {
-      const text = `Beneficiary: ${invoice.bankDetails.accountName}\nBank: ${invoice.bankDetails.bankName}\nA/C: ${invoice.bankDetails.accountNumber}\nIFSC: ${invoice.bankDetails.ifscCode}`;
+      const b = invoice.bankDetails;
+      const text = `Beneficiary: ${b.accountName}\nBank: ${b.bankName}\nA/C: ${b.accountNumber}\nIFSC: ${b.ifscCode}${b.branchName ? `\nBranch: ${b.branchName}` : ""}`;
       navigator.clipboard.writeText(text);
       setCopiedBank(true);
       setTimeout(() => setCopiedBank(false), 2500);
@@ -208,24 +209,6 @@ export default function PublicInvoicePage({ params }: PageProps) {
             >
               <span>🖨️</span> Print / Save PDF
             </button>
-            {bank?.paymentLink && (
-              <a
-                href={bank.paymentLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  background: "#75801F",
-                  color: "#FFFFFF",
-                  padding: "8px 16px",
-                  borderRadius: "999px",
-                  fontSize: "13px",
-                  fontWeight: 600,
-                  textDecoration: "none",
-                }}
-              >
-                Pay Online ↗
-              </a>
-            )}
           </div>
         </div>
 
@@ -504,10 +487,13 @@ export default function PublicInvoicePage({ params }: PageProps) {
               </div>
 
               <div style={{ fontSize: "13px", color: "#4A463B", lineHeight: 1.6 }}>
-                <div><span style={{ color: "#726C5C" }}>Beneficiary:</span> <strong>{bank?.accountName || "Digigrantha Studio"}</strong></div>
+                <div><span style={{ color: "#726C5C" }}>Receiver / Beneficiary:</span> <strong>{bank?.accountName || "Digigrantha Studio"}</strong></div>
                 <div><span style={{ color: "#726C5C" }}>Bank Name:</span> <strong>{bank?.bankName || "HDFC Bank"}</strong></div>
                 <div><span style={{ color: "#726C5C" }}>A/C Number:</span> <strong style={{ fontFamily: "monospace" }}>{bank?.accountNumber || "—"}</strong></div>
                 <div><span style={{ color: "#726C5C" }}>IFSC Code:</span> <strong style={{ fontFamily: "monospace" }}>{bank?.ifscCode || "—"}</strong></div>
+                {bank?.branchName && (
+                  <div><span style={{ color: "#726C5C" }}>Branch:</span> <strong>{bank.branchName}</strong></div>
+                )}
                 {bank?.swiftCode && (
                   <div><span style={{ color: "#726C5C" }}>SWIFT (USD):</span> <strong style={{ fontFamily: "monospace" }}>{bank.swiftCode}</strong></div>
                 )}

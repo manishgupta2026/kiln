@@ -12,9 +12,9 @@ export interface BankDetails {
   bankName: string;
   accountNumber: string;
   ifscCode: string;
+  branchName?: string | null;
   swiftCode?: string | null;
   upiId?: string | null;
-  paymentLink?: string | null;
 }
 
 export interface ProjectInvoiceRecord {
@@ -53,7 +53,7 @@ export const DEFAULT_BANK_DETAILS: BankDetails = {
   bankName: "HDFC Bank",
   accountNumber: "50200084920193",
   ifscCode: "HDFC0000240",
+  branchName: "Koramangala, Bengaluru",
   swiftCode: "HDFCINBB",
   upiId: "digigrantha@upi",
-  paymentLink: "https://pages.razorpay.com/digigrantha",
 };
