@@ -34,8 +34,10 @@ export async function sendEmail(options: EmailOptions): Promise<{ success: boole
         },
       });
 
+      const fromAddress = process.env.FROM_EMAIL || `"Digigrantha Studio" <${smtpUser}>`;
+
       await transporter.sendMail({
-        from: `"Digigrantha Studio" <${smtpUser}>`,
+        from: fromAddress,
         to: `"${options.name}" <${options.to}>`,
         subject: options.subject,
         html: options.html,
