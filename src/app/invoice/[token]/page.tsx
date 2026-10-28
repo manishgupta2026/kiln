@@ -596,16 +596,16 @@ export default function PublicInvoicePage({ params }: PageProps) {
               </div>
             </div>
 
-            <div style={{ textAlign: "right", minWidth: "180px" }}>
-              <div style={{ height: "48px", display: "flex", alignItems: "flex-end", justifyContent: "flex-end" }}>
+            <div style={{ textAlign: "center", width: "170px" }}>
+              <div style={{ height: "48px", display: "flex", alignItems: "flex-end", justifyContent: "center", marginBottom: "-2px" }}>
                 <img
                   src={DIGITAL_SIGNATURE_SRC}
                   alt="Authorized Signature"
-                  style={{ maxHeight: "46px", maxWidth: "160px", objectFit: "contain", mixBlendMode: "multiply" }}
+                  style={{ width: "148px", maxHeight: "46px", objectFit: "contain" }}
                 />
               </div>
-              <div style={{ borderTop: "1px solid #17150F", width: "160px", marginLeft: "auto", margin: "4px 0 4px auto" }} />
-              <div style={{ fontFamily: "monospace", fontSize: "10.5px", color: "#726C5C", textTransform: "uppercase" }}>
+              <div style={{ borderTop: "1px solid #17150F", width: "160px", margin: "4px auto 4px auto" }} />
+              <div style={{ fontFamily: "monospace", fontSize: "10.5px", color: "#726C5C", textTransform: "uppercase", letterSpacing: "0.04em" }}>
                 Authorized Signature
               </div>
             </div>

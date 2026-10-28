@@ -1888,16 +1888,16 @@ export default function AdminInvoicesPage() {
                       {paymentTerms && <div><strong>Terms:</strong> {paymentTerms}</div>}
                       {notes && <div style={{ marginTop: "2px" }}><strong>Notes:</strong> {notes}</div>}
                     </div>
-                    <div style={{ textAlign: "right", minWidth: "160px" }}>
-                      <div style={{ height: "42px", display: "flex", alignItems: "flex-end", justifyContent: "flex-end" }}>
+                    <div style={{ textAlign: "center", width: "160px" }}>
+                      <div style={{ height: "44px", display: "flex", alignItems: "flex-end", justifyContent: "center", marginBottom: "-2px" }}>
                         <img
                           src={DIGITAL_SIGNATURE_SRC}
                           alt="Authorized Signature"
-                          style={{ maxHeight: "40px", maxWidth: "150px", objectFit: "contain", mixBlendMode: "multiply" }}
+                          style={{ width: "140px", maxHeight: "42px", objectFit: "contain" }}
                         />
                       </div>
-                      <div style={{ borderTop: "1px solid #17150F", width: "140px", marginLeft: "auto", margin: "4px 0 3px auto" }} />
-                      <div style={{ fontFamily: "var(--mono)", fontSize: "9.5px", color: "#726C5C", textTransform: "uppercase" }}>
+                      <div style={{ borderTop: "1px solid #17150F", width: "150px", margin: "4px auto 3px auto" }} />
+                      <div style={{ fontFamily: "var(--mono)", fontSize: "9.5px", color: "#726C5C", textTransform: "uppercase", letterSpacing: "0.04em" }}>
                         Authorized Signature
                       </div>
                     </div>
