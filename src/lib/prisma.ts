@@ -21,7 +21,7 @@ export function getPrismaClient(): any {
   syncCloudflareEnv();
   const dbUrl = getDatabaseUrl();
 
-  // If already instantiated with the Neon adapter, return it
+  // If already instantiated with the Neon adapter, reuse it
   if (_prismaInstance && _prismaInstance.__hasAdapter) {
     return _prismaInstance;
   }
@@ -33,16 +33,13 @@ export function getPrismaClient(): any {
       (client as any).__hasAdapter = true;
       _prismaInstance = client;
       return client;
-    } catch (err) {
-      console.warn("PrismaNeon adapter init failed:", err);
+    } catch (err: any) {
+      console.error("PrismaNeon adapter init failed:", err);
+      throw new Error(`Database adapter error: ${err.message || String(err)}`);
     }
   }
 
-  if (!_prismaInstance) {
-    _prismaInstance = new PrismaClient({ log: ["error", "warn"] });
-  }
-
-  return _prismaInstance;
+  throw new Error("DATABASE_URL is not set in environment or worker settings.");
 }
 
 // Lazy Proxy: guarantees prisma client is resolved dynamically on first query inside request context
