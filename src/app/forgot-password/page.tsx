@@ -36,32 +36,34 @@ export default function ForgotPasswordPage() {
 
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "var(--bg)" }}>
-      <header style={{ padding: "24px 32px", borderBottom: "1px solid var(--line)" }}>
+      <header style={{ padding: "20px 32px", borderBottom: "2px solid var(--outline)", background: "var(--surface)" }}>
         <Link href="/" className="logo">
-          Digigrantha<span>.</span>
+          <span className="brand-mark" aria-hidden="true">D</span>
+          <span className="logo-text">Digigrantha</span>
+          <span className="logo-dot">.</span>
         </Link>
       </header>
 
-      <main style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "32px 20px" }}>
+      <main style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 20px" }}>
         <div
           style={{
             width: "100%",
-            maxWidth: "420px",
-            background: "var(--card)",
-            borderRadius: "18px",
-            boxShadow: "var(--shadow)",
-            padding: "36px 32px",
-            border: "1px solid var(--line)",
+            maxWidth: "440px",
+            background: "var(--surface)",
+            borderRadius: "var(--radius-lg)",
+            boxShadow: "var(--shadow-xl)",
+            padding: "40px 36px",
+            border: "2px solid var(--outline)",
           }}
         >
-          <div style={{ marginBottom: "24px" }}>
-            <div className="section-label" style={{ marginBottom: "4px" }}>
+          <div style={{ marginBottom: "28px" }}>
+            <div className="section-label" style={{ marginBottom: "12px", background: "var(--lime)", color: "#17201E" }}>
               Account Recovery
             </div>
-            <h1 style={{ fontFamily: "var(--display)", fontSize: "28px", fontWeight: 400, color: "var(--ink)" }}>
+            <h1 style={{ fontFamily: "var(--display)", fontSize: "32px", fontWeight: 700, color: "var(--text)", lineHeight: 1.15 }}>
               Reset your password
             </h1>
-            <p style={{ fontSize: "14px", color: "var(--muted)", marginTop: "6px" }}>
+            <p style={{ fontSize: "14px", color: "var(--muted)", marginTop: "8px" }}>
               Enter your email and we&apos;ll send a single-use secure reset link.
             </p>
           </div>
@@ -100,17 +102,18 @@ export default function ForgotPasswordPage() {
             </div>
           ) : (
             <form onSubmit={handleSubmit}>
-              <div style={{ marginBottom: "24px" }}>
+              <div style={{ marginBottom: "26px" }}>
                 <label
                   htmlFor="recoveryEmail"
                   style={{
                     display: "block",
-                    fontFamily: "var(--mono)",
-                    fontSize: "11px",
+                    fontFamily: "var(--body)",
+                    fontSize: "12px",
+                    fontWeight: 700,
                     textTransform: "uppercase",
-                    letterSpacing: "0.05em",
-                    color: "var(--muted)",
-                    marginBottom: "6px",
+                    letterSpacing: "0.04em",
+                    color: "var(--text)",
+                    marginBottom: "8px",
                   }}
                 >
                   Account Email
@@ -125,14 +128,15 @@ export default function ForgotPasswordPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   style={{
                     width: "100%",
-                    border: "none",
-                    borderBottom: "1px solid var(--line)",
-                    background: "none",
+                    border: "2px solid var(--outline)",
+                    background: "var(--bg)",
+                    borderRadius: "10px",
                     fontFamily: "var(--body)",
-                    fontSize: "15.5px",
-                    color: "var(--ink)",
-                    padding: "8px 0",
+                    fontSize: "15px",
+                    color: "var(--text)",
+                    padding: "12px 14px",
                     outline: "none",
+                    boxShadow: "2px 2px 0 var(--outline)",
                   }}
                 />
               </div>
@@ -146,9 +150,9 @@ export default function ForgotPasswordPage() {
                 {loading ? "Sending link…" : "Send Reset Link →"}
               </button>
 
-              <div style={{ marginTop: "20px", textAlign: "center" }}>
-                <Link href="/login" style={{ fontSize: "13px", color: "var(--muted)", textDecoration: "none" }}>
-                  Remembered your password? <span style={{ color: "var(--ink)", fontWeight: 500 }}>Sign in</span>
+              <div style={{ marginTop: "24px", paddingTop: "18px", borderTop: "2px solid var(--outline)", textAlign: "center" }}>
+                <Link href="/login" style={{ fontSize: "13.5px", color: "var(--muted)", textDecoration: "none" }}>
+                  Remembered your password? <span style={{ color: "var(--green)", fontWeight: 700, textDecoration: "underline" }}>Sign in</span>
                 </Link>
               </div>
             </form>

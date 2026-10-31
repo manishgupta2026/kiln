@@ -29,15 +29,72 @@ export async function POST(request: NextRequest) {
     const { email, password } = parsed.data;
     const normalizedEmail = email.toLowerCase().trim();
 
-    let user = await prisma.user.findUnique({
-      where: { email: normalizedEmail },
-    });
+    const adminPasswordEnv = getEnv("ADMIN_PASSWORD");
+    const isAdminEmail =
+      normalizedEmail === "admin@digigrantha.com" ||
+      normalizedEmail === "admin@kiln.design" ||
+      normalizedEmail === "admin" ||
+      normalizedEmail.startsWith("admin@");
 
-    // Support both new digigrantha domain, legacy kiln domain, or admin username
-    if (!user && (normalizedEmail === "admin@digigrantha.com" || normalizedEmail === "admin@kiln.design" || normalizedEmail === "admin")) {
-      user = await prisma.user.findFirst({
-        where: { role: "ADMIN" },
+    // 1. Direct Admin Master Password Verification
+    if (adminPasswordEnv && password === adminPasswordEnv && isAdminEmail) {
+      let adminDbUser: any = null;
+      try {
+        adminDbUser = await prisma.user.findFirst({
+          where: {
+            OR: [{ email: normalizedEmail }, { role: "ADMIN" }],
+          },
+        });
+      } catch (dbErr: any) {
+        console.warn("[Auth Warning] DB query bypassed during direct admin login:", dbErr?.message || String(dbErr));
+      }
+
+      const adminUser = {
+        userId: adminDbUser?.id || "admin-root",
+        email: adminDbUser?.email || (normalizedEmail.includes("@") ? normalizedEmail : "admin@digigrantha.com"),
+        name: adminDbUser?.name || "Studio Administrator",
+        role: "ADMIN" as const,
+      };
+
+      const sessionToken = await signSessionToken(adminUser);
+
+      const response = NextResponse.json({
+        success: true,
+        user: {
+          id: adminUser.userId,
+          email: adminUser.email,
+          name: adminUser.name,
+          role: adminUser.role,
+        },
+        redirectUrl: "/admin",
       });
+
+      setSessionCookie(response, sessionToken);
+      return response;
+    }
+
+    // 2. Database User Lookup
+    let user: any = null;
+    try {
+      user = await prisma.user.findUnique({
+        where: { email: normalizedEmail },
+      });
+
+      // Support fallback to admin role if special alias used
+      if (!user && isAdminEmail) {
+        user = await prisma.user.findFirst({
+          where: { role: "ADMIN" },
+        });
+      }
+    } catch (dbErr: any) {
+      console.warn("[Auth Warning] User database lookup failed:", dbErr?.message || String(dbErr));
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Invalid email or password.",
+        },
+        { status: 401 }
+      );
     }
 
     if (!user || !user.passwordHash) {
@@ -47,7 +104,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const adminPasswordEnv = getEnv("ADMIN_PASSWORD");
     const isDirectAdminPass = user.role === "ADMIN" && adminPasswordEnv && password === adminPasswordEnv;
     const isValid = isDirectAdminPass || (await verifyPassword(password, user.passwordHash));
 

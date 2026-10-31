@@ -46,38 +46,39 @@ function LoginForm() {
     <div
       style={{
         width: "100%",
-        maxWidth: "420px",
-        background: "var(--card)",
-        borderRadius: "18px",
-        boxShadow: "var(--shadow)",
-        padding: "36px 32px",
-        border: "1px solid var(--line)",
+        maxWidth: "440px",
+        background: "var(--surface)",
+        borderRadius: "var(--radius-lg)",
+        boxShadow: "var(--shadow-xl)",
+        padding: "40px 36px",
+        border: "2px solid var(--outline)",
       }}
     >
-      <div style={{ marginBottom: "24px" }}>
-        <div className="section-label" style={{ marginBottom: "4px" }}>
+      <div style={{ marginBottom: "28px" }}>
+        <div className="section-label" style={{ marginBottom: "12px", background: "var(--lime)", color: "#17201E" }}>
           Digigrantha Workspace
         </div>
-        <h1 style={{ fontFamily: "var(--display)", fontSize: "28px", fontWeight: 400, color: "var(--ink)" }}>
+        <h1 style={{ fontFamily: "var(--display)", fontSize: "32px", fontWeight: 700, color: "var(--text)", lineHeight: 1.15 }}>
           Sign in to your portal
         </h1>
-        <p style={{ fontSize: "14px", color: "var(--muted)", marginTop: "6px" }}>
+        <p style={{ fontSize: "14px", color: "var(--muted)", marginTop: "8px" }}>
           Client, developer, and studio accounts
         </p>
       </div>
 
       <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: "18px" }}>
+        <div style={{ marginBottom: "20px" }}>
           <label
             htmlFor="loginEmail"
             style={{
               display: "block",
-              fontFamily: "var(--mono)",
-              fontSize: "11px",
+              fontFamily: "var(--body)",
+              fontSize: "12px",
+              fontWeight: 700,
               textTransform: "uppercase",
-              letterSpacing: "0.05em",
-              color: "var(--muted)",
-              marginBottom: "6px",
+              letterSpacing: "0.04em",
+              color: "var(--text)",
+              marginBottom: "8px",
             }}
           >
             Email
@@ -92,28 +93,30 @@ function LoginForm() {
             onChange={(e) => setEmail(e.target.value)}
             style={{
               width: "100%",
-              border: "none",
-              borderBottom: "1px solid var(--line)",
-              background: "none",
+              border: "2px solid var(--outline)",
+              background: "var(--bg)",
+              borderRadius: "10px",
               fontFamily: "var(--body)",
-              fontSize: "15.5px",
-              color: "var(--ink)",
-              padding: "8px 0",
+              fontSize: "15px",
+              color: "var(--text)",
+              padding: "12px 14px",
               outline: "none",
+              boxShadow: "2px 2px 0 var(--outline)",
             }}
           />
         </div>
 
-        <div style={{ marginBottom: "24px" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "6px" }}>
+        <div style={{ marginBottom: "26px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "8px" }}>
             <label
               htmlFor="loginPassword"
               style={{
-                fontFamily: "var(--mono)",
-                fontSize: "11px",
+                fontFamily: "var(--body)",
+                fontSize: "12px",
+                fontWeight: 700,
                 textTransform: "uppercase",
-                letterSpacing: "0.05em",
-                color: "var(--muted)",
+                letterSpacing: "0.04em",
+                color: "var(--text)",
               }}
             >
               Password
@@ -121,10 +124,11 @@ function LoginForm() {
             <Link
               href="/forgot-password"
               style={{
-                fontFamily: "var(--mono)",
-                fontSize: "11px",
-                color: "var(--accent)",
-                textDecoration: "none",
+                fontFamily: "var(--body)",
+                fontSize: "12px",
+                fontWeight: 600,
+                color: "var(--green)",
+                textDecoration: "underline",
               }}
             >
               Forgot password?
@@ -140,14 +144,15 @@ function LoginForm() {
             onChange={(e) => setPassword(e.target.value)}
             style={{
               width: "100%",
-              border: "none",
-              borderBottom: "1px solid var(--line)",
-              background: "none",
+              border: "2px solid var(--outline)",
+              background: "var(--bg)",
+              borderRadius: "10px",
               fontFamily: "var(--body)",
-              fontSize: "15.5px",
-              color: "var(--ink)",
-              padding: "8px 0",
+              fontSize: "15px",
+              color: "var(--text)",
+              padding: "12px 14px",
               outline: "none",
+              boxShadow: "2px 2px 0 var(--outline)",
             }}
           />
         </div>
@@ -155,13 +160,16 @@ function LoginForm() {
         {error && (
           <div
             style={{
-              fontFamily: "var(--mono)",
-              fontSize: "12.5px",
-              color: "#c93b2b",
-              marginBottom: "18px",
-              background: "#fde8e4",
-              padding: "10px 12px",
-              borderRadius: "8px",
+              fontFamily: "var(--body)",
+              fontSize: "13px",
+              fontWeight: 600,
+              color: "#991B1B",
+              marginBottom: "20px",
+              background: "#FEE2E2",
+              padding: "12px 14px",
+              borderRadius: "10px",
+              border: "2px solid #991B1B",
+              boxShadow: "2px 2px 0 #991B1B",
             }}
           >
             ✕ {error}
@@ -178,10 +186,10 @@ function LoginForm() {
         </button>
       </form>
 
-      <div style={{ marginTop: "24px", paddingTop: "18px", borderTop: "1px solid var(--line)", textAlign: "center" }}>
-        <p style={{ fontSize: "13px", color: "var(--muted)" }}>
+      <div style={{ marginTop: "24px", paddingTop: "18px", borderTop: "2px solid var(--outline)", textAlign: "center" }}>
+        <p style={{ fontSize: "13.5px", color: "var(--muted)" }}>
           Need a project built?{" "}
-          <Link href="/#brief" style={{ color: "var(--accent)", textDecoration: "none", fontWeight: 500 }}>
+          <Link href="/#brief" style={{ color: "var(--green)", textDecoration: "underline", fontWeight: 700 }}>
             Submit a brief
           </Link>
         </p>
@@ -194,18 +202,21 @@ export default function LoginPage() {
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "var(--bg)" }}>
       {/* Top Header */}
-      <header style={{ padding: "24px 32px", borderBottom: "1px solid var(--line)" }}>
+      <header style={{ padding: "20px 32px", borderBottom: "2px solid var(--outline)", background: "var(--surface)" }}>
         <Link href="/" className="logo">
-          Digigrantha<span>.</span>
+          <span className="brand-mark" aria-hidden="true">D</span>
+          <span className="logo-text">Digigrantha</span>
+          <span className="logo-dot">.</span>
         </Link>
       </header>
 
       {/* Main Login Box */}
-      <main style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "32px 20px" }}>
-        <Suspense fallback={<div style={{ color: "var(--muted)", fontFamily: "var(--mono)" }}>Loading login portal…</div>}>
+      <main style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 20px" }}>
+        <Suspense fallback={<div style={{ color: "var(--muted)", fontFamily: "var(--body)" }}>Loading login portal…</div>}>
           <LoginForm />
         </Suspense>
       </main>
     </div>
   );
 }
+

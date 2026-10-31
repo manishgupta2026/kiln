@@ -1,34 +1,34 @@
 import type { Metadata } from "next";
-import { Instrument_Serif, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
+import { Fraunces, Inter, Caveat } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import CursorTrail from "@/components/CursorTrail";
 
-const instrumentSerif = Instrument_Serif({
-  weight: "400",
+const fraunces = Fraunces({
+  weight: ["400", "600", "700", "800"],
   subsets: ["latin"],
   style: ["normal", "italic"],
   variable: "--display",
   display: "swap",
 });
 
-const ibmPlexSans = IBM_Plex_Sans({
-  weight: ["400", "500", "600"],
+const inter = Inter({
+  weight: ["400", "500", "600", "700"],
   subsets: ["latin"],
   variable: "--body",
   display: "swap",
 });
 
-const ibmPlexMono = IBM_Plex_Mono({
-  weight: ["400", "500"],
+const caveat = Caveat({
+  weight: ["500", "700"],
   subsets: ["latin"],
-  variable: "--mono",
+  variable: "--hand",
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Digigrantha — Tell us what you're building",
-  description: "Design & development studio. Real products. Real numbers.",
+  title: "Digigrantha — Expressive Digital Product & Web Development Studio",
+  description: "Handcrafted web apps, digital products, and high-agency engineering. Real products. Real numbers.",
 };
 
 export default function RootLayout({
@@ -39,14 +39,23 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${instrumentSerif.variable} ${ibmPlexSans.variable} ${ibmPlexMono.variable}`}
+      className={`${fraunces.variable} ${inter.variable} ${caveat.variable}`}
+      suppressHydrationWarning
     >
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
-          rel="stylesheet"
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){
+              try {
+                var m = localStorage.getItem('dg-mode');
+                if (!m) {
+                  m = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                }
+                document.documentElement.setAttribute('data-theme', m);
+                if (m === 'dark') document.documentElement.classList.add('dark');
+              } catch(e) {}
+            })()`,
+          }}
         />
       </head>
       <body>
@@ -57,3 +66,4 @@ export default function RootLayout({
     </html>
   );
 }
+

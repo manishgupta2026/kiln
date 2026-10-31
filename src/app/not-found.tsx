@@ -12,116 +12,117 @@ export default function NotFound() {
       <main style={{ minHeight: "calc(100vh - 200px)", display: "flex", flexDirection: "column", justifyContent: "center" }}>
         <section className="page-head" style={{ padding: "80px 0 60px" }}>
           <div className="wrap">
-            <div className="eyebrow reveal" style={{ color: "var(--accent)" }}>
-              Error 404 — Not Found
+            <div className="eyebrow reveal" style={{ background: "var(--yellow)", color: "#17201E" }}>
+              <span>✦</span> Error 404 — Not Found
             </div>
 
-            <h1 className="reveal" style={{ maxWidth: "18ch", marginBottom: "20px" }}>
-              Looks like this piece hasn&apos;t been <em>fired</em> yet.
+            <h1 className="reveal" style={{ maxWidth: "20ch", marginBottom: "20px" }}>
+              Looks like this piece hasn&apos;t been <em style={{ fontStyle: "italic", color: "var(--yellow)" }}>shipped</em> yet.
             </h1>
 
-            <p className="page-sub reveal" style={{ maxWidth: "56ch", marginBottom: "40px" }}>
+            <p className="page-sub reveal" style={{ maxWidth: "58ch", marginBottom: "40px" }}>
               The URL you requested doesn&apos;t exist, was moved to the archive, or was never
-              shaped in the first place. We&apos;d rather give you a clean turn-around than a dead end.
+              crafted in the first place. We&apos;d rather give you a clean turn-around than a dead end.
             </p>
 
-            {/* Action Cards */}
+            {/* Action Cards with Neem Tactile Shadows */}
             <div
               className="reveal"
               style={{
                 display: "grid",
                 gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-                gap: "16px",
-                maxWidth: "860px",
+                gap: "20px",
+                maxWidth: "880px",
                 marginBottom: "44px",
               }}
             >
               <Link
                 href="/work"
+                className="nf-card"
                 style={{
-                  background: "var(--card)",
-                  border: "1px solid var(--line)",
-                  borderRadius: "14px",
-                  padding: "24px",
+                  background: "var(--surface)",
+                  border: "2px solid var(--outline)",
+                  borderRadius: "18px",
+                  padding: "26px",
+                  boxShadow: "var(--shadow)",
                   display: "flex",
                   flexDirection: "column",
                   justifyContent: "space-between",
-                  transition: "border-color .2s ease, transform .2s ease",
                 }}
-                className="nf-card"
               >
                 <div>
-                  <div style={{ fontFamily: "var(--mono)", fontSize: "11px", color: "var(--accent)", textTransform: "uppercase", letterSpacing: ".06em", marginBottom: "8px" }}>
+                  <div style={{ fontFamily: "var(--body)", fontSize: "11px", fontWeight: 800, color: "var(--green)", textTransform: "uppercase", letterSpacing: ".06em", marginBottom: "8px" }}>
                     Archive
                   </div>
-                  <div style={{ fontFamily: "var(--display)", fontSize: "22px", color: "var(--ink)", marginBottom: "6px" }}>
+                  <div style={{ fontFamily: "var(--display)", fontSize: "24px", fontWeight: 700, color: "var(--text)", marginBottom: "8px" }}>
                     What We&apos;ve Shipped
                   </div>
-                  <div style={{ fontSize: "13.5px", color: "var(--muted)", lineHeight: 1.5 }}>
+                  <div style={{ fontSize: "14px", color: "var(--muted)", lineHeight: 1.5 }}>
                     See live production products, win rates, and daily active users.
                   </div>
                 </div>
-                <div style={{ fontFamily: "var(--mono)", fontSize: "12px", color: "var(--ink)", marginTop: "16px", display: "flex", alignItems: "center", gap: "6px" }}>
+                <div style={{ fontFamily: "var(--body)", fontSize: "13px", fontWeight: 700, color: "var(--text)", marginTop: "18px", display: "flex", alignItems: "center", gap: "6px" }}>
                   Browse work →
                 </div>
               </Link>
 
               <Link
                 href="/about"
+                className="nf-card"
                 style={{
-                  background: "var(--card)",
-                  border: "1px solid var(--line)",
-                  borderRadius: "14px",
-                  padding: "24px",
+                  background: "var(--surface)",
+                  border: "2px solid var(--outline)",
+                  borderRadius: "18px",
+                  padding: "26px",
+                  boxShadow: "var(--shadow)",
                   display: "flex",
                   flexDirection: "column",
                   justifyContent: "space-between",
-                  transition: "border-color .2s ease, transform .2s ease",
                 }}
-                className="nf-card"
               >
                 <div>
-                  <div style={{ fontFamily: "var(--mono)", fontSize: "11px", color: "var(--accent)", textTransform: "uppercase", letterSpacing: ".06em", marginBottom: "8px" }}>
+                  <div style={{ fontFamily: "var(--body)", fontSize: "11px", fontWeight: 800, color: "var(--green)", textTransform: "uppercase", letterSpacing: ".06em", marginBottom: "8px" }}>
                     Philosophy
                   </div>
-                  <div style={{ fontFamily: "var(--display)", fontSize: "22px", color: "var(--ink)", marginBottom: "6px" }}>
+                  <div style={{ fontFamily: "var(--display)", fontSize: "24px", fontWeight: 700, color: "var(--text)", marginBottom: "8px" }}>
                     Why We&apos;re Small
                   </div>
-                  <div style={{ fontSize: "13.5px", color: "var(--muted)", lineHeight: 1.5 }}>
+                  <div style={{ fontSize: "14px", color: "var(--muted)", lineHeight: 1.5 }}>
                     No account managers, no layers. Direct code, design, and receipts.
                   </div>
                 </div>
-                <div style={{ fontFamily: "var(--mono)", fontSize: "12px", color: "var(--ink)", marginTop: "16px", display: "flex", alignItems: "center", gap: "6px" }}>
+                <div style={{ fontFamily: "var(--body)", fontSize: "13px", fontWeight: 700, color: "var(--text)", marginTop: "18px", display: "flex", alignItems: "center", gap: "6px" }}>
                   Read manifesto →
                 </div>
               </Link>
 
               <Link
                 href="/#brief"
+                className="nf-card"
                 style={{
-                  background: "var(--accent-soft)",
-                  border: "1.5px dashed var(--accent)",
-                  borderRadius: "14px",
-                  padding: "24px",
+                  background: "var(--mint)",
+                  color: "#17201E",
+                  border: "2px solid var(--outline)",
+                  borderRadius: "18px",
+                  padding: "26px",
+                  boxShadow: "var(--shadow)",
                   display: "flex",
                   flexDirection: "column",
                   justifyContent: "space-between",
-                  transition: "background .2s ease, transform .2s ease",
                 }}
-                className="nf-card"
               >
                 <div>
-                  <div style={{ fontFamily: "var(--mono)", fontSize: "11px", color: "var(--accent)", textTransform: "uppercase", letterSpacing: ".06em", marginBottom: "8px" }}>
+                  <div style={{ fontFamily: "var(--body)", fontSize: "11px", fontWeight: 800, color: "#17201E", textTransform: "uppercase", letterSpacing: ".06em", marginBottom: "8px" }}>
                     Start Building
                   </div>
-                  <div style={{ fontFamily: "var(--display)", fontSize: "22px", color: "var(--ink)", marginBottom: "6px" }}>
+                  <div style={{ fontFamily: "var(--display)", fontSize: "24px", fontWeight: 800, color: "#17201E", marginBottom: "8px" }}>
                     Tell Us Everything
                   </div>
-                  <div style={{ fontSize: "13.5px", color: "var(--muted)", lineHeight: 1.5 }}>
+                  <div style={{ fontSize: "14px", color: "#2B3B37", lineHeight: 1.5 }}>
                     Have a real project? Fill out our 60-second brief intake.
                   </div>
                 </div>
-                <div style={{ fontFamily: "var(--mono)", fontSize: "12px", color: "var(--accent)", fontWeight: 600, marginTop: "16px", display: "flex", alignItems: "center", gap: "6px" }}>
+                <div style={{ fontFamily: "var(--body)", fontSize: "13px", fontWeight: 800, color: "#17201E", marginTop: "18px", display: "flex", alignItems: "center", gap: "6px" }}>
                   Start a brief →
                 </div>
               </Link>
@@ -141,3 +142,4 @@ export default function NotFound() {
     </>
   );
 }
+

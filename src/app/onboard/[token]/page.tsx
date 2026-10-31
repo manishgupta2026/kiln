@@ -58,69 +58,53 @@ export default function OnboardPage({ params }: OnboardPageProps) {
   };
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "var(--bg)" }}>
-      <header style={{ padding: "24px 32px", borderBottom: "1px solid var(--line)" }}>
-        <Link href="/" className="logo">
-          Digigrantha<span>.</span>
+    <div className="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--ink)]">
+      <header className="px-6 py-5 border-b-2 border-[var(--ink)] bg-[var(--card)] flex items-center justify-between">
+        <Link href="/" className="inline-flex items-center gap-2 group">
+          <span className="w-8 h-8 rounded-lg bg-[var(--primary)] text-[var(--lime)] font-serif font-black flex items-center justify-center text-lg border-2 border-[var(--ink)] shadow-[2px_2px_0_#17201E] group-hover:-rotate-6 transition-transform">
+            D
+          </span>
+          <span className="font-serif font-bold text-xl tracking-tight text-[var(--ink)]">
+            DigiGrantha<span className="text-[var(--accent)]">.</span>
+          </span>
         </Link>
+        <span className="text-xs font-mono font-semibold uppercase tracking-wider px-3 py-1 rounded-full border border-[var(--ink)] bg-[var(--mint)] text-[var(--ink)]">
+          Account Activation
+        </span>
       </header>
 
-      <main style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "32px 20px" }}>
-        <div
-          style={{
-            width: "100%",
-            maxWidth: "440px",
-            background: "var(--card)",
-            borderRadius: "18px",
-            boxShadow: "var(--shadow)",
-            padding: "36px 32px",
-            border: "1px solid var(--line)",
-          }}
-        >
-          <div style={{ marginBottom: "24px" }}>
-            <div className="section-label" style={{ marginBottom: "4px" }}>
-              Welcome to Digigrantha
-            </div>
-            <h1 style={{ fontFamily: "var(--display)", fontSize: "28px", fontWeight: 400, color: "var(--ink)" }}>
+      <main className="flex-1 flex items-center justify-center p-6">
+        <div className="w-full max-w-md bg-[var(--card)] rounded-2xl border-2 border-[var(--ink)] shadow-[6px_6px_0_#17201E] p-8 md:p-10">
+          <div className="mb-6">
+            <span className="inline-block text-xs font-mono font-bold tracking-wider uppercase px-2.5 py-1 rounded-md bg-[var(--lime)] text-[var(--ink)] border border-[var(--ink)] mb-3">
+              Welcome to the Studio
+            </span>
+            <h1 className="font-serif text-3xl font-bold tracking-tight text-[var(--ink)]">
               Set up your password
             </h1>
-            <p style={{ fontSize: "14px", color: "var(--muted)", marginTop: "6px" }}>
-              Choose a secure password for your workspace account.
+            <p className="text-sm text-[var(--muted)] mt-2">
+              Choose a secure password for your Digigrantha workspace account.
             </p>
           </div>
 
           {success ? (
-            <div
-              style={{
-                background: "var(--accent-soft)",
-                border: "1px solid var(--accent)",
-                padding: "20px",
-                borderRadius: "12px",
-                textAlign: "center",
-              }}
-            >
-              <div style={{ fontSize: "24px", marginBottom: "8px" }}>✓</div>
-              <h3 style={{ fontFamily: "var(--display)", fontSize: "20px", marginBottom: "6px" }}>
+            <div className="bg-[var(--mint)] border-2 border-[var(--ink)] p-6 rounded-xl text-center shadow-[3px_3px_0_#17201E]">
+              <div className="w-12 h-12 rounded-full bg-[var(--primary)] text-[var(--lime)] font-bold text-2xl flex items-center justify-center mx-auto mb-3 border-2 border-[var(--ink)]">
+                ✓
+              </div>
+              <h3 className="font-serif text-xl font-bold text-[var(--ink)] mb-1">
                 Account ready!
               </h3>
-              <p style={{ fontSize: "13.5px", color: "var(--ink)", fontFamily: "var(--mono)" }}>
+              <p className="text-xs font-mono text-[var(--muted)]">
                 Redirecting to your workspace…
               </p>
             </div>
           ) : (
-            <form onSubmit={handleSubmit}>
-              <div style={{ marginBottom: "18px" }}>
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div>
                 <label
                   htmlFor="newPassword"
-                  style={{
-                    display: "block",
-                    fontFamily: "var(--mono)",
-                    fontSize: "11px",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.05em",
-                    color: "var(--muted)",
-                    marginBottom: "6px",
-                  }}
+                  className="block font-mono text-xs font-bold uppercase tracking-wider text-[var(--ink)] mb-2"
                 >
                   New Password (min 8 characters)
                 </label>
@@ -132,32 +116,14 @@ export default function OnboardPage({ params }: OnboardPageProps) {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  style={{
-                    width: "100%",
-                    border: "none",
-                    borderBottom: "1px solid var(--line)",
-                    background: "none",
-                    fontFamily: "var(--body)",
-                    fontSize: "15.5px",
-                    color: "var(--ink)",
-                    padding: "8px 0",
-                    outline: "none",
-                  }}
+                  className="w-full px-4 py-3 rounded-xl border-2 border-[var(--ink)] bg-[var(--bg)] font-sans text-base text-[var(--ink)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition-all shadow-[2px_2px_0_#17201E]"
                 />
               </div>
 
-              <div style={{ marginBottom: "24px" }}>
+              <div>
                 <label
                   htmlFor="confirmPassword"
-                  style={{
-                    display: "block",
-                    fontFamily: "var(--mono)",
-                    fontSize: "11px",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.05em",
-                    color: "var(--muted)",
-                    marginBottom: "6px",
-                  }}
+                  className="block font-mono text-xs font-bold uppercase tracking-wider text-[var(--ink)] mb-2"
                 >
                   Confirm Password
                 </label>
@@ -169,41 +135,20 @@ export default function OnboardPage({ params }: OnboardPageProps) {
                   placeholder="••••••••"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  style={{
-                    width: "100%",
-                    border: "none",
-                    borderBottom: "1px solid var(--line)",
-                    background: "none",
-                    fontFamily: "var(--body)",
-                    fontSize: "15.5px",
-                    color: "var(--ink)",
-                    padding: "8px 0",
-                    outline: "none",
-                  }}
+                  className="w-full px-4 py-3 rounded-xl border-2 border-[var(--ink)] bg-[var(--bg)] font-sans text-base text-[var(--ink)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition-all shadow-[2px_2px_0_#17201E]"
                 />
               </div>
 
               {error && (
-                <div
-                  style={{
-                    fontFamily: "var(--mono)",
-                    fontSize: "12.5px",
-                    color: "#c93b2b",
-                    marginBottom: "18px",
-                    background: "#fde8e4",
-                    padding: "10px 12px",
-                    borderRadius: "8px",
-                  }}
-                >
+                <div className="font-mono text-xs text-red-700 bg-red-100 border-2 border-red-500 rounded-lg p-3 font-semibold">
                   ✕ {error}
                 </div>
               )}
 
               <button
                 type="submit"
-                className="btn-primary"
                 disabled={loading}
-                style={{ width: "100%", justifyContent: "center" }}
+                className="w-full py-3.5 px-6 rounded-xl font-mono text-sm font-bold uppercase tracking-wider bg-[var(--primary)] text-[var(--lime)] border-2 border-[var(--ink)] shadow-[4px_4px_0_#17201E] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0_#17201E] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all disabled:opacity-50"
               >
                 {loading ? "Activating account…" : "Complete Setup & Enter →"}
               </button>

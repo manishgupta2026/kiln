@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getInvoiceByToken, updateInvoice } from "@/lib/invoices-db";
+import { getSessionUser } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +21,14 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ token: string }> }
 ) {
+  const user = await getSessionUser(request);
+  if (!user || user.role !== "ADMIN") {
+    return NextResponse.json(
+      { success: false, error: "Unauthorized. Invoices may only be updated by authenticated administrators." },
+      { status: 401 }
+    );
+  }
+
   const { token } = await params;
   const invoice = await getInvoiceByToken(token);
   if (!invoice) {

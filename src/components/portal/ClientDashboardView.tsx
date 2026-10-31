@@ -44,11 +44,11 @@ export default function ClientDashboardView({ project: initialProject }: ClientD
       {/* Project Header Banner */}
       <div
         style={{
-          background: "var(--card)",
+          background: "var(--surface)",
           borderRadius: "18px",
           padding: "28px 32px",
-          border: "1px solid var(--line)",
-          boxShadow: "var(--shadow)",
+          border: "2px solid var(--outline)",
+          boxShadow: "var(--shadow-sm)",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "flex-start",
@@ -60,24 +60,25 @@ export default function ClientDashboardView({ project: initialProject }: ClientD
           <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
             <span
               style={{
-                fontFamily: "var(--mono)",
+                fontFamily: "var(--body)",
                 fontSize: "11px",
                 textTransform: "uppercase",
                 letterSpacing: "0.05em",
-                background: "var(--accent-soft)",
-                color: "var(--accent)",
+                background: "var(--lime)",
+                color: "#17201E",
                 padding: "3px 10px",
                 borderRadius: "999px",
-                fontWeight: 600,
+                fontWeight: 700,
+                border: "1.5px solid var(--outline)",
               }}
             >
               {project.status} BUILD
             </span>
-            <span style={{ fontFamily: "var(--mono)", fontSize: "11.5px", color: "var(--muted)" }}>
+            <span style={{ fontFamily: "var(--body)", fontSize: "12px", color: "var(--muted)" }}>
               Started {new Date(project.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
             </span>
           </div>
-          <h1 style={{ fontFamily: "var(--display)", fontSize: "32px", fontWeight: 400, color: "var(--ink)" }}>
+          <h1 style={{ fontFamily: "var(--display)", fontSize: "clamp(1.8rem, 3.5vw, 2.4rem)", fontWeight: 700, color: "var(--text)" }}>
             {project.name}
           </h1>
         </div>
@@ -88,17 +89,20 @@ export default function ClientDashboardView({ project: initialProject }: ClientD
             type="button"
             onClick={() => setShowCallModal(true)}
             style={{
-              fontFamily: "var(--mono)",
+              fontFamily: "var(--body)",
               fontSize: "13px",
+              fontWeight: 600,
               padding: "10px 18px",
               borderRadius: "999px",
-              border: "1px solid var(--line)",
-              color: "var(--ink)",
-              background: "var(--card)",
+              border: "1.5px solid var(--outline)",
+              color: "var(--text)",
+              background: "var(--surface)",
               cursor: "pointer",
               display: "inline-flex",
               alignItems: "center",
               gap: "6px",
+              boxShadow: "2px 2px 0 var(--outline)",
+              transition: "transform 0.12s ease, box-shadow 0.12s ease",
             }}
           >
             <span>📅</span> Request 15-Min Sync
@@ -113,17 +117,19 @@ export default function ClientDashboardView({ project: initialProject }: ClientD
           <Link
             href="/dashboard/tickets"
             style={{
-              fontFamily: "var(--mono)",
+              fontFamily: "var(--body)",
               fontSize: "13px",
+              fontWeight: 600,
               padding: "10px 18px",
               borderRadius: "999px",
-              border: "1px solid var(--line)",
-              color: "var(--ink)",
+              border: "1.5px solid var(--outline)",
+              color: "var(--text)",
               textDecoration: "none",
               display: "inline-flex",
               alignItems: "center",
               gap: "6px",
-              background: "var(--card)",
+              background: "var(--surface)",
+              boxShadow: "2px 2px 0 var(--outline)",
             }}
           >
             <span>🎟</span> Tickets ({project.tickets?.length || 0})
@@ -155,10 +161,11 @@ export default function ClientDashboardView({ project: initialProject }: ClientD
       {/* Synchronous Call Sync Card */}
       <div
         style={{
-          background: nextCallDate ? "var(--accent-soft)" : "rgba(23, 21, 15, 0.02)",
-          borderRadius: "14px",
+          background: nextCallDate ? "var(--mint)" : "var(--surface)",
+          borderRadius: "16px",
           padding: "18px 24px",
-          border: nextCallDate ? "1px solid rgba(117, 128, 31, 0.3)" : "1px solid var(--line)",
+          border: "2px solid var(--outline)",
+          boxShadow: "var(--shadow-sm)",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
@@ -169,10 +176,10 @@ export default function ClientDashboardView({ project: initialProject }: ClientD
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           <span style={{ fontSize: "20px" }}>📅</span>
           <div>
-            <div style={{ fontSize: "14px", fontWeight: 500, color: "var(--ink)" }}>
+            <div style={{ fontSize: "14px", fontWeight: 700, color: "var(--text)" }}>
               {nextCallDate ? `Next Live Sync: ${nextCallDate}` : "Weekly Sync: Asynchronous by default"}
             </div>
-            <div style={{ fontSize: "12.5px", color: "var(--muted)" }}>
+            <div style={{ fontSize: "13px", color: "var(--muted)" }}>
               {nextCallDate
                 ? "Your engineering team will join the call at the scheduled time."
                 : "No live call needed this week unless requested via ticket or the sync button."}
@@ -183,13 +190,16 @@ export default function ClientDashboardView({ project: initialProject }: ClientD
           type="button"
           onClick={() => setShowCallModal(true)}
           style={{
-            fontFamily: "var(--mono)",
+            fontFamily: "var(--body)",
             fontSize: "12px",
-            color: "var(--accent)",
-            background: "none",
-            border: "none",
+            color: "var(--text)",
+            background: "var(--yellow)",
+            border: "1.5px solid var(--outline)",
+            borderRadius: "999px",
+            padding: "6px 12px",
+            boxShadow: "1.5px 1.5px 0 var(--outline)",
             cursor: "pointer",
-            fontWeight: 500,
+            fontWeight: 700,
           }}
         >
           Request live call →

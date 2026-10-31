@@ -59,32 +59,34 @@ export default function ResetPasswordPage({ params }: ResetPasswordPageProps) {
 
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "var(--bg)" }}>
-      <header style={{ padding: "24px 32px", borderBottom: "1px solid var(--line)" }}>
+      <header style={{ padding: "20px 32px", borderBottom: "2px solid var(--outline)", background: "var(--surface)" }}>
         <Link href="/" className="logo">
-          Digigrantha<span>.</span>
+          <span className="brand-mark" aria-hidden="true">D</span>
+          <span className="logo-text">Digigrantha</span>
+          <span className="logo-dot">.</span>
         </Link>
       </header>
 
-      <main style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "32px 20px" }}>
+      <main style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 20px" }}>
         <div
           style={{
             width: "100%",
             maxWidth: "440px",
-            background: "var(--card)",
-            borderRadius: "18px",
-            boxShadow: "var(--shadow)",
-            padding: "36px 32px",
-            border: "1px solid var(--line)",
+            background: "var(--surface)",
+            borderRadius: "var(--radius-lg)",
+            boxShadow: "var(--shadow-xl)",
+            padding: "40px 36px",
+            border: "2px solid var(--outline)",
           }}
         >
-          <div style={{ marginBottom: "24px" }}>
-            <div className="section-label" style={{ marginBottom: "4px" }}>
+          <div style={{ marginBottom: "28px" }}>
+            <div className="section-label" style={{ marginBottom: "12px", background: "var(--lime)", color: "#17201E" }}>
               Password Reset
             </div>
-            <h1 style={{ fontFamily: "var(--display)", fontSize: "28px", fontWeight: 400, color: "var(--ink)" }}>
+            <h1 style={{ fontFamily: "var(--display)", fontSize: "32px", fontWeight: 700, color: "var(--text)", lineHeight: 1.15 }}>
               Choose a new password
             </h1>
-            <p style={{ fontSize: "14px", color: "var(--muted)", marginTop: "6px" }}>
+            <p style={{ fontSize: "14px", color: "var(--muted)", marginTop: "8px" }}>
               Enter and confirm your new account password.
             </p>
           </div>
@@ -92,34 +94,36 @@ export default function ResetPasswordPage({ params }: ResetPasswordPageProps) {
           {success ? (
             <div
               style={{
-                background: "var(--accent-soft)",
-                border: "1px solid var(--accent)",
-                padding: "20px",
-                borderRadius: "12px",
+                background: "var(--mint)",
+                border: "2px solid var(--outline)",
+                boxShadow: "var(--shadow-sm)",
+                padding: "24px 20px",
+                borderRadius: "14px",
                 textAlign: "center",
               }}
             >
-              <div style={{ fontSize: "24px", marginBottom: "8px" }}>✓</div>
-              <h3 style={{ fontFamily: "var(--display)", fontSize: "20px", marginBottom: "6px" }}>
+              <div style={{ fontSize: "28px", marginBottom: "8px" }}>✓</div>
+              <h3 style={{ fontFamily: "var(--display)", fontSize: "22px", fontWeight: 700, color: "var(--text)", marginBottom: "6px" }}>
                 Password Updated!
               </h3>
-              <p style={{ fontSize: "13.5px", color: "var(--ink)", fontFamily: "var(--mono)" }}>
+              <p style={{ fontSize: "13.5px", color: "var(--muted)", fontFamily: "var(--body)" }}>
                 Signing you in and redirecting to workspace…
               </p>
             </div>
           ) : (
             <form onSubmit={handleSubmit}>
-              <div style={{ marginBottom: "18px" }}>
+              <div style={{ marginBottom: "20px" }}>
                 <label
                   htmlFor="resetNewPassword"
                   style={{
                     display: "block",
-                    fontFamily: "var(--mono)",
-                    fontSize: "11px",
+                    fontFamily: "var(--body)",
+                    fontSize: "12px",
+                    fontWeight: 700,
                     textTransform: "uppercase",
-                    letterSpacing: "0.05em",
-                    color: "var(--muted)",
-                    marginBottom: "6px",
+                    letterSpacing: "0.04em",
+                    color: "var(--text)",
+                    marginBottom: "8px",
                   }}
                 >
                   New Password (min 8 characters)
@@ -134,29 +138,31 @@ export default function ResetPasswordPage({ params }: ResetPasswordPageProps) {
                   onChange={(e) => setPassword(e.target.value)}
                   style={{
                     width: "100%",
-                    border: "none",
-                    borderBottom: "1px solid var(--line)",
-                    background: "none",
+                    border: "2px solid var(--outline)",
+                    background: "var(--bg)",
+                    borderRadius: "10px",
                     fontFamily: "var(--body)",
-                    fontSize: "15.5px",
-                    color: "var(--ink)",
-                    padding: "8px 0",
+                    fontSize: "15px",
+                    color: "var(--text)",
+                    padding: "12px 14px",
                     outline: "none",
+                    boxShadow: "2px 2px 0 var(--outline)",
                   }}
                 />
               </div>
 
-              <div style={{ marginBottom: "24px" }}>
+              <div style={{ marginBottom: "26px" }}>
                 <label
                   htmlFor="resetConfirmPassword"
                   style={{
                     display: "block",
-                    fontFamily: "var(--mono)",
-                    fontSize: "11px",
+                    fontFamily: "var(--body)",
+                    fontSize: "12px",
+                    fontWeight: 700,
                     textTransform: "uppercase",
-                    letterSpacing: "0.05em",
-                    color: "var(--muted)",
-                    marginBottom: "6px",
+                    letterSpacing: "0.04em",
+                    color: "var(--text)",
+                    marginBottom: "8px",
                   }}
                 >
                   Confirm Password
@@ -171,14 +177,15 @@ export default function ResetPasswordPage({ params }: ResetPasswordPageProps) {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   style={{
                     width: "100%",
-                    border: "none",
-                    borderBottom: "1px solid var(--line)",
-                    background: "none",
+                    border: "2px solid var(--outline)",
+                    background: "var(--bg)",
+                    borderRadius: "10px",
                     fontFamily: "var(--body)",
-                    fontSize: "15.5px",
-                    color: "var(--ink)",
-                    padding: "8px 0",
+                    fontSize: "15px",
+                    color: "var(--text)",
+                    padding: "12px 14px",
                     outline: "none",
+                    boxShadow: "2px 2px 0 var(--outline)",
                   }}
                 />
               </div>
@@ -186,13 +193,16 @@ export default function ResetPasswordPage({ params }: ResetPasswordPageProps) {
               {error && (
                 <div
                   style={{
-                    fontFamily: "var(--mono)",
-                    fontSize: "12.5px",
-                    color: "#c93b2b",
-                    marginBottom: "18px",
-                    background: "#fde8e4",
-                    padding: "10px 12px",
-                    borderRadius: "8px",
+                    fontFamily: "var(--body)",
+                    fontSize: "13px",
+                    fontWeight: 600,
+                    color: "#991B1B",
+                    marginBottom: "20px",
+                    background: "#FEE2E2",
+                    padding: "12px 14px",
+                    borderRadius: "10px",
+                    border: "2px solid #991B1B",
+                    boxShadow: "2px 2px 0 #991B1B",
                   }}
                 >
                   ✕ {error}

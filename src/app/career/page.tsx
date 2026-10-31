@@ -61,10 +61,10 @@ export default function CareerPage() {
         </section>
 
         {/* VALUES SECTION */}
-        <section className="milestones" style={{ borderTop: "1px solid var(--line)", padding: "60px 0" }}>
+        <section className="milestones" style={{ borderTop: "2px solid var(--outline)", padding: "64px 0" }}>
           <div className="wrap">
             <div className="section-label reveal">Why Digigrantha</div>
-            <h2 className="section-title reveal" style={{ fontSize: "32px", marginBottom: "32px" }}>
+            <h2 className="section-title reveal" style={{ fontSize: "clamp(2rem, 3.5vw, 2.5rem)", marginBottom: "32px", fontFamily: "var(--display)" }}>
               How we like to build
             </h2>
 
@@ -72,7 +72,7 @@ export default function CareerPage() {
               className="reveal"
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+                gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
                 gap: "24px",
                 marginTop: "16px",
               }}
@@ -81,19 +81,25 @@ export default function CareerPage() {
                 <div
                   key={item.idx}
                   style={{
-                    background: "var(--card)",
+                    background: "var(--surface)",
                     padding: "24px",
-                    borderRadius: "14px",
-                    border: "1px solid var(--line)",
+                    borderRadius: "18px",
+                    border: "2px solid var(--outline)",
+                    boxShadow: "var(--shadow-sm)",
                   }}
                 >
                   <div
                     style={{
-                      fontFamily: "var(--mono)",
+                      fontFamily: "var(--body)",
                       fontSize: "12px",
-                      color: "var(--accent)",
-                      marginBottom: "8px",
-                      fontWeight: 500,
+                      color: "var(--ink)",
+                      background: "var(--lime)",
+                      display: "inline-block",
+                      padding: "2px 8px",
+                      borderRadius: "999px",
+                      border: "1.5px solid var(--outline)",
+                      marginBottom: "14px",
+                      fontWeight: 700,
                     }}
                   >
                     {item.idx}
@@ -102,18 +108,18 @@ export default function CareerPage() {
                     style={{
                       fontFamily: "var(--display)",
                       fontSize: "20px",
-                      fontWeight: 400,
-                      marginBottom: "8px",
-                      color: "var(--ink)",
+                      fontWeight: 600,
+                      marginBottom: "10px",
+                      color: "var(--text)",
                     }}
                   >
                     {item.title}
                   </h3>
                   <p
                     style={{
-                      fontSize: "13.5px",
+                      fontSize: "14px",
                       color: "var(--muted)",
-                      lineHeight: 1.55,
+                      lineHeight: 1.6,
                     }}
                   >
                     {item.desc}

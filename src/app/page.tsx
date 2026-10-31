@@ -27,21 +27,121 @@ export default async function HomePage() {
       <main>
         {/* HERO */}
         <section className="hero">
-          <div className="wrap hero-inner">
-            <div className="eyebrow">Design &amp; development studio</div>
-            <h1 className="hero-headline">
-              Every agency promises <span className="strike">solutions.</span>
-              <br />
-              We&apos;d rather show you <em>receipts</em>.
-            </h1>
-            <p className="hero-sub">
-              Tell us what you&apos;re building — real details, not a sales call — and we&apos;ll tell
-              you honestly whether we&apos;re the right people to build it.
-            </p>
+          <div className="wrap">
+            <div className="hero-grid">
+              <div className="hero-inner">
+                <div className="eyebrow">
+                  <span>✦</span> Design &amp; development studio
+                </div>
+                <h1 className="hero-headline">
+                  Every agency promises <span className="strike">solutions.</span>
+                  <br />
+                  We&apos;d rather show you <em>receipts</em>.
+                </h1>
+                <p className="hero-sub">
+                  Tell us what you&apos;re building — real details, not a sales call — and we&apos;ll tell
+                  you honestly whether we&apos;re the right people to build it.
+                </p>
 
-            <HeroIntake />
+                <HeroIntake />
+              </div>
+
+              {/* Handcrafted Flat Organic Workspace Illustration */}
+              <div className="hero-visual reveal" aria-hidden="true">
+                <div className="hero-illustration">
+                  <div className="hero-ill-badge-float">
+                    ⚡ Live in production
+                  </div>
+                  <div className="hero-ill-window">
+                    <div className="hero-ill-topbar">
+                      <span className="hero-ill-dot red" />
+                      <span className="hero-ill-dot yellow" />
+                      <span className="hero-ill-dot green" />
+                      <span style={{ fontSize: "11px", fontFamily: "var(--mono)", marginLeft: "8px", opacity: 0.65 }}>
+                        digigrantha.studio
+                      </span>
+                    </div>
+                    <div className="hero-ill-body">
+                      <svg viewBox="0 0 340 180" fill="none" style={{ width: "100%", height: "auto" }}>
+                        <rect x="12" y="14" width="140" height="14" rx="4" fill="#0F5C52" opacity="0.8" />
+                        <rect x="12" y="36" width="220" height="8" rx="3" fill="#17201E" opacity="0.3" />
+                        <rect x="12" y="50" width="180" height="8" rx="3" fill="#17201E" opacity="0.2" />
+
+                        <rect x="12" y="74" width="94" height="28" rx="14" fill="#F4B63F" stroke="#17201E" strokeWidth="2" />
+                        <text x="59" y="92" textAnchor="middle" fill="#17201E" fontFamily="var(--body)" fontSize="11" fontWeight="700">Launch →</text>
+
+                        <rect x="114" y="74" width="80" height="28" rx="14" fill="#FFFFFF" stroke="#17201E" strokeWidth="2" />
+                        <text x="154" y="92" textAnchor="middle" fill="#17201E" fontFamily="var(--body)" fontSize="11" fontWeight="600">Inspect</text>
+
+                        {/* Plant & Organic leaf stems */}
+                        <path d="M260 160 C260 110, 290 85, 310 65" stroke="#0F5C52" strokeWidth="3" strokeLinecap="round" />
+                        <path d="M280 120 C295 110, 315 115, 305 130 C295 135, 280 125, 280 120 Z" fill="#C6E04B" stroke="#17201E" strokeWidth="2" />
+                        <path d="M265 140 C250 130, 235 140, 245 152 C255 155, 265 145, 265 140 Z" fill="#BFE3D6" stroke="#17201E" strokeWidth="2" />
+                        <path d="M295 90 C310 80, 325 90, 318 102 C308 105, 298 95, 295 90 Z" fill="#F4B63F" stroke="#17201E" strokeWidth="2" />
+
+                        {/* Metric cards */}
+                        <rect x="12" y="118" width="130" height="46" rx="8" fill="#BFE3D6" stroke="#17201E" strokeWidth="2" />
+                        <text x="24" y="136" fill="#17201E" fontFamily="var(--body)" fontSize="10" fontWeight="700">WIN RATE</text>
+                        <text x="24" y="156" fill="#0F5C52" fontFamily="var(--display)" fontSize="18" fontWeight="800">60.5%</text>
+
+                        <rect x="150" y="118" width="94" height="46" rx="8" fill="#FFFFFF" stroke="#17201E" strokeWidth="2" />
+                        <text x="160" y="136" fill="#17201E" fontFamily="var(--body)" fontSize="10" fontWeight="700">USERS</text>
+                        <text x="160" y="156" fill="#17201E" fontFamily="var(--display)" fontSize="18" fontWeight="800">1,000+</text>
+                      </svg>
+                    </div>
+                  </div>
+                  <div className="hero-ill-note">
+                    Handcrafted in-house ✦
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Subtle curved wave divider transitioning to cream background */}
+          <div className="hero-wave-wrap" aria-hidden="true">
+            <svg viewBox="0 0 1440 60" preserveAspectRatio="none" fill="none">
+              <path d="M0,24 C360,60 1080,0 1440,32 L1440,60 L0,60 Z" fill="var(--bg)" />
+            </svg>
           </div>
         </section>
+
+        {/* ANIMATED TICKER BAND */}
+        <div className="ticker-wrap" aria-label="Studio Capabilities">
+          <div className="ticker-track">
+            {[
+              "Websites that convert",
+              "High-agency web apps",
+              "UI/UX Design systems",
+              "Full-stack Next.js & PostgreSQL",
+              "Private client portals",
+              "Real numbers, no fluff",
+              "In-house start to finish",
+            ].map((text, idx) => (
+              <span key={idx} className="ticker-item">
+                <span>{text}</span>
+                <span className="ticker-dot" aria-hidden="true" />
+              </span>
+            ))}
+          </div>
+          <div className="ticker-track" aria-hidden="true">
+            {[
+              "Websites that convert",
+              "High-agency web apps",
+              "UI/UX Design systems",
+              "Full-stack Next.js & PostgreSQL",
+              "Private client portals",
+              "Real numbers, no fluff",
+              "In-house start to finish",
+            ].map((text, idx) => (
+              <span key={`dup-${idx}`} className="ticker-item">
+                <span>{text}</span>
+                <span className="ticker-dot" />
+              </span>
+            ))}
+          </div>
+        </div>
+
 
         {/* PROOF LINE */}
         <section className="proof">

@@ -7,7 +7,7 @@ import { getEnv, syncCloudflareEnv } from "@/lib/env";
 export * from "@/types/portal";
 
 // Ensure WebSocket is available for Neon serverless in Node / Edge
-if (typeof WebSocket === "undefined") {
+if (typeof WebSocket === "undefined" || (typeof process !== "undefined" && Boolean(process.versions?.node))) {
   neonConfig.webSocketConstructor = ws;
 }
 

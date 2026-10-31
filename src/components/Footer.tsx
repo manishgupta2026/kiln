@@ -10,7 +10,9 @@ export default function Footer({ showNote = true }: FooterProps) {
       <div className="wrap">
         <div className="footer-inner">
           <Link href="/" className="logo">
-            Digigrantha<span>.</span>
+            <span className="brand-mark" aria-hidden="true">D</span>
+            <span className="logo-text">Digigrantha</span>
+            <span className="logo-dot">.</span>
           </Link>
           <div className="footer-links">
             <Link href="/work">Work</Link>
@@ -19,7 +21,7 @@ export default function Footer({ showNote = true }: FooterProps) {
             <Link href="/career">Careers</Link>
             <Link href="/#faq">FAQ</Link>
             <Link href="/#brief">Start a project</Link>
-            <Link href="/login" style={{ color: "var(--accent)" }}>
+            <Link href="/login" style={{ color: "var(--yellow)", fontWeight: 700 }}>
               Client Portal →
             </Link>
           </div>
@@ -28,7 +30,10 @@ export default function Footer({ showNote = true }: FooterProps) {
         {showNote && (
           <div className="footer-bottom">
             <div className="footer-note">
-              © 2026 Digigrantha. Design and development, in-house, start to finish.
+              © 2026 Digigrantha. Expressive digital product &amp; web studio. Built in-house, start to finish.
+            </div>
+            <div style={{ fontFamily: "var(--mono)", fontSize: "12px", color: "var(--mint)" }}>
+              ✦ Handcrafted in-house
             </div>
           </div>
         )}
@@ -36,3 +41,4 @@ export default function Footer({ showNote = true }: FooterProps) {
     </footer>
   );
 }
+
