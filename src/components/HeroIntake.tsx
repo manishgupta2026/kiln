@@ -4,9 +4,9 @@ import { useState } from "react";
 
 const HERO_CHIPS = [
   { label: "Website", value: "Website" },
-  { label: "Product or app", value: "Product / App" },
-  { label: "UI / UX Design", value: "UI / UX Design" },
-  { label: "Not sure yet", value: "Not sure yet" },
+  { label: "Web application", value: "Web application" },
+  { label: "UI/UX Design", value: "UI/UX Design" },
+  { label: "Something else", value: "Something else" },
 ];
 
 export default function HeroIntake() {
@@ -43,11 +43,11 @@ export default function HeroIntake() {
 
   return (
     <div className="intake reveal">
-      <div className="intake-label">What are you building?</div>
+      <div className="intake-label">WHAT ARE YOU LOOKING TO BUILD?</div>
       <input
         type="text"
         id="heroInput"
-        placeholder="A booking app for my clinic, a landing page for launch day, anything."
+        placeholder="A business website, a SaaS platform, an AI-powered product, or something entirely new..."
         value={inputValue}
         onChange={(e) => setInputValue(e.target.value)}
         onKeyDown={(e) => {
@@ -71,9 +71,9 @@ export default function HeroIntake() {
         ))}
       </div>
       <div className="intake-bottom">
-        <div className="intake-note">Takes 20 seconds. No sales call required.</div>
+        <div className="intake-note">Takes 20 seconds. No sales pitch required.</div>
         <button type="button" className="btn-primary" id="heroSubmit" onClick={handleStart}>
-          Start →
+          Let&apos;s talk →
         </button>
       </div>
     </div>

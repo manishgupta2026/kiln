@@ -69,7 +69,7 @@ export default function PortalHeader({ user, projectTitle }: PortalHeaderProps) 
             D
           </div>
           <span style={{ fontFamily: "var(--display)", fontSize: "20px", fontWeight: 700, color: "var(--text)", letterSpacing: "-0.02em" }}>
-            Digigrantha<span style={{ color: "var(--yellow)" }}>.</span>
+            DigiGrantha<span style={{ color: "var(--yellow)" }}>.</span>
           </span>
         </Link>
 

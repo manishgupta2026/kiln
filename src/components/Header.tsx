@@ -58,7 +58,7 @@ export default function Header() {
         {/* Brand Logo with Neem Signature Tilted Badge */}
         <Link href="/" className="logo" onClick={() => setMobileMenuOpen(false)}>
           <span className="brand-mark" aria-hidden="true">D</span>
-          <span className="logo-text">Digigrantha</span>
+          <span className="logo-text">DigiGrantha</span>
           <span className="logo-dot">.</span>
         </Link>
 
@@ -182,7 +182,7 @@ export default function Header() {
               onClick={() => setMobileMenuOpen(false)}
             >
               <span className="mobile-idx">04</span>
-              <span>About Digigrantha</span>
+              <span>About DigiGrantha</span>
             </Link>
             <Link
               href="/career"

@@ -272,7 +272,7 @@ export default function AdminNavbar({
           {/* Left Brand & Studio Pill */}
           <div className="admin-nav-brand-group">
             <Link href="/admin" className="admin-nav-logo" title="Digigrantha Admin Studio">
-              Digigrantha<span className="admin-nav-logo-dot">.</span>
+              DigiGrantha<span className="admin-nav-logo-dot">.</span>
             </Link>
 
             <div className="admin-nav-status-badge">
@@ -377,7 +377,7 @@ export default function AdminNavbar({
           <div className="admin-drawer-header">
             <div>
               <div className="admin-drawer-logo">
-                Digigrantha<span>.</span> Studio
+                DigiGrantha<span>.</span> Studio
               </div>
               <div className="admin-drawer-status">
                 <span className="admin-nav-pulse-dot" />

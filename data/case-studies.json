@@ -2,8 +2,8 @@
   {
     "id": "cmtzk3myp0000i2408jebuygu",
     "name": "TradeSage",
-    "category": "Trading & fintech",
-    "oneLiner": "Taught a model to trade so we didn't have to guess twice.",
+    "category": "FinTech · AI Trading",
+    "oneLiner": "An AI-powered trading platform that analyzes market patterns and executes data-driven trades.",
     "resultStat": "70.5% win rate",
     "briefDescription": "An algorithmic trading system for the Indian equity market. We trained a model on ten years of NSE data across 2,200+ stocks, then wrapped it in automated risk controls — position sizing, regime filters, and a daily loss kill-switch — so the model can't outrun its own discipline.",
     "tags": [
@@ -22,8 +22,8 @@
   {
     "id": "cmtzk3nlb0001i2408g0a3usm",
     "name": "CourseHunt",
-    "category": "Product",
-    "oneLiner": "Built the shortcut 1,000+ students take every day.",
+    "category": "EdTech · Learning Platform",
+    "oneLiner": "A course discovery platform that helps students find the right learning opportunities.",
     "resultStat": "1,000+ daily users",
     "briefDescription": "A fast course aggregator built on Next.js and Supabase. Students were losing hours hunting for course links scattered across the internet — CourseHunt automates discovery and validation so listings are already there, and already working, when they arrive.",
     "tags": [
@@ -40,10 +40,10 @@
   },
   {
     "id": "cmtzk3o4d0002i240zv5grujz",
-    "name": "Coppter",
-    "category": "Product",
-    "oneLiner": "Four different logins, four completely different jobs to be done.",
-    "resultStat": "4 role-based portals shipped",
+    "name": "Copter",
+    "category": "Workforce · Enterprise",
+    "oneLiner": "A workforce management system with four dedicated portals for different job roles.",
+    "resultStat": "4 portals shipped",
     "briefDescription": "A workforce intelligence platform built around four distinct roles — a leadership dashboard for strategic analytics, HR operations tools, personalized growth assessments for employees, and a mentor-facing view for career guidance. Four different logins, because four different people need four different tools, not one dashboard wearing four hats.",
     "tags": [
       "Next.js",
@@ -61,9 +61,9 @@
   {
     "id": "cmtzk3on50003i240peo85zlm",
     "name": "Manraah",
-    "category": "In progress",
+    "category": "HealthTech · Mental Wellness",
     "oneLiner": "A mental wellness platform with dedicated student, professional, and admin experiences.",
-    "resultStat": "Shipping soon",
+    "resultStat": "In progress",
     "briefDescription": "A mental wellness platform with entirely separate experiences for students, professionals, and admins — each with its own permissions, flows, and interface, not one dashboard trying to serve three audiences at once.",
     "tags": [
       "Next.js",
@@ -73,7 +73,7 @@
     ],
     "liveUrl": null,
     "status": "in-progress",
-    "featured": false,
+    "featured": true,
     "displayOrder": 4,
     "createdAt": "2026-09-13T08:32:58.241Z",
     "updatedAt": "2026-09-13T10:03:44.800Z"

@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { CaseStudyRecord } from "@/lib/case-studies-db";
 import CaseStudyModal from "@/components/CaseStudyModal";
+import ProjectCard, { WORK_PROJECTS } from "@/components/ProjectCard";
 
 interface WorkFilterListProps {
   initialCaseStudies?: CaseStudyRecord[];
@@ -12,49 +13,40 @@ interface WorkFilterListProps {
 
 export default function WorkFilterList({
   initialCaseStudies,
-  initialProjects,
   initialFilter = "all",
 }: WorkFilterListProps) {
   const [activeFilter, setActiveFilter] = useState<string>(initialFilter);
-  const [selectedCaseStudy, setSelectedCaseStudy] = useState<CaseStudyRecord | null>(null);
+  const [selectedCaseStudy, setSelectedCaseStudy] = useState<any | null>(null);
 
-  // Normalize data to CaseStudyRecord
-  const caseStudies: CaseStudyRecord[] = useMemo(() => {
-    if (initialCaseStudies && initialCaseStudies.length > 0) {
-      return initialCaseStudies;
-    }
-    return (initialProjects || []).map((p, idx) => ({
-      id: p.id,
-      name: p.name,
-      category: p.category,
-      oneLiner: p.oneLiner,
-      resultStat: p.result,
-      briefDescription: p.mobilePreview || p.oneLiner,
-      tags: p.tags || [],
-      liveUrl: null,
-      status: p.status || "live",
-      featured: p.featured ?? true,
-      displayOrder: idx + 1,
-    }));
-  }, [initialCaseStudies, initialProjects]);
+  // Map to rich project card structures
+  const allProjects = useMemo(() => {
+    return WORK_PROJECTS.map((wp) => {
+      const match = (initialCaseStudies || []).find(
+        (cs) => cs.name.toLowerCase() === wp.name.toLowerCase()
+      );
+      return {
+        ...wp,
+        liveUrl: match?.liveUrl || wp.liveUrl,
+        briefDescription: match?.briefDescription || wp.briefDescription,
+      };
+    });
+  }, [initialCaseStudies]);
 
-  // Dynamically derive distinct category options present in the CaseStudy list
   const distinctCategories = useMemo(() => {
     const cats = new Set<string>();
-    caseStudies.forEach((cs) => {
-      if (cs.category && cs.category.trim()) {
-        cats.add(cs.category.trim());
-      }
+    allProjects.forEach((p) => {
+      if (p.category) cats.add(p.category.trim());
     });
     return Array.from(cats);
-  }, [caseStudies]);
+  }, [allProjects]);
 
-  const filteredCaseStudies = useMemo(() => {
-    return caseStudies.filter((item) => {
+  const filteredProjects = useMemo(() => {
+    return allProjects.filter((item) => {
       if (activeFilter === "all") return true;
-      return item.category.trim().toLowerCase() === activeFilter.trim().toLowerCase();
+      return item.category.toLowerCase().includes(activeFilter.toLowerCase()) ||
+             activeFilter.toLowerCase().includes(item.category.toLowerCase());
     });
-  }, [caseStudies, activeFilter]);
+  }, [allProjects, activeFilter]);
 
   return (
     <>
@@ -86,58 +78,15 @@ export default function WorkFilterList({
         })}
       </div>
 
-      <section className="work-list reveal" aria-label="Case studies archive">
-        <div className="wrap">
-          {filteredCaseStudies.map((study, idx) => {
-            const indexStr = String(idx + 1).padStart(2, "0");
-            const slug = study.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-
-            return (
-              <div
-                key={study.id}
-                className="work-row"
-                data-cat={study.category}
-                data-preview={slug}
-                tabIndex={0}
-                role="button"
-                aria-haspopup="dialog"
-                aria-label={`Case study ${study.name}: ${study.oneLiner}`}
-                onClick={() => setSelectedCaseStudy(study)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    setSelectedCaseStudy(study);
-                  }
-                }}
-              >
-                <div className="idx" aria-hidden="true">
-                  {indexStr}
-                </div>
-                <div>
-                  <div className="wname">
-                    {study.name}
-                    {study.status === "in-progress" && (
-                      <span className="status-pill" style={{ marginLeft: "8px" }}>
-                        In progress
-                      </span>
-                    )}
-                  </div>
-                  <div className="wline">{study.oneLiner}</div>
-                  <div className="tags-row" aria-label="Tags" style={{ marginTop: "8px" }}>
-                    {study.tags &&
-                      study.tags.map((tag) => (
-                        <span key={tag} className="tag">
-                          {tag}
-                        </span>
-                      ))}
-                  </div>
-                </div>
-                <div className="wresult">{study.resultStat}</div>
-              </div>
-            );
-          })}
-        </div>
-      </section>
+      <div className="work-grid reveal" aria-label="Case studies archive">
+        {filteredProjects.map((project) => (
+          <ProjectCard
+            key={project.id}
+            study={project}
+            onOpenCaseStudy={(p) => setSelectedCaseStudy(p)}
+          />
+        ))}
+      </div>
 
       <CaseStudyModal
         caseStudy={selectedCaseStudy}

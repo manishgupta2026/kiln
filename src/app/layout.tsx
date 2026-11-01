@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Fraunces, Inter, Caveat } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
-import CursorTrail from "@/components/CursorTrail";
 
 const fraunces = Fraunces({
   weight: ["400", "600", "700", "800"],
@@ -47,23 +46,22 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: `(function(){
               try {
-                var m = localStorage.getItem('dg-mode');
-                if (!m) {
-                  m = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-                }
+                var m = localStorage.getItem('dg-mode') || 'light';
                 document.documentElement.setAttribute('data-theme', m);
-                if (m === 'dark') document.documentElement.classList.add('dark');
+                if (m === 'dark') {
+                  document.documentElement.classList.add('dark');
+                } else {
+                  document.documentElement.classList.remove('dark');
+                }
               } catch(e) {}
             })()`,
           }}
         />
       </head>
       <body>
-        <CursorTrail />
         {children}
         <Analytics />
       </body>
     </html>
   );
 }
-

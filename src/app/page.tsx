@@ -15,6 +15,24 @@ import { getCaseStudies } from "@/lib/case-studies-db";
 
 export const revalidate = 60;
 
+const TICKER_ITEMS = [
+  "Ideas into real products",
+  "Design that makes sense",
+  "Code built with purpose",
+  "AI beyond the hype",
+  "Full-stack, end to end",
+  "No unnecessary handoffs",
+  "Real products, real outcomes",
+  "Built in-house, start to finish",
+];
+
+const TICKER_LIST = [
+  ...TICKER_ITEMS,
+  ...TICKER_ITEMS,
+  ...TICKER_ITEMS,
+  ...TICKER_ITEMS,
+];
+
 export default async function HomePage() {
   const content = await getSiteContent();
   const caseStudies = await getCaseStudies();
@@ -31,16 +49,17 @@ export default async function HomePage() {
             <div className="hero-grid">
               <div className="hero-inner">
                 <div className="eyebrow">
-                  <span>✦</span> Design &amp; development studio
+                  <span>✦</span> Independent Digital Product Studio
                 </div>
                 <h1 className="hero-headline">
-                  Every agency promises <span className="strike">solutions.</span>
+                  Good ideas deserve more than promises.
                   <br />
-                  We&apos;d rather show you <em>receipts</em>.
+                  They deserve to be built.
+                  <br />
+                  We build products that <em>prove it</em>.
                 </h1>
                 <p className="hero-sub">
-                  Tell us what you&apos;re building — real details, not a sales call — and we&apos;ll tell
-                  you honestly whether we&apos;re the right people to build it.
+                  We turn ambitious ideas into digital products people actually use. From websites and web applications to intelligent platforms, we bring design, technology, and thoughtful engineering together to build things that make a difference.
                 </p>
 
                 <HeroIntake />
@@ -58,7 +77,7 @@ export default async function HomePage() {
                       <span className="hero-ill-dot yellow" />
                       <span className="hero-ill-dot green" />
                       <span style={{ fontSize: "11px", fontFamily: "var(--mono)", marginLeft: "8px", opacity: 0.65 }}>
-                        digigrantha.studio
+                        digiGrantha.studio
                       </span>
                     </div>
                     <div className="hero-ill-body">
@@ -109,15 +128,7 @@ export default async function HomePage() {
         {/* ANIMATED TICKER BAND */}
         <div className="ticker-wrap" aria-label="Studio Capabilities">
           <div className="ticker-track">
-            {[
-              "Websites that convert",
-              "High-agency web apps",
-              "UI/UX Design systems",
-              "Full-stack Next.js & PostgreSQL",
-              "Private client portals",
-              "Real numbers, no fluff",
-              "In-house start to finish",
-            ].map((text, idx) => (
+            {TICKER_LIST.map((text, idx) => (
               <span key={idx} className="ticker-item">
                 <span>{text}</span>
                 <span className="ticker-dot" aria-hidden="true" />
@@ -125,15 +136,7 @@ export default async function HomePage() {
             ))}
           </div>
           <div className="ticker-track" aria-hidden="true">
-            {[
-              "Websites that convert",
-              "High-agency web apps",
-              "UI/UX Design systems",
-              "Full-stack Next.js & PostgreSQL",
-              "Private client portals",
-              "Real numbers, no fluff",
-              "In-house start to finish",
-            ].map((text, idx) => (
+            {TICKER_LIST.map((text, idx) => (
               <span key={`dup-${idx}`} className="ticker-item">
                 <span>{text}</span>
                 <span className="ticker-dot" />

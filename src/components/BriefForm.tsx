@@ -4,11 +4,11 @@ import { useState, useEffect } from "react";
 
 const TYPE_CHIPS = [
   { label: "Website", value: "Website" },
-  { label: "Product or app", value: "Product / App" },
-  { label: "UI / UX Design", value: "UI / UX Design" },
+  { label: "Web application", value: "Web application" },
+  { label: "UI/UX Design", value: "UI/UX Design" },
   { label: "Design System", value: "Design System" },
   { label: "Both (Design + Dev)", value: "Both" },
-  { label: "Not sure yet", value: "Not sure yet" },
+  { label: "Something else", value: "Something else" },
 ];
 
 const BUDGET_CHIPS = [
