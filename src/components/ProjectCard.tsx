@@ -12,12 +12,14 @@ export interface ProjectCardProps {
     status: "live" | "in-progress";
     statusLabel: string;
     oneLiner: string;
+    resultStat?: string;
     metrics: { icon: string; val: string; label: string }[];
     tags: string[];
     liveUrl: string | null;
     version1Url?: string;
     version2Url?: string;
     secondaryLabel: string;
+    briefDescription?: string;
   };
   onOpenCaseStudy: (study: any) => void;
 }
@@ -31,6 +33,7 @@ export const WORK_PROJECTS = [
     status: "live" as const,
     statusLabel: "Live in production",
     oneLiner: "Corporate training and organizational development platform built across two major generational releases.",
+    resultStat: "20+ years legacy · 2 versions",
     metrics: [
       { icon: "⭐", val: "20+", label: "Years legacy" },
       { icon: "🚀", val: "2", label: "Versions shipped" },
@@ -52,6 +55,7 @@ export const WORK_PROJECTS = [
     status: "in-progress" as const,
     statusLabel: "In progress",
     oneLiner: "A mental wellness platform with dedicated student, professional, and admin experiences.",
+    resultStat: "3 user groups",
     metrics: [
       { icon: "👥", val: "3", label: "User groups" },
       { icon: "❤️", val: "Wellness", label: "First approach" },
@@ -71,6 +75,7 @@ export const WORK_PROJECTS = [
     status: "live" as const,
     statusLabel: "Live in production",
     oneLiner: "A workforce management system with four dedicated portals for different job roles.",
+    resultStat: "4 portals shipped",
     metrics: [
       { icon: "⚏", val: "4", label: "Portals shipped" },
       { icon: "👥", val: "Multiple", label: "User roles" },
@@ -90,6 +95,7 @@ export const WORK_PROJECTS = [
     status: "live" as const,
     statusLabel: "Live in production",
     oneLiner: "Your personal AI fitness assistant delivering dynamic workout plans and weekly health tasks.",
+    resultStat: "100% personalized",
     metrics: [
       { icon: "⚡", val: "AI", label: "Task generator" },
       { icon: "🎯", val: "100%", label: "Personalized" },
@@ -109,6 +115,7 @@ export const WORK_PROJECTS = [
     status: "live" as const,
     statusLabel: "Live in production",
     oneLiner: "A course discovery platform that helps students find the right learning opportunities.",
+    resultStat: "1,000+ daily users",
     metrics: [
       { icon: "👥", val: "1,000+", label: "Daily users" },
       { icon: "📖", val: "10K+", label: "Courses listed" },
@@ -128,6 +135,7 @@ export const WORK_PROJECTS = [
     status: "live" as const,
     statusLabel: "Live in production",
     oneLiner: "An AI-powered trading platform that analyzes market patterns and executes data-driven trades.",
+    resultStat: "70.5% win rate",
     metrics: [
       { icon: "↗", val: "70.5%", label: "Win rate" },
       { icon: "⛁", val: "5+", label: "Trading models" },
@@ -685,7 +693,20 @@ export default function ProjectCard({ study, onOpenCaseStudy }: ProjectCardProps
   const isLive = study.status === "live";
 
   return (
-    <div className="project-card reveal" id={`project-${study.idx}`}>
+    <div
+      className="project-card reveal"
+      id={`project-${study.idx}`}
+      onClick={() => onOpenCaseStudy(study)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onOpenCaseStudy(study);
+        }
+      }}
+      aria-label={`View ${study.name} case study`}
+    >
       {/* Corner sparkle rays */}
       <svg
         className="project-card-sparkles"
@@ -751,16 +772,6 @@ export default function ProjectCard({ study, onOpenCaseStudy }: ProjectCardProps
                 </div>
               ))}
             </div>
-
-            {/* Tech Stack Row */}
-            <div className="project-card-tech-row">
-              <span className="project-card-tech-label">TECH STACK</span>
-              {study.tags.map((tag) => (
-                <span key={tag} className="project-card-tech-chip">
-                  {tag}
-                </span>
-              ))}
-            </div>
           </div>
 
           {/* Action Buttons */}
@@ -768,27 +779,32 @@ export default function ProjectCard({ study, onOpenCaseStudy }: ProjectCardProps
             {study.version1Url && study.version2Url ? (
               <>
                 <a
-                  href={study.version2Url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="project-card-btn-primary"
-                  title="Open 5e Serpraise Version 2 (Latest)"
-                >
-                  View V2 ↗
-                </a>
-                <a
                   href={study.version1Url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="project-card-btn-secondary"
+                  className="project-card-btn-primary"
                   title="Open 5e Serpraise Version 1 (Production)"
+                  onClick={(e) => e.stopPropagation()}
                 >
                   View V1 ↗
+                </a>
+                <a
+                  href={study.version2Url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="project-card-btn-secondary"
+                  title="Open 5e Serpraise Version 2 (Latest)"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  View V2 ↗
                 </a>
                 <button
                   type="button"
                   className="project-card-btn-secondary"
-                  onClick={() => onOpenCaseStudy(study)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onOpenCaseStudy(study);
+                  }}
                 >
                   {study.secondaryLabel}
                 </button>
@@ -800,13 +816,17 @@ export default function ProjectCard({ study, onOpenCaseStudy }: ProjectCardProps
                   target="_blank"
                   rel="noopener noreferrer"
                   className="project-card-btn-primary"
+                  onClick={(e) => e.stopPropagation()}
                 >
                   View project ↗
                 </a>
                 <button
                   type="button"
                   className="project-card-btn-secondary"
-                  onClick={() => onOpenCaseStudy(study)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onOpenCaseStudy(study);
+                  }}
                 >
                   {study.secondaryLabel}
                 </button>
@@ -816,14 +836,20 @@ export default function ProjectCard({ study, onOpenCaseStudy }: ProjectCardProps
                 <button
                   type="button"
                   className="project-card-btn-primary"
-                  onClick={() => onOpenCaseStudy(study)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onOpenCaseStudy(study);
+                  }}
                 >
                   View project ↗
                 </button>
                 <button
                   type="button"
                   className="project-card-btn-secondary"
-                  onClick={() => onOpenCaseStudy(study)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onOpenCaseStudy(study);
+                  }}
                 >
                   {study.secondaryLabel}
                 </button>

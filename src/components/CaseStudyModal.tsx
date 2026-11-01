@@ -63,10 +63,12 @@ export default function CaseStudyModal({ caseStudy, onClose }: CaseStudyModalPro
           {caseStudy.name}
         </h2>
 
-        <div className="case-study-stat-banner">
-          <span className="case-study-stat-val">{caseStudy.resultStat}</span>
-          <span className="case-study-stat-label">Verified outcome</span>
-        </div>
+        {caseStudy.resultStat && (
+          <div className="case-study-stat-banner">
+            <span className="case-study-stat-val">{caseStudy.resultStat}</span>
+            <span className="case-study-stat-label">Verified outcome</span>
+          </div>
+        )}
 
         <div className="case-study-desc">{caseStudy.briefDescription}</div>
 
@@ -86,23 +88,23 @@ export default function CaseStudyModal({ caseStudy, onClose }: CaseStudyModalPro
         {caseStudy.version1Url && caseStudy.version2Url ? (
           <div className="case-study-actions" style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
             <a
-              href={caseStudy.version2Url}
+              href={caseStudy.version1Url}
               target="_blank"
               rel="noopener noreferrer"
               className="btn-primary"
               style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}
             >
-              <span>Visit Version 2 (Latest)</span>
+              <span>Visit Version 1</span>
               <span>↗</span>
             </a>
             <a
-              href={caseStudy.version1Url}
+              href={caseStudy.version2Url}
               target="_blank"
               rel="noopener noreferrer"
               className="btn-secondary"
               style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}
             >
-              <span>Visit Version 1</span>
+              <span>Visit Version 2 (Latest)</span>
               <span>↗</span>
             </a>
           </div>

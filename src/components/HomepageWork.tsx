@@ -27,6 +27,7 @@ export default function HomepageWork({
       version1Url: (match as any)?.version1Url || (wp as any).version1Url,
       version2Url: (match as any)?.version2Url || (wp as any).version2Url,
       briefDescription: match?.briefDescription || wp.briefDescription,
+      resultStat: match?.resultStat || (wp as any).resultStat,
     };
   });
 
