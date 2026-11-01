@@ -11,6 +11,8 @@ export interface CaseStudyRecord {
   briefDescription: string;
   tags: string[];
   liveUrl: string | null;
+  version1Url?: string | null;
+  version2Url?: string | null;
   status: string; // "live" | "in-progress"
   featured: boolean;
   displayOrder: number;

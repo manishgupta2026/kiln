@@ -52,11 +52,9 @@ export default async function HomePage() {
                   <span>✦</span> Independent Digital Product Studio
                 </div>
                 <h1 className="hero-headline">
-                  Good ideas deserve more than promises.
+                  From ambitious ideas to digital products
                   <br />
-                  They deserve to be built.
-                  <br />
-                  We build products that <em>prove it</em>.
+                  built for the <em>real world</em>.
                 </h1>
                 <p className="hero-sub">
                   We turn ambitious ideas into digital products people actually use. From websites and web applications to intelligent platforms, we bring design, technology, and thoughtful engineering together to build things that make a difference.

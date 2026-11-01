@@ -15,6 +15,8 @@ export interface ProjectCardProps {
     metrics: { icon: string; val: string; label: string }[];
     tags: string[];
     liveUrl: string | null;
+    version1Url?: string;
+    version2Url?: string;
     secondaryLabel: string;
   };
   onOpenCaseStudy: (study: any) => void;
@@ -22,27 +24,86 @@ export interface ProjectCardProps {
 
 export const WORK_PROJECTS = [
   {
-    id: "cmtzk3myp0000i2408jebuygu",
+    id: "study-5e-serpraise",
     idx: "01",
-    name: "TradeSage",
-    category: "FinTech · AI Trading",
+    name: "5e Serpraise",
+    category: "Corporate Training · OD Consulting",
     status: "live" as const,
     statusLabel: "Live in production",
-    oneLiner: "An AI-powered trading platform that analyzes market patterns and executes data-driven trades.",
+    oneLiner: "Corporate training and organizational development platform built across two major generational releases.",
     metrics: [
-      { icon: "↗", val: "70.5%", label: "Win rate" },
-      { icon: "⛁", val: "5+", label: "Trading models" },
-      { icon: "⚡", val: "Real-time", label: "Market execution" },
+      { icon: "⭐", val: "20+", label: "Years legacy" },
+      { icon: "🚀", val: "2", label: "Versions shipped" },
+      { icon: "🌏", val: "2", label: "Global markets" },
     ],
-    tags: ["Python", "XGBoost", "GitHub Actions", "SmartAPI"],
-    liveUrl: null,
+    tags: ["Next.js", "TypeScript", "Tailwind", "Vercel"],
+    liveUrl: "https://5e-serpraise.vercel.app/",
+    version1Url: "https://5eserpraise.com",
+    version2Url: "https://5e-serpraise.vercel.app/",
     secondaryLabel: "Read case study",
     briefDescription:
-      "An algorithmic trading system for the Indian equity market. We trained a model on ten years of NSE data across 2,200+ stocks, then wrapped it in automated risk controls — position sizing, regime filters, and a daily loss kill-switch — so the model can't outrun its own discipline.",
+      "A human resources, corporate training, and organization development initiative operating since 2003 across India and Australia. We architected and delivered both generations of their digital experience: Version 1 on production and Version 2 with a modernized, editorial design system and interactive module architecture.",
+  },
+  {
+    id: "cmtzk3on50003i240peo85zlm",
+    idx: "02",
+    name: "Manraah",
+    category: "HealthTech · Mental Wellness",
+    status: "in-progress" as const,
+    statusLabel: "In progress",
+    oneLiner: "A mental wellness platform with dedicated student, professional, and admin experiences.",
+    metrics: [
+      { icon: "👥", val: "3", label: "User groups" },
+      { icon: "❤️", val: "Wellness", label: "First approach" },
+      { icon: "⛁", val: "Scalable", label: "& secure" },
+    ],
+    tags: ["Next.js", "TypeScript", "Tailwind", "Neon"],
+    liveUrl: "https://manraah.vercel.app",
+    secondaryLabel: "Track progress ↗",
+    briefDescription:
+      "A mental wellness platform with entirely separate experiences for students, professionals, and admins — each with its own permissions, flows, and interface, not one dashboard trying to serve three audiences at once.",
+  },
+  {
+    id: "cmtzk3o4d0002i240zv5grujz",
+    idx: "03",
+    name: "Coppter",
+    category: "Workforce · Enterprise",
+    status: "live" as const,
+    statusLabel: "Live in production",
+    oneLiner: "A workforce management system with four dedicated portals for different job roles.",
+    metrics: [
+      { icon: "⚏", val: "4", label: "Portals shipped" },
+      { icon: "👥", val: "Multiple", label: "User roles" },
+      { icon: "🛡️", val: "Unified", label: "Operations" },
+    ],
+    tags: ["Next.js", "TypeScript", "Tailwind", "Neon"],
+    liveUrl: "https://coppter-frontend.onrender.com/",
+    secondaryLabel: "Read case study",
+    briefDescription:
+      "A workforce intelligence platform built around four distinct roles — a leadership dashboard for strategic analytics, HR operations tools, personalized growth assessments for employees, and a mentor-facing view for career guidance. Four different logins, because four different people need four different tools, not one dashboard wearing four hats.",
+  },
+  {
+    id: "study-nutriflex",
+    idx: "04",
+    name: "NutriFlex",
+    category: "HealthTech · AI Fitness",
+    status: "live" as const,
+    statusLabel: "Live in production",
+    oneLiner: "Your personal AI fitness assistant delivering dynamic workout plans and weekly health tasks.",
+    metrics: [
+      { icon: "⚡", val: "AI", label: "Task generator" },
+      { icon: "🎯", val: "100%", label: "Personalized" },
+      { icon: "💪", val: "Full", label: "Fitness suite" },
+    ],
+    tags: ["Next.js", "React", "OpenAI", "Bootstrap"],
+    liveUrl: "https://nutriflex.vercel.app",
+    secondaryLabel: "Read case study",
+    briefDescription:
+      "An intelligent fitness and nutrition platform built to eliminate generic routines. NutriFlex generates customized weekly workout schedules, dynamic exercise progressions, and AI-driven motivational encouragement tailored to individual goals.",
   },
   {
     id: "cmtzk3nlb0001i2408g0a3usm",
-    idx: "02",
+    idx: "05",
     name: "CourseHunt",
     category: "EdTech · Learning Platform",
     status: "live" as const,
@@ -60,42 +121,23 @@ export const WORK_PROJECTS = [
       "A fast course aggregator built on Next.js and Supabase. Students were losing hours hunting for course links scattered across the internet — CourseHunt automates discovery and validation so listings are already there, and already working, when they arrive.",
   },
   {
-    id: "cmtzk3o4d0002i240zv5grujz",
-    idx: "03",
-    name: "Copter",
-    category: "Workforce · Enterprise",
+    id: "cmtzk3myp0000i2408jebuygu",
+    idx: "06",
+    name: "TradeSage",
+    category: "FinTech · AI Trading",
     status: "live" as const,
     statusLabel: "Live in production",
-    oneLiner: "A workforce management system with four dedicated portals for different job roles.",
+    oneLiner: "An AI-powered trading platform that analyzes market patterns and executes data-driven trades.",
     metrics: [
-      { icon: "⚏", val: "4", label: "Portals shipped" },
-      { icon: "👥", val: "Multiple", label: "User roles" },
-      { icon: "🛡️", val: "Unified", label: "Operations" },
+      { icon: "↗", val: "70.5%", label: "Win rate" },
+      { icon: "⛁", val: "5+", label: "Trading models" },
+      { icon: "⚡", val: "Real-time", label: "Market execution" },
     ],
-    tags: ["Next.js", "TypeScript", "Tailwind", "Neon"],
-    liveUrl: "https://coppter-frontend.onrender.com/",
+    tags: ["Python", "XGBoost", "GitHub Actions", "SmartAPI"],
+    liveUrl: "https://tradesagaai.duckdns.org/",
     secondaryLabel: "Read case study",
     briefDescription:
-      "A workforce intelligence platform built around four distinct roles — a leadership dashboard for strategic analytics, HR operations tools, personalized growth assessments for employees, and a mentor-facing view for career guidance. Four different logins, because four different people need four different tools, not one dashboard wearing four hats.",
-  },
-  {
-    id: "cmtzk3on50003i240peo85zlm",
-    idx: "04",
-    name: "Manraah",
-    category: "HealthTech · Mental Wellness",
-    status: "in-progress" as const,
-    statusLabel: "In progress",
-    oneLiner: "A mental wellness platform with dedicated student, professional, and admin experiences.",
-    metrics: [
-      { icon: "👥", val: "3", label: "User groups" },
-      { icon: "❤️", val: "Wellness", label: "First approach" },
-      { icon: "⛁", val: "Scalable", label: "& secure" },
-    ],
-    tags: ["Next.js", "TypeScript", "Tailwind", "Neon"],
-    liveUrl: null,
-    secondaryLabel: "Track progress ↗",
-    briefDescription:
-      "A mental wellness platform with entirely separate experiences for students, professionals, and admins — each with its own permissions, flows, and interface, not one dashboard trying to serve three audiences at once.",
+      "An algorithmic trading system for the Indian equity market. We trained a model on ten years of NSE data across 2,200+ stocks, then wrapped it in automated risk controls — position sizing, regime filters, and a daily loss kill-switch — so the model can't outrun its own discipline.",
   },
 ];
 
@@ -283,7 +325,7 @@ export function CourseHuntMockup() {
   );
 }
 
-export function CopterMockup() {
+export function CoppterMockup() {
   return (
     <svg viewBox="0 0 320 220" width="100%" height="100%" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect width="320" height="220" rx="14" fill="#0A1612" stroke="#17201E" strokeWidth="2" />
@@ -304,7 +346,7 @@ export function CopterMockup() {
       {/* Header */}
       <g transform="translate(36, 34)">
         <rect x="0" y="1" width="12" height="12" rx="3" fill="#2D6A4F" />
-        <text x="17" y="11" fill="#FFFFFF" fontFamily="system-ui, sans-serif" fontSize="11" fontWeight="700">Copter</text>
+        <text x="17" y="11" fill="#FFFFFF" fontFamily="system-ui, sans-serif" fontSize="11" fontWeight="700">Coppter</text>
       </g>
 
       {/* Top 3 Portal Cards */}
@@ -449,18 +491,195 @@ export function ManraahMockup() {
   );
 }
 
+export function SerpraiseMockup() {
+  return (
+    <svg viewBox="0 0 320 220" width="100%" height="100%" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Outer Shell */}
+      <rect width="320" height="220" rx="14" fill="#FBF8F1" stroke="#17201E" strokeWidth="2" />
+      
+      {/* Window Controls Bar */}
+      <rect width="320" height="22" rx="14" fill="#E8DFD0" />
+      <rect y="12" width="320" height="10" fill="#E8DFD0" />
+      <line x1="0" y1="22" x2="320" y2="22" stroke="#D3C7B5" strokeWidth="1" />
+      <circle cx="14" cy="11" r="3.5" fill="#EF4444" />
+      <circle cx="25" cy="11" r="3.5" fill="#F59E0B" />
+      <circle cx="36" cy="11" r="3.5" fill="#10B981" />
+
+      {/* Top Navbar */}
+      <rect y="23" width="320" height="34" fill="#0B2A6B" />
+      
+      {/* Brand logo & title */}
+      <g transform="translate(14, 29)">
+        <rect x="0" y="2" width="18" height="18" rx="4" fill="#D62839" />
+        <text x="4.5" y="15" fill="#FFFFFF" fontFamily="system-ui, sans-serif" fontSize="10.5" fontWeight="800">5e</text>
+        <text x="23" y="14" fill="#FFFFFF" fontFamily="system-ui, sans-serif" fontSize="10" fontWeight="800" letterSpacing="0.05em">SERPRAISE</text>
+        <text x="23" y="21" fill="#E5B25D" fontFamily="Georgia, serif" fontStyle="italic" fontSize="7">Enriching Everyone</text>
+      </g>
+
+      {/* Version Badges Top Right */}
+      <g transform="translate(202, 31)">
+        <rect x="0" y="2" width="50" height="18" rx="9" fill="#153E90" stroke="#E5B25D" strokeWidth="1" />
+        <circle cx="8" cy="11" r="2.5" fill="#10B981" />
+        <text x="14" y="13.5" fill="#FFFFFF" fontFamily="system-ui, sans-serif" fontSize="7" fontWeight="700">v2.0 Live</text>
+
+        <rect x="54" y="2" width="50" height="18" rx="9" fill="#10254C" stroke="#4B6584" strokeWidth="1" />
+        <circle cx="62" cy="11" r="2.5" fill="#F59E0B" />
+        <text x="68" y="13.5" fill="#D1D8E0" fontFamily="system-ui, sans-serif" fontSize="7" fontWeight="700">v1.0 Live</text>
+      </g>
+
+      {/* Hero Headline Box with Double Brass Border */}
+      <g transform="translate(14, 65)">
+        <rect x="0" y="0" width="292" height="74" rx="8" fill="#F7F1E5" stroke="#A67C37" strokeWidth="1" />
+        <rect x="3" y="3" width="286" height="68" rx="6" fill="#F7F1E5" stroke="#A67C37" strokeWidth="0.8" strokeDasharray="3 3" />
+        
+        <text x="12" y="18" fill="#A67C37" fontFamily="Georgia, serif" fontStyle="italic" fontSize="8" fontWeight="600">ESTABLISHED 2003 · INDIA &amp; AUSTRALIA</text>
+        <text x="12" y="34" fill="#0B2A6B" fontFamily="Georgia, serif" fontSize="13" fontWeight="800">Enriching People.</text>
+        <text x="12" y="49" fill="#0B2A6B" fontFamily="Georgia, serif" fontSize="13" fontWeight="800">Strengthening Organizations.</text>
+        
+        {/* Crimson consultation button */}
+        <rect x="180" y="28" width="98" height="24" rx="12" fill="#D62839" />
+        <text x="229" y="43" textAnchor="middle" fill="#FFFFFF" fontFamily="system-ui, sans-serif" fontSize="8" fontWeight="700">Explore Programs →</text>
+      </g>
+
+      {/* 3 Pillars / Modules */}
+      <g transform="translate(14, 146)">
+        {/* Module 1 */}
+        <rect x="0" y="0" width="92" height="62" rx="8" fill="#FFFFFF" stroke="#D3C7B5" strokeWidth="1" />
+        <rect x="8" y="8" width="20" height="20" rx="4" fill="#0B2A6B" />
+        <path d="M14 18l3-5 5 8" stroke="#FFFFFF" strokeWidth="1.2" strokeLinecap="round" />
+        <text x="34" y="17" fill="#0B2A6B" fontFamily="system-ui, sans-serif" fontSize="8" fontWeight="800">Training</text>
+        <text x="34" y="25" fill="#D62839" fontFamily="Georgia, serif" fontStyle="italic" fontSize="7">E1 Modules</text>
+        <rect x="8" y="34" width="76" height="4" rx="2" fill="#CBD5E1" />
+        <rect x="8" y="42" width="54" height="4" rx="2" fill="#E2E8F0" />
+        <rect x="8" y="50" width="64" height="4" rx="2" fill="#E2E8F0" />
+
+        {/* Module 2 */}
+        <rect x="100" y="0" width="92" height="62" rx="8" fill="#FFFFFF" stroke="#D3C7B5" strokeWidth="1" />
+        <rect x="108" y="8" width="20" height="20" rx="4" fill="#D62839" />
+        <circle cx="118" cy="18" r="5" stroke="#FFFFFF" strokeWidth="1.2" fill="none" />
+        <text x="134" y="17" fill="#0B2A6B" fontFamily="system-ui, sans-serif" fontSize="8" fontWeight="800">Coaching</text>
+        <text x="134" y="25" fill="#A67C37" fontFamily="Georgia, serif" fontStyle="italic" fontSize="7">Executive</text>
+        <rect x="108" y="34" width="76" height="4" rx="2" fill="#CBD5E1" />
+        <rect x="108" y="42" width="54" height="4" rx="2" fill="#E2E8F0" />
+        <rect x="108" y="50" width="64" height="4" rx="2" fill="#E2E8F0" />
+
+        {/* Module 3 */}
+        <rect x="200" y="0" width="92" height="62" rx="8" fill="#FFFFFF" stroke="#D3C7B5" strokeWidth="1" />
+        <rect x="208" y="8" width="20" height="20" rx="4" fill="#153E90" />
+        <rect x="214" y="14" width="8" height="8" rx="1.5" stroke="#FFFFFF" strokeWidth="1.2" fill="none" />
+        <text x="234" y="17" fill="#0B2A6B" fontFamily="system-ui, sans-serif" fontSize="8" fontWeight="800">OD Advisory</text>
+        <text x="234" y="25" fill="#10B981" fontFamily="Georgia, serif" fontStyle="italic" fontSize="7">Consulting</text>
+        <rect x="208" y="34" width="76" height="4" rx="2" fill="#CBD5E1" />
+        <rect x="208" y="42" width="54" height="4" rx="2" fill="#E2E8F0" />
+        <rect x="208" y="50" width="64" height="4" rx="2" fill="#E2E8F0" />
+      </g>
+    </svg>
+  );
+}
+
+export function NutriFlexMockup() {
+  return (
+    <svg viewBox="0 0 320 220" width="100%" height="100%" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Outer Shell */}
+      <rect width="320" height="220" rx="14" fill="#111827" stroke="#17201E" strokeWidth="2" />
+
+      {/* Window Controls Bar */}
+      <rect width="320" height="22" rx="14" fill="#1F2937" />
+      <rect y="12" width="320" height="10" fill="#1F2937" />
+      <line x1="0" y1="22" x2="320" y2="22" stroke="#374151" strokeWidth="1" />
+      <circle cx="14" cy="11" r="3.5" fill="#EF4444" />
+      <circle cx="25" cy="11" r="3.5" fill="#F59E0B" />
+      <circle cx="36" cy="11" r="3.5" fill="#10B981" />
+
+      {/* App Header */}
+      <g transform="translate(14, 28)">
+        <rect x="0" y="2" width="16" height="16" rx="4" fill="#525CEB" />
+        <path d="M4 10h8M6 7v6M10 7v6" stroke="#FFFFFF" strokeWidth="1.4" strokeLinecap="round" />
+        <text x="22" y="14" fill="#FFFFFF" fontFamily="system-ui, sans-serif" fontSize="11" fontWeight="800">NutriFlex</text>
+        <text x="76" y="14" fill="#818CF8" fontFamily="system-ui, sans-serif" fontSize="8" fontWeight="600">· AI Assistant</text>
+
+        {/* Status Pill */}
+        <rect x="210" y="1" width="82" height="18" rx="9" fill="#1E1B4B" stroke="#6366F1" strokeWidth="1" />
+        <circle cx="219" cy="10" r="2.5" fill="#10B981" />
+        <text x="226" y="13" fill="#C7D2FE" fontFamily="system-ui, sans-serif" fontSize="7.5" fontWeight="700">AI Active</text>
+      </g>
+
+      {/* Hero Workout Generator Card */}
+      <g transform="translate(14, 56)">
+        <rect x="0" y="0" width="292" height="78" rx="8" fill="#1F2937" stroke="#374151" strokeWidth="1" />
+        <text x="14" y="20" fill="#F9FAFB" fontFamily="system-ui, sans-serif" fontSize="12" fontWeight="800">Dynamic Workout Generator</text>
+        <text x="14" y="34" fill="#9CA3AF" fontFamily="system-ui, sans-serif" fontSize="8.5">AI-powered weekly fitness task progression</text>
+
+        {/* Progress Rings */}
+        <g transform="translate(195, 12)">
+          <circle cx="26" cy="26" r="22" stroke="#374151" strokeWidth="4" fill="none" />
+          <circle cx="26" cy="26" r="22" stroke="#525CEB" strokeWidth="4" strokeDasharray="138" strokeDashoffset="35" fill="none" strokeLinecap="round" />
+          <text x="26" y="29" textAnchor="middle" fill="#FFFFFF" fontFamily="system-ui, sans-serif" fontSize="9" fontWeight="800">82%</text>
+          <text x="26" y="38" textAnchor="middle" fill="#9CA3AF" fontFamily="system-ui, sans-serif" fontSize="5.5">GOAL</text>
+        </g>
+
+        {/* Generate Button */}
+        <rect x="14" y="44" width="105" height="24" rx="12" fill="#525CEB" />
+        <text x="66" y="59" textAnchor="middle" fill="#FFFFFF" fontFamily="system-ui, sans-serif" fontSize="8" fontWeight="700">Generate Plan →</text>
+      </g>
+
+      {/* Bottom 3 Feature Widgets */}
+      <g transform="translate(14, 142)">
+        {/* Widget 1 */}
+        <rect x="0" y="0" width="92" height="66" rx="8" fill="#1F2937" stroke="#374151" strokeWidth="1" />
+        <rect x="8" y="8" width="18" height="18" rx="4" fill="#312E81" />
+        <path d="M12 17l3 3 6-6" stroke="#818CF8" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+        <text x="32" y="16" fill="#F9FAFB" fontFamily="system-ui, sans-serif" fontSize="8" fontWeight="700">Custom Plans</text>
+        <text x="32" y="24" fill="#9CA3AF" fontFamily="system-ui, sans-serif" fontSize="6.5">Tailored splits</text>
+        <rect x="8" y="34" width="76" height="4" rx="2" fill="#374151" />
+        <rect x="8" y="42" width="60" height="4" rx="2" fill="#374151" />
+        <rect x="8" y="50" width="45" height="4" rx="2" fill="#525CEB" />
+
+        {/* Widget 2 */}
+        <rect x="100" y="0" width="92" height="66" rx="8" fill="#1F2937" stroke="#374151" strokeWidth="1" />
+        <rect x="108" y="8" width="18" height="18" rx="4" fill="#064E3B" />
+        <circle cx="117" cy="17" r="4.5" stroke="#34D399" strokeWidth="1.2" fill="none" />
+        <path d="M117 15v2.5l1.5 1" stroke="#34D399" strokeWidth="1" strokeLinecap="round" />
+        <text x="132" y="16" fill="#F9FAFB" fontFamily="system-ui, sans-serif" fontSize="8" fontWeight="700">Weekly Tasks</text>
+        <text x="132" y="24" fill="#9CA3AF" fontFamily="system-ui, sans-serif" fontSize="6.5">Automated</text>
+        <rect x="108" y="34" width="76" height="4" rx="2" fill="#374151" />
+        <rect x="108" y="42" width="60" height="4" rx="2" fill="#374151" />
+        <rect x="108" y="50" width="52" height="4" rx="2" fill="#10B981" />
+
+        {/* Widget 3 */}
+        <rect x="200" y="0" width="92" height="66" rx="8" fill="#1F2937" stroke="#374151" strokeWidth="1" />
+        <rect x="208" y="8" width="18" height="18" rx="4" fill="#701A75" />
+        <path d="M217 14 C215 12, 212 14, 212 16 C212 19, 217 22, 217 22 C217 22, 222 19, 222 16 C222 14, 219 12, 217 14 Z" fill="#F472B6" />
+        <text x="232" y="16" fill="#F9FAFB" fontFamily="system-ui, sans-serif" fontSize="8" fontWeight="700">AI Coach</text>
+        <text x="232" y="24" fill="#9CA3AF" fontFamily="system-ui, sans-serif" fontSize="6.5">Motivational</text>
+        <rect x="208" y="34" width="76" height="4" rx="2" fill="#374151" />
+        <rect x="208" y="42" width="60" height="4" rx="2" fill="#374151" />
+        <rect x="208" y="50" width="58" height="4" rx="2" fill="#F472B6" />
+      </g>
+    </svg>
+  );
+}
+
 export default function ProjectCard({ study, onOpenCaseStudy }: ProjectCardProps) {
-  const isCopter = study.name.toLowerCase().includes("copter");
-  const isTradeSage = study.name.toLowerCase().includes("tradesage");
-  const isCourseHunt = study.name.toLowerCase().includes("coursehunt");
+  const is5e =
+    study.name.toLowerCase().includes("5e") ||
+    study.name.toLowerCase().includes("serpraise");
   const isManraah = study.name.toLowerCase().includes("manraah");
+  const isCoppter =
+    study.name.toLowerCase().includes("coppter") ||
+    study.name.toLowerCase().includes("copter");
+  const isNutriFlex = study.name.toLowerCase().includes("nutri");
+  const isCourseHunt = study.name.toLowerCase().includes("coursehunt");
+  const isTradeSage = study.name.toLowerCase().includes("tradesage");
 
   const renderMockup = () => {
-    if (isTradeSage) return <TradeSageMockup />;
-    if (isCourseHunt) return <CourseHuntMockup />;
-    if (isCopter) return <CopterMockup />;
+    if (is5e) return <SerpraiseMockup />;
     if (isManraah) return <ManraahMockup />;
-    return <TradeSageMockup />;
+    if (isCoppter) return <CoppterMockup />;
+    if (isNutriFlex) return <NutriFlexMockup />;
+    if (isCourseHunt) return <CourseHuntMockup />;
+    if (isTradeSage) return <TradeSageMockup />;
+    return <SerpraiseMockup />;
   };
 
   const isLive = study.status === "live";
@@ -519,7 +738,7 @@ export default function ProjectCard({ study, onOpenCaseStudy }: ProjectCardProps
                   key={mIdx}
                   className="project-card-metric-box"
                   style={
-                    isCopter && mIdx === 0
+                    isCoppter && mIdx === 0
                       ? { background: "#CEF2DE" }
                       : undefined
                   }
@@ -546,32 +765,70 @@ export default function ProjectCard({ study, onOpenCaseStudy }: ProjectCardProps
 
           {/* Action Buttons */}
           <div className="project-card-actions">
-            {study.liveUrl ? (
-              <a
-                href={study.liveUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="project-card-btn-primary"
-              >
-                View project ↗
-              </a>
+            {study.version1Url && study.version2Url ? (
+              <>
+                <a
+                  href={study.version2Url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="project-card-btn-primary"
+                  title="Open 5e Serpraise Version 2 (Latest)"
+                >
+                  View V2 ↗
+                </a>
+                <a
+                  href={study.version1Url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="project-card-btn-secondary"
+                  title="Open 5e Serpraise Version 1 (Production)"
+                >
+                  View V1 ↗
+                </a>
+                <button
+                  type="button"
+                  className="project-card-btn-secondary"
+                  onClick={() => onOpenCaseStudy(study)}
+                >
+                  {study.secondaryLabel}
+                </button>
+              </>
+            ) : study.liveUrl ? (
+              <>
+                <a
+                  href={study.liveUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="project-card-btn-primary"
+                >
+                  View project ↗
+                </a>
+                <button
+                  type="button"
+                  className="project-card-btn-secondary"
+                  onClick={() => onOpenCaseStudy(study)}
+                >
+                  {study.secondaryLabel}
+                </button>
+              </>
             ) : (
-              <button
-                type="button"
-                className="project-card-btn-primary"
-                onClick={() => onOpenCaseStudy(study)}
-              >
-                View project ↗
-              </button>
+              <>
+                <button
+                  type="button"
+                  className="project-card-btn-primary"
+                  onClick={() => onOpenCaseStudy(study)}
+                >
+                  View project ↗
+                </button>
+                <button
+                  type="button"
+                  className="project-card-btn-secondary"
+                  onClick={() => onOpenCaseStudy(study)}
+                >
+                  {study.secondaryLabel}
+                </button>
+              </>
             )}
-
-            <button
-              type="button"
-              className="project-card-btn-secondary"
-              onClick={() => onOpenCaseStudy(study)}
-            >
-              {study.secondaryLabel}
-            </button>
           </div>
         </div>
 

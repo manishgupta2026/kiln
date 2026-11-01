@@ -24,9 +24,14 @@ export default function HomepageWork({
     return {
       ...wp,
       liveUrl: match?.liveUrl || wp.liveUrl,
+      version1Url: (match as any)?.version1Url || (wp as any).version1Url,
+      version2Url: (match as any)?.version2Url || (wp as any).version2Url,
       briefDescription: match?.briefDescription || wp.briefDescription,
     };
   });
+
+  // Showcase top 3 on landing page
+  const featuredProjects = projectsToDisplay.slice(0, 3);
 
   return (
     <section className="work" id="work" aria-labelledby="work-heading">
@@ -35,12 +40,12 @@ export default function HomepageWork({
           What we&apos;ve shipped
         </div>
         <h2 className="section-title reveal">
-          Real products. Real numbers. Tap any project to see the receipts.
+          Take a look at what we&apos;ve built.
         </h2>
 
-        {/* 2x2 Rich Project Cards Grid */}
-        <div className="work-grid reveal" role="feed" aria-label="Featured projects">
-          {projectsToDisplay.map((project) => (
+        {/* Top 3 Featured Projects Showcase in One Row */}
+        <div className="work-grid landing-row reveal" role="feed" aria-label="Featured projects">
+          {featuredProjects.map((project) => (
             <ProjectCard
               key={project.id}
               study={project}
@@ -51,7 +56,7 @@ export default function HomepageWork({
 
         <div className="view-all reveal">
           <Link href="/work" aria-label="View all shipped projects archive">
-            View all work →
+            View all work ({projectsToDisplay.length} projects) →
           </Link>
         </div>
       </div>

@@ -83,7 +83,30 @@ export default function CaseStudyModal({ caseStudy, onClose }: CaseStudyModalPro
           </div>
         )}
 
-        {caseStudy.liveUrl ? (
+        {caseStudy.version1Url && caseStudy.version2Url ? (
+          <div className="case-study-actions" style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+            <a
+              href={caseStudy.version2Url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-primary"
+              style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}
+            >
+              <span>Visit Version 2 (Latest)</span>
+              <span>↗</span>
+            </a>
+            <a
+              href={caseStudy.version1Url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-secondary"
+              style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}
+            >
+              <span>Visit Version 1</span>
+              <span>↗</span>
+            </a>
+          </div>
+        ) : caseStudy.liveUrl ? (
           <div className="case-study-actions">
             <a
               href={caseStudy.liveUrl}
