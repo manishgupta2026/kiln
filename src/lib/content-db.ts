@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { prisma, isRealDatabaseConfigured } from "@/lib/prisma";
 import { Project, projects as initialProjects } from "@/data/projects";
 import fs from "fs";
 import path from "path";
@@ -107,17 +107,30 @@ export async function getSiteContent(): Promise<SiteContent> {
     return cachedSiteContent.data;
   }
 
+  // Fast-path: If database is not configured with real credentials, return local cache immediately (0ms)
+  if (!isRealDatabaseConfigured()) {
+    const fallback = getLocalFallback();
+    cachedSiteContent = { data: fallback, timestamp: now };
+    return fallback;
+  }
+
   try {
-    // 1. Fetch Trust config from Postgres
-    const trustSetting = await prisma.siteSetting.findUnique({
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("Database query timed out")), 1500)
+    );
+
+    const trustQuery = prisma.siteSetting.findUnique({
       where: { key: "trust" },
     });
-
-    // 2. Fetch Showcase Projects from Postgres
     const dbClient = prisma as any;
-    const dbProjects: DbProjectRecord[] = await dbClient.showcaseProject.findMany({
+    const dbProjectsQuery = dbClient.showcaseProject.findMany({
       orderBy: { idx: "asc" },
     });
+
+    const [trustSetting, dbProjects]: [any, any] = await Promise.race([
+      Promise.all([trustQuery, dbProjectsQuery]),
+      timeoutPromise as Promise<any>,
+    ]);
 
     const trustConfig: TrustSectionConfig = trustSetting
       ? (trustSetting.value as unknown as TrustSectionConfig)

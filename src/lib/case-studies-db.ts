@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { prisma, isRealDatabaseConfigured } from "@/lib/prisma";
 import fs from "fs";
 import path from "path";
 
@@ -58,10 +58,21 @@ export async function getCaseStudies(): Promise<CaseStudyRecord[]> {
     return cachedCaseStudies.data;
   }
 
+  // Fast-path: If database is not configured with real credentials, return local cache immediately (0ms)
+  if (!isRealDatabaseConfigured()) {
+    const fallback = getLocalFallback();
+    cachedCaseStudies = { data: fallback, timestamp: now };
+    return fallback;
+  }
+
   try {
-    const items = await prisma.caseStudy.findMany({
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("Database query timed out")), 1500)
+    );
+    const dbQuery = prisma.caseStudy.findMany({
       orderBy: [{ displayOrder: "asc" }, { createdAt: "asc" }],
     });
+    const items: any = await Promise.race([dbQuery, timeoutPromise]);
 
     const formatted: CaseStudyRecord[] = items.map((item: any) => ({
       id: item.id,

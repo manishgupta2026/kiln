@@ -22,7 +22,6 @@ export default function Footer({ showNote = true }: FooterProps) {
             <Link href="/#offerings">Offerings</Link>
             <Link href="/about">About</Link>
             <Link href="/career">Careers</Link>
-            <Link href="/#faq">FAQ</Link>
             <Link href="/#brief">Start a project</Link>
             <Link href="/login" style={{ color: "var(--yellow)", fontWeight: 700 }}>
               Client Portal →
@@ -44,4 +43,3 @@ export default function Footer({ showNote = true }: FooterProps) {
     </footer>
   );
 }
-

@@ -11,6 +11,20 @@ if (typeof WebSocket === "undefined" || (typeof process !== "undefined" && Boole
   neonConfig.webSocketConstructor = ws;
 }
 
+export function isRealDatabaseConfigured(): boolean {
+  const url = getDatabaseUrl();
+  if (!url) return false;
+  if (
+    url.includes("user:password") ||
+    url.includes("host-pooler.aws.neon.tech") ||
+    url.includes("host.aws.neon.tech") ||
+    url.includes("placeholder")
+  ) {
+    return false;
+  }
+  return true;
+}
+
 export function getDatabaseUrl(): string | undefined {
   return getEnv("DATABASE_URL") || getEnv("DIRECT_URL");
 }
