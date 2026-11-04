@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { prisma, isRealDatabaseConfigured } from "@/lib/prisma";
 import fs from "fs";
 import path from "path";
 
@@ -50,21 +50,48 @@ export async function getTeamMembers(): Promise<TeamMemberRecord[]> {
     return cachedTeam.data;
   }
 
+  // Fast-path: If database is not configured with real credentials, return local cache immediately (0ms)
+  if (!isRealDatabaseConfigured()) {
+    const fallback = getLocalFallback();
+    cachedTeam = { data: fallback, timestamp: now };
+    return fallback;
+  }
+
   try {
-    const items = await prisma.teamMember.findMany({
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("Database query timed out")), 1500)
+    );
+    const dbQuery = prisma.teamMember.findMany({
       orderBy: [{ displayOrder: "asc" }, { createdAt: "asc" }],
     });
+    const items: any = await Promise.race([dbQuery, timeoutPromise]);
 
-    const formatted: TeamMemberRecord[] = items.map((item: any) => ({
-      id: item.id,
-      name: item.name,
-      role: item.role,
-      avatar: item.avatar || (item.name ? item.name.charAt(0).toUpperCase() : "M"),
-      bio: item.bio,
-      displayOrder: item.displayOrder ?? 0,
-      createdAt: item.createdAt,
-      updatedAt: item.updatedAt,
-    }));
+    const formatted: TeamMemberRecord[] = items.map((item: any) => {
+      let name = item.name;
+      if (name === "Kartik" || item.id === "cmtznchcj0003i2egsiheghzz") {
+        name = "Kartik Gupta";
+      }
+      const bio = item.bio ? item.bio.replace(/Kiln's/g, "DigiGrantha's") : item.bio;
+
+      // Sync updated name to database in background if outdated
+      if (item.name === "Kartik") {
+        prisma.teamMember.update({
+          where: { id: item.id },
+          data: { name: "Kartik Gupta", bio },
+        }).catch(() => {});
+      }
+
+      return {
+        id: item.id,
+        name,
+        role: item.role,
+        avatar: item.avatar || (name ? name.charAt(0).toUpperCase() : "M"),
+        bio,
+        displayOrder: item.displayOrder ?? 0,
+        createdAt: item.createdAt,
+        updatedAt: item.updatedAt,
+      };
+    });
 
     cachedTeam = { data: formatted, timestamp: now };
     saveLocalFallback(formatted);
