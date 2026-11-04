@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { CaseStudyRecord } from "@/lib/case-studies-db";
 import CaseStudyModal from "@/components/CaseStudyModal";
+import FullScreenPhotoViewer from "@/components/FullScreenPhotoViewer";
 import ProjectCard, { WORK_PROJECTS } from "@/components/ProjectCard";
 
 interface HomepageWorkProps {
@@ -15,19 +16,22 @@ export default function HomepageWork({
   initialCaseStudies,
 }: HomepageWorkProps) {
   const [selectedCaseStudy, setSelectedCaseStudy] = useState<any | null>(null);
+  const [selectedPhotosProject, setSelectedPhotosProject] = useState<any | null>(null);
 
   // Merge database fields with local rich card metrics and mockups
   const projectsToDisplay = WORK_PROJECTS.map((wp) => {
     const match = (initialCaseStudies || []).find(
       (cs) => cs.name.toLowerCase() === wp.name.toLowerCase()
     );
+    const resolvedLiveUrl = match !== undefined ? match.liveUrl : wp.liveUrl;
     return {
       ...wp,
-      liveUrl: match?.liveUrl || wp.liveUrl,
+      liveUrl: resolvedLiveUrl,
       version1Url: (match as any)?.version1Url || (wp as any).version1Url,
       version2Url: (match as any)?.version2Url || (wp as any).version2Url,
       briefDescription: match?.briefDescription || wp.briefDescription,
       resultStat: match?.resultStat || (wp as any).resultStat,
+      photos: (match as any)?.photos || (wp as any).photos || [],
     };
   });
 
@@ -38,7 +42,7 @@ export default function HomepageWork({
     <section className="work" id="work" aria-labelledby="work-heading">
       <div className="wrap">
         <div className="section-label reveal" id="work-heading">
-          What we&apos;ve shipped
+          Work we are proud of
         </div>
         <h2 className="section-title reveal">
           Take a look at what we&apos;ve built.
@@ -51,6 +55,7 @@ export default function HomepageWork({
               key={project.id}
               study={project}
               onOpenCaseStudy={(p) => setSelectedCaseStudy(p)}
+              onOpenPhotos={(p) => setSelectedPhotosProject(p)}
             />
           ))}
         </div>
@@ -65,6 +70,13 @@ export default function HomepageWork({
       <CaseStudyModal
         caseStudy={selectedCaseStudy}
         onClose={() => setSelectedCaseStudy(null)}
+      />
+
+      <FullScreenPhotoViewer
+        isOpen={!!selectedPhotosProject}
+        projectName={selectedPhotosProject?.name || ""}
+        photos={selectedPhotosProject?.photos || []}
+        onClose={() => setSelectedPhotosProject(null)}
       />
     </section>
   );

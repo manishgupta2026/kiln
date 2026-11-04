@@ -16,6 +16,7 @@ export interface CaseStudyRecord {
   status: string; // "live" | "in-progress"
   featured: boolean;
   displayOrder: number;
+  photos?: string[];
   createdAt?: string | Date;
   updatedAt?: string | Date;
 }

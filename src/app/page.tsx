@@ -1,15 +1,16 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import HeroHeadline from "@/components/HeroHeadline";
 import HeroIntake from "@/components/HeroIntake";
 import OfferingsSection from "@/components/OfferingsSection";
 import HomepageWork from "@/components/HomepageWork";
 import BriefForm from "@/components/BriefForm";
-import FaqSection from "@/components/FaqSection";
 import CursorPreview from "@/components/CursorPreview";
 import FloatingCta from "@/components/FloatingCta";
 import ScrollReveal from "@/components/ScrollReveal";
 import TrustSection from "@/components/TrustSection";
 import PortalFeaturesSection from "@/components/PortalFeaturesSection";
+import ProcessSection from "@/components/ProcessSection";
 import { getSiteContent } from "@/lib/content-db";
 import { getCaseStudies } from "@/lib/case-studies-db";
 
@@ -49,15 +50,11 @@ export default async function HomePage() {
             <div className="hero-grid">
               <div className="hero-inner">
                 <div className="eyebrow">
-                  <span>✦</span> Independent Digital Product Studio
+                  <span>✦</span> Digital Product Studio
                 </div>
-                <h1 className="hero-headline">
-                  From ambitious ideas to digital products
-                  <br />
-                  built for the <em>real world</em>.
-                </h1>
+                <HeroHeadline />
                 <p className="hero-sub">
-                  We turn ambitious ideas into digital products people actually use. From websites and web applications to intelligent platforms, we bring design, technology, and thoughtful engineering together to build things that make a difference.
+                  At DigiGrantha, we take ambitious ideas and shape them into thoughtful, well-engineered digital experiences, from sleek websites to powerful web apps and AI-driven platforms.
                 </p>
 
                 <HeroIntake />
@@ -74,36 +71,69 @@ export default async function HomePage() {
                       <span className="hero-ill-dot red" />
                       <span className="hero-ill-dot yellow" />
                       <span className="hero-ill-dot green" />
-                      <span style={{ fontSize: "11px", fontFamily: "var(--mono)", marginLeft: "8px", opacity: 0.65 }}>
-                        digiGrantha.studio
-                      </span>
                     </div>
                     <div className="hero-ill-body">
-                      <svg viewBox="0 0 340 180" fill="none" style={{ width: "100%", height: "auto" }}>
-                        <rect x="12" y="14" width="140" height="14" rx="4" fill="#0F5C52" opacity="0.8" />
-                        <rect x="12" y="36" width="220" height="8" rx="3" fill="#17201E" opacity="0.3" />
-                        <rect x="12" y="50" width="180" height="8" rx="3" fill="#17201E" opacity="0.2" />
+                      <svg viewBox="0 0 360 215" fill="none" style={{ width: "100%", height: "auto" }}>
+                        {/* Headline */}
+                        <text x="18" y="36" fill="#17201E" fontFamily="var(--display)" fontSize="20" fontWeight="800" letterSpacing="-0.02em">
+                          Your idea. Our craft.
+                        </text>
+                        {/* 3 teal spark rays above 'craft.' */}
+                        <path d="M182 17 L176 9" stroke="#0F5C52" strokeWidth="2.5" strokeLinecap="round" />
+                        <path d="M192 15 L192 6" stroke="#0F5C52" strokeWidth="2.5" strokeLinecap="round" />
+                        <path d="M202 17 L208 9" stroke="#0F5C52" strokeWidth="2.5" strokeLinecap="round" />
 
-                        <rect x="12" y="74" width="94" height="28" rx="14" fill="#F4B63F" stroke="#17201E" strokeWidth="2" />
-                        <text x="59" y="92" textAnchor="middle" fill="#17201E" fontFamily="var(--body)" fontSize="11" fontWeight="700">Launch →</text>
+                        {/* Line 2 with mint brush highlight under 'love.' */}
+                        <text x="18" y="66" fill="#17201E" fontFamily="var(--display)" fontSize="20" fontWeight="800" letterSpacing="-0.02em">
+                          A product people love.
+                        </text>
+                        <path d="M110 74 C138 72, 172 74, 198 72" stroke="#BFE5D9" strokeWidth="4.5" strokeLinecap="round" opacity="0.9" />
 
-                        <rect x="114" y="74" width="80" height="28" rx="14" fill="#FFFFFF" stroke="#17201E" strokeWidth="2" />
-                        <text x="154" y="92" textAnchor="middle" fill="#17201E" fontFamily="var(--body)" fontSize="11" fontWeight="600">Inspect</text>
+                        {/* Interactive Pill Buttons */}
+                        <g>
+                          <rect x="18" y="90" width="94" height="30" rx="15" fill="#F4A228" stroke="#17201E" strokeWidth="2" />
+                          <text x="65" y="109" textAnchor="middle" fill="#17201E" fontFamily="var(--display)" fontSize="13" fontWeight="800">
+                            Launch →
+                          </text>
+                        </g>
 
-                        {/* Plant & Organic leaf stems */}
-                        <path d="M260 160 C260 110, 290 85, 310 65" stroke="#0F5C52" strokeWidth="3" strokeLinecap="round" />
-                        <path d="M280 120 C295 110, 315 115, 305 130 C295 135, 280 125, 280 120 Z" fill="#C6E04B" stroke="#17201E" strokeWidth="2" />
-                        <path d="M265 140 C250 130, 235 140, 245 152 C255 155, 265 145, 265 140 Z" fill="#BFE3D6" stroke="#17201E" strokeWidth="2" />
-                        <path d="M295 90 C310 80, 325 90, 318 102 C308 105, 298 95, 295 90 Z" fill="#F4B63F" stroke="#17201E" strokeWidth="2" />
+                        <g>
+                          <rect x="122" y="90" width="84" height="30" rx="15" fill="#FFFFFF" stroke="#17201E" strokeWidth="2" />
+                          <text x="164" y="109" textAnchor="middle" fill="#17201E" fontFamily="var(--display)" fontSize="13" fontWeight="800">
+                            Inspect
+                          </text>
+                        </g>
 
-                        {/* Metric cards */}
-                        <rect x="12" y="118" width="130" height="46" rx="8" fill="#BFE3D6" stroke="#17201E" strokeWidth="2" />
-                        <text x="24" y="136" fill="#17201E" fontFamily="var(--body)" fontSize="10" fontWeight="700">WIN RATE</text>
-                        <text x="24" y="156" fill="#0F5C52" fontFamily="var(--display)" fontSize="18" fontWeight="800">60.5%</text>
+                        {/* Stat Box 1: WIN RATE 60.5% */}
+                        <g>
+                          <rect x="18" y="140" width="134" height="48" rx="10" fill="#BFE5D9" stroke="#17201E" strokeWidth="2" />
+                          <text x="30" y="157" fill="#17201E" fontFamily="var(--display)" fontSize="10" fontWeight="800" letterSpacing="0.06em">
+                            WIN RATE
+                          </text>
+                          <text x="30" y="177" fill="#0F5C52" fontFamily="var(--display)" fontSize="18" fontWeight="800">
+                            60.5%
+                          </text>
+                        </g>
 
-                        <rect x="150" y="118" width="94" height="46" rx="8" fill="#FFFFFF" stroke="#17201E" strokeWidth="2" />
-                        <text x="160" y="136" fill="#17201E" fontFamily="var(--body)" fontSize="10" fontWeight="700">USERS</text>
-                        <text x="160" y="156" fill="#17201E" fontFamily="var(--display)" fontSize="18" fontWeight="800">1,000+</text>
+                        {/* Stat Box 2: USERS 1,000+ */}
+                        <g>
+                          <rect x="162" y="140" width="96" height="48" rx="10" fill="#FFFFFF" stroke="#17201E" strokeWidth="2" />
+                          <text x="174" y="157" fill="#17201E" fontFamily="var(--display)" fontSize="10" fontWeight="800" letterSpacing="0.06em">
+                            USERS
+                          </text>
+                          <text x="174" y="177" fill="#17201E" fontFamily="var(--display)" fontSize="18" fontWeight="800">
+                            1,000+
+                          </text>
+                        </g>
+
+                        {/* Botanical Leaf Stem (Right Side) */}
+                        <path d="M276 195 C272 155, 285 110, 326 58" stroke="#0F5C52" strokeWidth="3.5" strokeLinecap="round" fill="none" />
+                        {/* Leaf 1 (Mint, pointing left) */}
+                        <path d="M275 160 C260 156, 256 166, 268 174 C276 177, 277 167, 275 160 Z" fill="#BFE5D9" stroke="#17201E" strokeWidth="2" />
+                        {/* Leaf 2 (Amber, pointing right top) */}
+                        <path d="M312 86 C326 78, 338 88, 332 98 C324 103, 316 93, 312 86 Z" fill="#F4A228" stroke="#17201E" strokeWidth="2" />
+                        {/* Leaf 3 (Lime, pointing right mid) */}
+                        <path d="M296 120 C310 112, 324 122, 318 132 C310 137, 301 127, 296 120 Z" fill="#C8F049" stroke="#17201E" strokeWidth="2" />
                       </svg>
                     </div>
                   </div>
@@ -147,11 +177,21 @@ export default async function HomePage() {
         {/* PROOF LINE */}
         <section className="proof">
           <div className="wrap reveal">
-            <p>
-              One thing we&apos;ve shipped is already used by <mark>1,000+ people</mark>, every day.
-              Another is trading real capital, live, at a <mark>60.5%</mark> win rate. A third
-              shipped <mark>4 role-based portals</mark> for enterprise workforce intelligence.
-            </p>
+            <h2 className="proof-heading">Built. Shipped. Used.</h2>
+            <div className="proof-items">
+              <div className="proof-item">
+                <mark>1,000+ daily users:</mark>
+                <span>A product people open every single day.</span>
+              </div>
+              <div className="proof-item">
+                <mark>Live in production:</mark>
+                <span>An algorithmic trading platform running with real capital, where reliability isn&apos;t optional.</span>
+              </div>
+              <div className="proof-item">
+                <mark>4 role-based portals:</mark>
+                <span>An enterprise workforce intelligence platform serving every level of the organization, from one system.</span>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -162,21 +202,25 @@ export default async function HomePage() {
         <HomepageWork initialCaseStudies={caseStudies} />
         <CursorPreview projects={caseStudies as any} />
 
-        {/* RECOGNITION */}
-        <section className="recognition">
+        {/* RECOGNITION / STATS */}
+        <section className="recognition" id="recognition" aria-label="Key Milestones & Impact">
           <div className="wrap">
-            <div className="section-label reveal">Recognition, not claims</div>
-            <h2 className="section-title reveal" style={{ marginBottom: 0 }}>
-              We&apos;d rather point at receipts than adjectives.
-            </h2>
-            <div className="rec-grid reveal">
-              <div className="rec-card">
-                <div className="rv">1,000+</div>
-                <div className="rl">Daily users — CourseHunt, live in production</div>
+            <div className="stats-strip reveal">
+              <div className="stat-col">
+                <div className="stat-val">50+</div>
+                <div className="stat-lbl">Projects delivered</div>
               </div>
-              <div className="rec-card">
-                <div className="rv">60.5%</div>
-                <div className="rl">Win rate — TradeSage, live on real capital</div>
+              <div className="stat-col">
+                <div className="stat-val">98%</div>
+                <div className="stat-lbl">Client satisfaction</div>
+              </div>
+              <div className="stat-col">
+                <div className="stat-val">2+</div>
+                <div className="stat-lbl">Years of experience</div>
+              </div>
+              <div className="stat-col">
+                <div className="stat-val">100%</div>
+                <div className="stat-lbl">Passion for your growth</div>
               </div>
             </div>
           </div>
@@ -188,11 +232,44 @@ export default async function HomePage() {
         {/* CLIENT PORTAL & WORKSPACE FEATURES */}
         <PortalFeaturesSection />
 
+        {/* PROCESS: HOW WE WORK */}
+        <ProcessSection />
+
+        {/* FIT */}
+        <section className="fit">
+          <div className="wrap">
+            <div className="section-label reveal">is this a fit?</div>
+            <h2 className="section-title reveal" style={{ marginBottom: 0 }}>
+              We&apos;re small, and we say that plainly.
+            </h2>
+            <div className="fit-cols reveal">
+              <div className="fit-col yes">
+                <h4>A good fit if:</h4>
+                <ul>
+                  <li>
+                    You&apos;re pre-launch, early-stage, or building something new and need one team to design and build the whole thing.
+                  </li>
+                  <li>You want direct access to the people writing the code.</li>
+                  <li>You&apos;d rather ship something sharp than something bloated.</li>
+                </ul>
+              </div>
+              <div className="fit-col no">
+                <h4>Probably not if:</h4>
+                <ul>
+                  <li>You need a large team on standby around the clock.</li>
+                  <li>You need a full product live in a matter of days.</li>
+                  <li>You&apos;re looking for a big-name agency to put on a board deck.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* BRIEF FORM */}
         <section className="brief" id="brief">
           <div className="wrap">
             <div className="brief-head reveal">
-              <div className="section-label">Okay, the real version</div>
+              <div className="section-label">Waiting to serve you</div>
               <h2 className="section-title" style={{ marginBottom: 0 }}>
                 Tell us everything.
               </h2>
@@ -202,40 +279,6 @@ export default async function HomePage() {
             <BriefForm />
           </div>
         </section>
-
-        {/* FIT */}
-        <section className="fit">
-          <div className="wrap">
-            <div className="section-label reveal">Before you hit send</div>
-            <h2 className="section-title reveal" style={{ marginBottom: 0 }}>
-              We&apos;re small, and we say that plainly.
-            </h2>
-            <div className="fit-cols reveal">
-              <div className="fit-col yes">
-                <h4>A good fit if —</h4>
-                <ul>
-                  <li>
-                    You&apos;re pre-launch or early-stage and need someone to design and build the whole
-                    thing.
-                  </li>
-                  <li>You want direct access to the people writing the code.</li>
-                  <li>You&apos;d rather ship something sharp than something padded.</li>
-                </ul>
-              </div>
-              <div className="fit-col no">
-                <h4>Probably not, if —</h4>
-                <ul>
-                  <li>You need a large team on standby around the clock.</li>
-                  <li>You need something live this week.</li>
-                  <li>You want a big-name agency roster for a board deck.</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* FAQ */}
-        <FaqSection />
       </main>
 
       <Footer showNote={true} />

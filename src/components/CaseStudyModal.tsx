@@ -86,30 +86,35 @@ export default function CaseStudyModal({ caseStudy, onClose }: CaseStudyModalPro
         )}
 
         {caseStudy.version1Url && caseStudy.version2Url ? (
-          <div className="case-study-actions" style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
-            <a
-              href={caseStudy.version1Url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-primary"
-              style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}
-            >
-              <span>Visit Version 1</span>
-              <span>↗</span>
-            </a>
-            <a
-              href={caseStudy.version2Url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-secondary"
-              style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}
-            >
-              <span>Visit Version 2 (Latest)</span>
-              <span>↗</span>
-            </a>
+          <div className="case-study-versions" style={{ marginTop: "24px", paddingTop: "20px", borderTop: "1.5px solid var(--outline)" }}>
+            <div style={{ fontFamily: "var(--body)", fontSize: "12px", fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "12px" }}>
+              Live Releases &amp; Evolution
+            </div>
+            <div className="case-study-actions" style={{ display: "flex", gap: "12px", flexWrap: "wrap", alignItems: "center" }}>
+              <a
+                href={caseStudy.version1Url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-primary"
+                title="Open 5e Serpraise Version 1 (Production)"
+                style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}
+              >
+                <span>View V1 ↗</span>
+              </a>
+              <a
+                href={caseStudy.version2Url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-secondary"
+                title="Open 5e Serpraise Version 2 (Latest Evolution)"
+                style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}
+              >
+                <span>View V2 ↗</span>
+              </a>
+            </div>
           </div>
         ) : caseStudy.liveUrl ? (
-          <div className="case-study-actions">
+          <div className="case-study-actions" style={{ marginTop: "24px" }}>
             <a
               href={caseStudy.liveUrl}
               target="_blank"
@@ -117,8 +122,7 @@ export default function CaseStudyModal({ caseStudy, onClose }: CaseStudyModalPro
               className="btn-primary"
               style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}
             >
-              <span>Visit site</span>
-              <span>→</span>
+              <span>Visit live site ↗</span>
             </a>
           </div>
         ) : null}

@@ -20,8 +20,10 @@ export interface ProjectCardProps {
     version2Url?: string;
     secondaryLabel: string;
     briefDescription?: string;
+    photos?: string[];
   };
   onOpenCaseStudy: (study: any) => void;
+  onOpenPhotos?: (study: any) => void;
 }
 
 export const WORK_PROJECTS = [
@@ -40,7 +42,7 @@ export const WORK_PROJECTS = [
       { icon: "🌏", val: "2", label: "Global markets" },
     ],
     tags: ["Next.js", "TypeScript", "Tailwind", "Vercel"],
-    liveUrl: "https://5e-serpraise.vercel.app/",
+    liveUrl: "https://5eserpraise.com",
     version1Url: "https://5eserpraise.com",
     version2Url: "https://5e-serpraise.vercel.app/",
     secondaryLabel: "Read case study",
@@ -62,34 +64,28 @@ export const WORK_PROJECTS = [
       { icon: "⛁", val: "Scalable", label: "& secure" },
     ],
     tags: ["Next.js", "TypeScript", "Tailwind", "Neon"],
-    liveUrl: "https://manraah.vercel.app",
-    secondaryLabel: "Track progress ↗",
+    liveUrl: null,
+    photos: [
+      "/photos/manraah/manraah-1.jpeg",
+      "/photos/manraah/manraah-2.jpeg",
+      "/photos/manraah/manraah-3.jpeg",
+      "/photos/manraah/manraah-4.jpeg",
+      "/photos/manraah/manraah-5.jpeg",
+      "/photos/manraah/manraah-6.jpeg",
+      "/photos/manraah/manraah-7.jpeg",
+      "/photos/manraah/manraah-8.jpeg",
+      "/photos/manraah/manraah-9.jpeg",
+      "/photos/manraah/manraah-10.jpeg",
+      "/photos/manraah/manraah-11.jpeg",
+      "/photos/manraah/manraah-12.jpeg",
+    ],
+    secondaryLabel: "Read case study",
     briefDescription:
       "A mental wellness platform with entirely separate experiences for students, professionals, and admins — each with its own permissions, flows, and interface, not one dashboard trying to serve three audiences at once.",
   },
   {
-    id: "cmtzk3o4d0002i240zv5grujz",
-    idx: "03",
-    name: "Coppter",
-    category: "Workforce · Enterprise",
-    status: "live" as const,
-    statusLabel: "Live in production",
-    oneLiner: "A workforce management system with four dedicated portals for different job roles.",
-    resultStat: "4 portals shipped",
-    metrics: [
-      { icon: "⚏", val: "4", label: "Portals shipped" },
-      { icon: "👥", val: "Multiple", label: "User roles" },
-      { icon: "🛡️", val: "Unified", label: "Operations" },
-    ],
-    tags: ["Next.js", "TypeScript", "Tailwind", "Neon"],
-    liveUrl: "https://coppter-frontend.onrender.com/",
-    secondaryLabel: "Read case study",
-    briefDescription:
-      "A workforce intelligence platform built around four distinct roles — a leadership dashboard for strategic analytics, HR operations tools, personalized growth assessments for employees, and a mentor-facing view for career guidance. Four different logins, because four different people need four different tools, not one dashboard wearing four hats.",
-  },
-  {
     id: "study-nutriflex",
-    idx: "04",
+    idx: "03",
     name: "NutriFlex",
     category: "HealthTech · AI Fitness",
     status: "live" as const,
@@ -102,10 +98,45 @@ export const WORK_PROJECTS = [
       { icon: "💪", val: "Full", label: "Fitness suite" },
     ],
     tags: ["Next.js", "React", "OpenAI", "Bootstrap"],
-    liveUrl: "https://nutriflex.vercel.app",
+    liveUrl: null,
+    photos: [
+      "/photos/nutriflex/nutriflex-1.jpeg",
+      "/photos/nutriflex/nutriflex-2.jpeg",
+      "/photos/nutriflex/nutriflex-3.jpeg",
+      "/photos/nutriflex/nutriflex-4.jpeg",
+      "/photos/nutriflex/nutriflex-5.jpeg",
+    ],
     secondaryLabel: "Read case study",
     briefDescription:
       "An intelligent fitness and nutrition platform built to eliminate generic routines. NutriFlex generates customized weekly workout schedules, dynamic exercise progressions, and AI-driven motivational encouragement tailored to individual goals.",
+  },
+  {
+    id: "cmtzk3o4d0002i240zv5grujz",
+    idx: "04",
+    name: "Coppter",
+    category: "Workforce · Enterprise",
+    status: "live" as const,
+    statusLabel: "Live in production",
+    oneLiner: "A workforce management system with four dedicated portals for different job roles.",
+    resultStat: "4 portals shipped",
+    metrics: [
+      { icon: "⚏", val: "4", label: "Portals shipped" },
+      { icon: "👥", val: "Multiple", label: "User roles" },
+      { icon: "🛡️", val: "Unified", label: "Operations" },
+    ],
+    tags: ["Next.js", "TypeScript", "Tailwind", "Neon"],
+    liveUrl: null,
+    photos: [
+      "/photos/coppter/coppter-1.jpeg",
+      "/photos/coppter/coppter-2.jpeg",
+      "/photos/coppter/coppter-3.jpeg",
+      "/photos/coppter/coppter-4.jpeg",
+      "/photos/coppter/coppter-5.jpeg",
+      "/photos/coppter/coppter-6.jpeg",
+    ],
+    secondaryLabel: "Read case study",
+    briefDescription:
+      "A workforce intelligence platform built around four distinct roles — a leadership dashboard for strategic analytics, HR operations tools, personalized growth assessments for employees, and a mentor-facing view for career guidance. Four different logins, because four different people need four different tools, not one dashboard wearing four hats.",
   },
   {
     id: "cmtzk3nlb0001i2408g0a3usm",
@@ -668,7 +699,7 @@ export function NutriFlexMockup() {
   );
 }
 
-export default function ProjectCard({ study, onOpenCaseStudy }: ProjectCardProps) {
+export default function ProjectCard({ study, onOpenCaseStudy, onOpenPhotos }: ProjectCardProps) {
   const is5e =
     study.name.toLowerCase().includes("5e") ||
     study.name.toLowerCase().includes("serpraise");
@@ -776,85 +807,53 @@ export default function ProjectCard({ study, onOpenCaseStudy }: ProjectCardProps
 
           {/* Action Buttons */}
           <div className="project-card-actions">
-            {study.version1Url && study.version2Url ? (
-              <>
-                <a
-                  href={study.version1Url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="project-card-btn-primary"
-                  title="Open 5e Serpraise Version 1 (Production)"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  View V1 ↗
-                </a>
-                <a
-                  href={study.version2Url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="project-card-btn-secondary"
-                  title="Open 5e Serpraise Version 2 (Latest)"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  View V2 ↗
-                </a>
-                <button
-                  type="button"
-                  className="project-card-btn-secondary"
-                  onClick={(e) => {
-                    e.stopPropagation();
+            {study.photos && study.photos.length > 0 ? (
+              <button
+                type="button"
+                className="project-card-btn-primary"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (onOpenPhotos) {
+                    onOpenPhotos(study);
+                  } else {
                     onOpenCaseStudy(study);
-                  }}
-                >
-                  {study.secondaryLabel}
-                </button>
-              </>
-            ) : study.liveUrl ? (
-              <>
-                <a
-                  href={study.liveUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="project-card-btn-primary"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  View project ↗
-                </a>
-                <button
-                  type="button"
-                  className="project-card-btn-secondary"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onOpenCaseStudy(study);
-                  }}
-                >
-                  {study.secondaryLabel}
-                </button>
-              </>
+                  }
+                }}
+              >
+                View project ↗
+              </button>
+            ) : study.liveUrl || study.version1Url ? (
+              <a
+                href={study.liveUrl || study.version1Url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="project-card-btn-primary"
+                onClick={(e) => e.stopPropagation()}
+              >
+                View project ↗
+              </a>
             ) : (
-              <>
-                <button
-                  type="button"
-                  className="project-card-btn-primary"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onOpenCaseStudy(study);
-                  }}
-                >
-                  View project ↗
-                </button>
-                <button
-                  type="button"
-                  className="project-card-btn-secondary"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onOpenCaseStudy(study);
-                  }}
-                >
-                  {study.secondaryLabel}
-                </button>
-              </>
+              <button
+                type="button"
+                className="project-card-btn-primary"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onOpenCaseStudy(study);
+                }}
+              >
+                View project ↗
+              </button>
             )}
+            <button
+              type="button"
+              className="project-card-btn-secondary"
+              onClick={(e) => {
+                e.stopPropagation();
+                onOpenCaseStudy(study);
+              }}
+            >
+              {study.secondaryLabel || "Read case study"}
+            </button>
           </div>
         </div>
 

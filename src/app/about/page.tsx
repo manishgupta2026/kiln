@@ -3,6 +3,7 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ScrollReveal from "@/components/ScrollReveal";
+import FaqSection from "@/components/FaqSection";
 import { getTeamMembers } from "@/lib/team-db";
 
 export const revalidate = 60;
@@ -13,10 +14,13 @@ export const metadata: Metadata = {
 };
 
 const MILESTONES = [
+  "Shipped 5e Serpraise — corporate training and organizational development platform built across two major generational releases (V1 & V2).",
+  "Built Manraah — a mental wellness platform with dedicated experiences for students, professionals, and administrators.",
+  "Shipped NutriFlex — an AI-powered fitness assistant delivering dynamic workout progressions and personalized weekly health tasks.",
+  "Shipped Coppter — 4 role-based portals for an enterprise workforce intelligence platform, from zero to live deployment.",
   "Shipped CourseHunt — a course aggregator now used by 1,000+ students every day.",
   "Built TradeSage — an algorithmic trading system live on real capital, currently running at a 60.5% win rate.",
-  "Shipped Coppter — 4 role-based portals for a construction management platform, from zero to live deployment.",
-  "Expanded Digigrantha into an in-house studio — bringing engineering, project management, and private client portals under one roof to ship products end-to-end.",
+  "Expanded DigiGrantha into an in-house studio — bringing engineering, product design, and private client portals under one roof to ship products end-to-end.",
 ];
 
 export default async function AboutPage() {
@@ -40,10 +44,63 @@ export default async function AboutPage() {
           </div>
         </section>
 
+        {/* MISSION, VISION & GOAL */}
+        <section className="mvg-section">
+          <div className="wrap">
+            <div className="section-label reveal">Our Blueprint</div>
+            <h2 className="section-title reveal" style={{ marginBottom: 0 }}>
+              Mission, Vision &amp; Goal
+            </h2>
+            <div className="mvg-grid reveal">
+              <div className="mvg-card mission">
+                <div className="mvg-card-header">
+                  <span className="mvg-badge">Mission</span>
+                  <span className="mvg-icon">🎯</span>
+                </div>
+                <h3>Crafting products that endure</h3>
+                <p>
+                  To transform ambitious ideas into thoughtful, robustly engineered digital experiences —
+                  from sleek websites and web applications to intelligent, data-heavy platforms — with absolute
+                  craftsmanship, rapid execution, and complete transparency.
+                </p>
+                <div className="mvg-tag">Design + Engineering + Trust</div>
+              </div>
+
+              <div className="mvg-card vision">
+                <div className="mvg-card-header">
+                  <span className="mvg-badge">Vision</span>
+                  <span className="mvg-icon">🔭</span>
+                </div>
+                <h3>Where ideas become digital</h3>
+                <p>
+                  To be the gold standard digital product studio where ambitious founders and enterprise leaders turn
+                  when standard agencies are too slow and freelance networks are too fragile. Proving that an elite,
+                  compact team consistently builds superior software.
+                </p>
+                <div className="mvg-tag">The Independent Studio Standard</div>
+              </div>
+
+              <div className="mvg-card goal">
+                <div className="mvg-card-header">
+                  <span className="mvg-badge">Goal</span>
+                  <span className="mvg-icon">⚡</span>
+                </div>
+                <h3>Zero black boxes. Real impact.</h3>
+                <p>
+                  To eliminate status meetings and handoff friction by giving every client real-time portal
+                  visibility, direct access to the developers writing code, and post-launch reliability that
+                  stands firm under real-world traffic and real capital.
+                </p>
+                <div className="mvg-tag">Built · Shipped · Supported</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* TEAM */}
         <section className="founder">
           <div className="wrap">
-            <div className="section-label reveal">Who&apos;s building this</div>
+            <div className="section-label reveal">Team behind DigiGrantha</div>
             <div className="team-grid reveal">
               {team.map((member) => (
                 <div key={member.id || member.name} className="founder-card">
@@ -72,8 +129,14 @@ export default async function AboutPage() {
         {/* WHY */}
         <section className="why">
           <div className="wrap why-inner">
-            <div className="section-label reveal">Why small, really</div>
-            <div className="reveal">
+            <div className="why-badge reveal">
+              <svg className="why-badge-star" width="16" height="16" viewBox="0 0 24 24" fill="#17201E" aria-hidden="true">
+                <path d="M12 0L14.8 9.2L24 12L14.8 14.8L12 24L9.2 14.8L0 12L9.2 9.2L12 0Z" />
+              </svg>
+              <span className="why-badge-divider" aria-hidden="true" />
+              <span className="why-badge-text">WHY SMALL, REALLY</span>
+            </div>
+            <div className="why-content reveal">
               <p>
                 Most of what makes an early-stage product feel considered — the small decisions
                 about how a screen should behave, what a form should ask for and when, what happens
@@ -103,6 +166,9 @@ export default async function AboutPage() {
             </div>
           </div>
         </section>
+
+        {/* FAQ */}
+        <FaqSection />
 
         {/* CTA STRIP */}
         <section className="cta-strip">

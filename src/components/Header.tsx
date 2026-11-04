@@ -56,10 +56,13 @@ export default function Header() {
     <header className="nav">
       <div className="nav-inner">
         {/* Brand Logo with Neem Signature Tilted Badge */}
-        <Link href="/" className="logo" onClick={() => setMobileMenuOpen(false)}>
-          <span className="brand-mark" aria-hidden="true">D</span>
-          <span className="logo-text">DigiGrantha</span>
-          <span className="logo-dot">.</span>
+        <Link href="/" className="logo-brand" onClick={() => setMobileMenuOpen(false)}>
+          <div className="logo">
+            <span className="brand-mark" aria-hidden="true">D</span>
+            <span className="logo-text">DigiGrantha</span>
+            <span className="logo-dot">.</span>
+          </div>
+          <span className="logo-tagline">Where idea become Digital</span>
         </Link>
 
         {/* Desktop Nav Links */}
@@ -86,11 +89,6 @@ export default function Header() {
             className={pathname === "/career" || pathname === "/careers" ? "active" : ""}
           >
             Careers
-          </Link>
-          <Link
-            href="/#faq"
-          >
-            FAQ
           </Link>
           <Link
             href="/login"
@@ -193,18 +191,11 @@ export default function Header() {
               <span>Careers</span>
             </Link>
             <Link
-              href="/#faq"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              <span className="mobile-idx">06</span>
-              <span>FAQ</span>
-            </Link>
-            <Link
               href="/login"
               onClick={() => setMobileMenuOpen(false)}
               className="mobile-portal-link"
             >
-              <span className="mobile-idx">07</span>
+              <span className="mobile-idx">06</span>
               <span>Client Portal</span>
             </Link>
           </nav>

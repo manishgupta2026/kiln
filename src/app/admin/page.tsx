@@ -2257,7 +2257,7 @@ export default function AdminDashboardPage() {
                 Studio Team Roster ({teamMembers.length})
               </h2>
               <p style={{ fontSize: "13.5px", color: "var(--muted)", marginTop: "4px" }}>
-                Add, edit, and remove team members shown in &quot;Who&apos;s building this&quot; on the public{" "}
+                Add, edit, and remove team members shown in &quot;Team behind DigiGrantha&quot; on the public{" "}
                 <Link href="/about" target="_blank" style={{ color: "var(--accent)", textDecoration: "underline" }}>
                   /about
                 </Link>{" "}
@@ -2467,7 +2467,7 @@ export default function AdminDashboardPage() {
                   {editingTeamMember ? `Edit ${editingTeamMember.name}` : "Add New Team Member"}
                 </h2>
                 <p style={{ fontSize: "13px", color: "var(--muted)", marginBottom: "20px" }}>
-                  Profile appears immediately on the <code>/about</code> page under &quot;Who&apos;s building this&quot;.
+                  Profile appears immediately on the <code>/about</code> page under &quot;Team behind DigiGrantha&quot;.
                 </p>
 
                 <form onSubmit={handleSaveTeamMember}>

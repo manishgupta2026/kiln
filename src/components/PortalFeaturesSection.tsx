@@ -8,19 +8,21 @@ const FEATURES = [
     tag: "LIVE STATUS",
     title: "4-Stage Progress Tracker",
     desc: "Follow your build in real time through Discover, Design, Build, and Ship & Iterate.",
-    badgeColor: "var(--accent)",
-    badgeBg: "var(--accent-soft)",
+    badgeColor: "#1B382E",
+    badgeBg: "var(--mint)",
     preview: (
       <div
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(4, 1fr)",
-          gap: "4px",
-          marginTop: "14px",
-          padding: "10px 8px",
-          background: "rgba(23, 21, 15, 0.02)",
-          borderRadius: "8px",
-          border: "1px solid var(--line)",
+          gap: "6px",
+          marginTop: "20px",
+          padding: "12px 10px",
+          background: "var(--bg)",
+          borderRadius: "10px",
+          border: "1.5px solid var(--outline)",
+          minHeight: "82px",
+          alignItems: "center",
         }}
       >
         {[
@@ -33,16 +35,17 @@ const FEATURES = [
             key={i}
             style={{
               textAlign: "center",
-              padding: "4px 2px",
-              borderRadius: "5px",
-              background: s.active ? "var(--accent-soft)" : s.done ? "#fff" : "transparent",
-              border: s.active ? "1px solid var(--accent)" : s.done ? "1px solid var(--line)" : "1px dashed var(--line)",
+              padding: "6px 2px",
+              borderRadius: "6px",
+              background: s.active ? "var(--mint)" : s.done ? "var(--surface)" : "transparent",
+              border: s.active ? "1.5px solid var(--outline)" : s.done ? "1px solid var(--outline)" : "1px dashed var(--muted)",
+              boxShadow: s.active ? "1.5px 1.5px 0 var(--outline)" : "none",
             }}
           >
-            <div style={{ fontFamily: "var(--mono)", fontSize: "9px", color: s.active ? "var(--accent)" : "var(--muted)", fontWeight: s.active ? 600 : 400 }}>
+            <div style={{ fontFamily: "var(--mono)", fontSize: "9.5px", color: s.active ? "var(--text)" : "var(--muted)", fontWeight: 700 }}>
               {s.done ? "✓" : `0${i + 1}`}
             </div>
-            <div style={{ fontSize: "10.5px", fontWeight: s.active ? 600 : 400, color: s.active ? "var(--accent)" : "var(--ink)", marginTop: "2px" }}>
+            <div style={{ fontSize: "11px", fontWeight: s.active ? 700 : 500, color: "var(--text)", marginTop: "2px" }}>
               {s.label}
             </div>
           </div>
@@ -55,28 +58,30 @@ const FEATURES = [
     tag: "DIRECT ACCESS",
     title: "Async Dev Team Chat",
     desc: "Chat directly with the engineers writing your code without waiting for scheduled calls.",
-    badgeColor: "#3730a3",
-    badgeBg: "#e0e7ff",
+    badgeColor: "#3730A3",
+    badgeBg: "#E0E7FF",
     preview: (
       <div
         style={{
           display: "flex",
           flexDirection: "column",
-          gap: "6px",
-          marginTop: "14px",
-          padding: "10px",
-          background: "rgba(23, 21, 15, 0.02)",
-          borderRadius: "8px",
-          border: "1px solid var(--line)",
-          fontSize: "11.5px",
+          gap: "8px",
+          marginTop: "20px",
+          padding: "12px 14px",
+          background: "var(--bg)",
+          borderRadius: "10px",
+          border: "1.5px solid var(--outline)",
+          fontSize: "12px",
+          minHeight: "82px",
+          justifyContent: "center",
         }}
       >
-        <div style={{ alignSelf: "flex-start", background: "#fff", border: "1px solid var(--line)", padding: "5px 8px", borderRadius: "6px 6px 6px 2px", maxWidth: "90%" }}>
-          <span style={{ fontFamily: "var(--mono)", fontSize: "9.5px", color: "var(--muted)" }}>Client: </span>
+        <div style={{ alignSelf: "flex-start", background: "var(--surface)", border: "1.5px solid var(--outline)", padding: "5px 10px", borderRadius: "8px 8px 8px 2px", maxWidth: "90%", color: "var(--text)", boxShadow: "1px 1px 0 var(--outline)" }}>
+          <span style={{ fontFamily: "var(--mono)", fontSize: "10px", color: "var(--muted)", fontWeight: 700 }}>Client: </span>
           Can we test the mobile checkout?
         </div>
-        <div style={{ alignSelf: "flex-end", background: "var(--accent-soft)", border: "1px solid rgba(117, 128, 31, 0.3)", padding: "5px 8px", borderRadius: "6px 6px 2px 6px", maxWidth: "90%" }}>
-          <span style={{ fontFamily: "var(--mono)", fontSize: "9.5px", color: "var(--accent)" }}>Lead Dev: </span>
+        <div style={{ alignSelf: "flex-end", background: "var(--mint)", border: "1.5px solid var(--outline)", padding: "5px 10px", borderRadius: "8px 8px 2px 8px", maxWidth: "90%", color: "var(--text)", boxShadow: "1px 1px 0 var(--outline)" }}>
+          <span style={{ fontFamily: "var(--mono)", fontSize: "10px", color: "var(--text)", fontWeight: 800 }}>Lead Dev: </span>
           Live on staging right now!
         </div>
       </div>
@@ -87,30 +92,32 @@ const FEATURES = [
     tag: "STRUCTURED FEEDBACK",
     title: "Async Ticket Queue",
     desc: "Raise bug reports, copy changes, or scope tweaks into tracked threads with live status.",
-    badgeColor: "#c93b2b",
-    badgeBg: "#fde8e4",
+    badgeColor: "#C2410C",
+    badgeBg: "#FFEDD5",
     preview: (
       <div
         style={{
           display: "flex",
           flexDirection: "column",
-          gap: "6px",
-          marginTop: "14px",
-          padding: "10px",
-          background: "rgba(23, 21, 15, 0.02)",
-          borderRadius: "8px",
-          border: "1px solid var(--line)",
+          gap: "8px",
+          marginTop: "20px",
+          padding: "12px 14px",
+          background: "var(--bg)",
+          borderRadius: "10px",
+          border: "1.5px solid var(--outline)",
+          minHeight: "82px",
+          justifyContent: "center",
         }}
       >
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "#fff", padding: "6px 8px", borderRadius: "6px", border: "1px solid var(--line)" }}>
-          <span style={{ fontSize: "11.5px", fontWeight: 500, color: "var(--ink)" }}>Design system sync</span>
-          <span style={{ fontFamily: "var(--mono)", fontSize: "9px", background: "var(--accent-soft)", color: "var(--accent)", padding: "2px 6px", borderRadius: "999px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "var(--surface)", padding: "6px 10px", borderRadius: "6px", border: "1.5px solid var(--outline)", boxShadow: "1px 1px 0 var(--outline)" }}>
+          <span style={{ fontSize: "12px", fontWeight: 600, color: "var(--text)" }}>Design system sync</span>
+          <span style={{ fontFamily: "var(--mono)", fontSize: "9.5px", fontWeight: 700, background: "var(--mint)", color: "var(--text)", padding: "2px 8px", borderRadius: "999px", border: "1px solid var(--outline)" }}>
             IN PROGRESS
           </span>
         </div>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "#fff", padding: "6px 8px", borderRadius: "6px", border: "1px solid var(--line)" }}>
-          <span style={{ fontSize: "11.5px", fontWeight: 500, color: "var(--ink)" }}>Stripe integration</span>
-          <span style={{ fontFamily: "var(--mono)", fontSize: "9px", background: "#eae7dd", color: "var(--muted)", padding: "2px 6px", borderRadius: "999px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "var(--surface)", padding: "6px 10px", borderRadius: "6px", border: "1.5px solid var(--outline)", boxShadow: "1px 1px 0 var(--outline)" }}>
+          <span style={{ fontSize: "12px", fontWeight: 600, color: "var(--text)" }}>Stripe integration</span>
+          <span style={{ fontFamily: "var(--mono)", fontSize: "9.5px", fontWeight: 700, background: "rgba(0,0,0,0.06)", color: "var(--muted)", padding: "2px 8px", borderRadius: "999px", border: "1px solid var(--outline)" }}>
             RESOLVED
           </span>
         </div>
@@ -122,27 +129,29 @@ const FEATURES = [
     tag: "TRANSPARENCY",
     title: "Milestone Log & Calls",
     desc: "Read developer progress notes as code ships. Schedule live syncs only when needed.",
-    badgeColor: "#92400e",
-    badgeBg: "#fef3c7",
+    badgeColor: "#92400E",
+    badgeBg: "#FEF3C7",
     preview: (
       <div
         style={{
           display: "flex",
           flexDirection: "column",
-          gap: "6px",
-          marginTop: "14px",
-          padding: "10px",
-          background: "rgba(23, 21, 15, 0.02)",
-          borderRadius: "8px",
-          border: "1px solid var(--line)",
+          gap: "8px",
+          marginTop: "20px",
+          padding: "12px 14px",
+          background: "var(--bg)",
+          borderRadius: "10px",
+          border: "1.5px solid var(--outline)",
+          minHeight: "82px",
+          justifyContent: "center",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "11.5px" }}>
-          <span style={{ fontSize: "13px" }}>📅</span>
-          <span style={{ color: "var(--ink)", fontWeight: 500 }}>Async by default</span>
-          <span style={{ fontFamily: "var(--mono)", fontSize: "9.5px", color: "var(--muted)", marginLeft: "auto" }}>Zero wasted calls</span>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "12px" }}>
+          <span style={{ fontSize: "14px" }}>📅</span>
+          <span style={{ color: "var(--text)", fontWeight: 700 }}>Async by default</span>
+          <span style={{ fontFamily: "var(--mono)", fontSize: "10px", color: "var(--muted)", marginLeft: "auto", fontWeight: 600 }}>Zero wasted calls</span>
         </div>
-        <div style={{ borderLeft: "2px solid var(--accent)", paddingLeft: "8px", fontSize: "11px", color: "var(--muted)", lineHeight: 1.4 }}>
+        <div style={{ borderLeft: "3px solid var(--yellow)", paddingLeft: "10px", fontSize: "11.5px", color: "var(--muted)", lineHeight: 1.4, fontStyle: "italic" }}>
           &quot;Deployed caching — response times reduced by 74%.&quot;
         </div>
       </div>
@@ -156,7 +165,7 @@ export default function PortalFeaturesSection() {
       <div className="wrap">
         {/* Header */}
         <div className="portal-features-head reveal">
-          <div className="section-label">The Digigrantha Experience</div>
+          <div className="section-label">The Unique Digigrantha Experience</div>
           <h2 className="section-title" style={{ marginBottom: 0 }}>
             No status calls. No black boxes. A dedicated portal for your build.
           </h2>
@@ -165,36 +174,38 @@ export default function PortalFeaturesSection() {
           </p>
         </div>
 
-        {/* 4 Feature Cards Grid */}
+        {/* 4 Feature Cards Grid: 2 per row on desktop */}
         <div className="portal-features-grid reveal">
           {FEATURES.map((feat) => (
             <div key={feat.step} className="portal-feature-card">
-              <div>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+              <div style={{ marginBottom: "auto" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
                   <span
                     style={{
                       fontFamily: "var(--mono)",
-                      fontSize: "9.5px",
+                      fontSize: "10px",
                       textTransform: "uppercase",
                       letterSpacing: "0.05em",
-                      padding: "2px 8px",
+                      padding: "3px 10px",
                       borderRadius: "999px",
                       background: feat.badgeBg,
                       color: feat.badgeColor,
-                      fontWeight: 600,
+                      fontWeight: 700,
+                      border: "1.5px solid var(--outline)",
+                      boxShadow: "1px 1px 0 var(--outline)",
                     }}
                   >
                     {feat.tag}
                   </span>
-                  <span style={{ fontFamily: "var(--mono)", fontSize: "11px", color: "var(--muted)" }}>
+                  <span style={{ fontFamily: "var(--mono)", fontSize: "12px", color: "var(--muted)", fontWeight: 700 }}>
                     {feat.step}
                   </span>
                 </div>
 
-                <h3 style={{ fontFamily: "var(--display)", fontSize: "19px", fontWeight: 400, color: "var(--ink)", marginBottom: "6px" }}>
+                <h3 style={{ fontFamily: "var(--display)", fontSize: "21px", fontWeight: 700, color: "var(--text)", marginBottom: "8px", letterSpacing: "-0.015em" }}>
                   {feat.title}
                 </h3>
-                <p style={{ fontSize: "13px", color: "var(--muted)", lineHeight: 1.5 }}>
+                <p style={{ fontSize: "14px", color: "var(--muted)", lineHeight: 1.55 }}>
                   {feat.desc}
                 </p>
               </div>
@@ -206,29 +217,18 @@ export default function PortalFeaturesSection() {
 
         {/* Bottom CTA Bar */}
         <div className="portal-cta-banner reveal">
-          <div>
-            <div style={{ fontFamily: "var(--display)", fontSize: "19px", color: "var(--ink)", fontWeight: 400 }}>
-              Already building with us?
-            </div>
-            <div style={{ fontSize: "13px", color: "var(--muted)", marginTop: "2px" }}>
+          <div className="portal-cta-banner-text">
+            <h3>Already building with us?</h3>
+            <p>
               Sign in to your client dashboard to view live stage progress, tickets, and team chat.
-            </div>
+            </p>
           </div>
 
-          <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
-            <Link href="/login" className="btn-primary" style={{ fontSize: "12.5px", padding: "9px 18px" }}>
+          <div className="portal-cta-banner-actions">
+            <Link href="/login" className="btn-primary">
               Client Portal Login →
             </Link>
-            <Link
-              href="/#brief"
-              style={{
-                fontFamily: "var(--mono)",
-                fontSize: "12px",
-                color: "var(--ink)",
-                textDecoration: "none",
-                padding: "8px 12px",
-              }}
-            >
+            <Link href="/#brief" className="portal-cta-link-secondary">
               Start a project &darr;
             </Link>
           </div>

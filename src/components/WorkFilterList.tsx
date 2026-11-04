@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { CaseStudyRecord } from "@/lib/case-studies-db";
 import CaseStudyModal from "@/components/CaseStudyModal";
+import FullScreenPhotoViewer from "@/components/FullScreenPhotoViewer";
 import ProjectCard, { WORK_PROJECTS } from "@/components/ProjectCard";
 
 interface WorkFilterListProps {
@@ -17,6 +18,7 @@ export default function WorkFilterList({
 }: WorkFilterListProps) {
   const [activeFilter, setActiveFilter] = useState<string>(initialFilter);
   const [selectedCaseStudy, setSelectedCaseStudy] = useState<any | null>(null);
+  const [selectedPhotosProject, setSelectedPhotosProject] = useState<any | null>(null);
 
   // Map to rich project card structures
   const allProjects = useMemo(() => {
@@ -24,13 +26,15 @@ export default function WorkFilterList({
       const match = (initialCaseStudies || []).find(
         (cs) => cs.name.toLowerCase() === wp.name.toLowerCase()
       );
+      const resolvedLiveUrl = match !== undefined ? match.liveUrl : wp.liveUrl;
       return {
         ...wp,
-        liveUrl: match?.liveUrl || wp.liveUrl,
+        liveUrl: resolvedLiveUrl,
         version1Url: (match as any)?.version1Url || (wp as any).version1Url,
         version2Url: (match as any)?.version2Url || (wp as any).version2Url,
         briefDescription: match?.briefDescription || wp.briefDescription,
         resultStat: match?.resultStat || (wp as any).resultStat,
+        photos: (match as any)?.photos || (wp as any).photos || [],
       };
     });
   }, [initialCaseStudies]);
@@ -87,6 +91,7 @@ export default function WorkFilterList({
             key={project.id}
             study={project}
             onOpenCaseStudy={(p) => setSelectedCaseStudy(p)}
+            onOpenPhotos={(p) => setSelectedPhotosProject(p)}
           />
         ))}
       </div>
@@ -94,6 +99,13 @@ export default function WorkFilterList({
       <CaseStudyModal
         caseStudy={selectedCaseStudy}
         onClose={() => setSelectedCaseStudy(null)}
+      />
+
+      <FullScreenPhotoViewer
+        isOpen={!!selectedPhotosProject}
+        projectName={selectedPhotosProject?.name || ""}
+        photos={selectedPhotosProject?.photos || []}
+        onClose={() => setSelectedPhotosProject(null)}
       />
     </>
   );

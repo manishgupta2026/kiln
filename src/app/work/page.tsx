@@ -26,7 +26,9 @@ export default async function WorkPage() {
         <section className="page-head">
           <div className="wrap">
             <div className="eyebrow reveal">Full archive</div>
-            <h1 className="reveal">Everything we&apos;ve shipped — and what&apos;s in the oven.</h1>
+            <h1 className="reveal">
+              Everything we&apos;ve shipped — and what&apos;s in the oven which we are proud of.
+            </h1>
             <p className="page-sub reveal">
               This list grows every time we finish something. Filter by kind, or just scroll —
               there&apos;s nothing here we&apos;re not proud of.
@@ -41,7 +43,12 @@ export default async function WorkPage() {
         <section className="cta-strip">
           <div className="wrap reveal">
             <div className="cta-inner">
-              <h2>Building something that isn&apos;t on this list yet?</h2>
+              <div className="cta-copy">
+                <h2>Have an idea lets make it Real.</h2>
+                <p className="cta-sub">
+                  Send us a 30s brief, we would reply within 1–2 business days.
+                </p>
+              </div>
               <Link href="/#brief" className="btn-primary">
                 Tell us about it →
               </Link>

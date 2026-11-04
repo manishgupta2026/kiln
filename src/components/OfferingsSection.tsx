@@ -11,28 +11,28 @@ interface Offering {
 const offerings: Offering[] = [
   {
     idx: "01",
-    title: "Marketing sites that don't need a caption",
-    desc: "Landing pages and marketing sites built to be understood at a glance — not explained on a call afterward.",
+    title: "Websites that explain themselves",
+    desc: "Landing pages and marketing sites that make sense at a glance, with no call needed to decode them.",
   },
   {
     idx: "02",
-    title: "Products people open twice",
-    desc: "Full web apps, dashboards, and platforms — designed and engineered end to end, not handed off halfway.",
+    title: "Products people come back to",
+    desc: "Web apps, dashboards, and platforms, designed and engineered end to end, not handed off halfway.",
   },
   {
     idx: "03",
-    title: "The unglamorous stuff",
-    desc: "Hosting, monitoring, the fix at 2am when something breaks. Included in the relationship, not upsold later.",
+    title: "Intelligent platforms",
+    desc: "From live trading systems to enterprise intelligence portals, we build data-heavy, logic-heavy products where reliability is non-negotiable.",
   },
   {
     idx: "04",
-    title: "A partner, not a vendor",
-    desc: "Ongoing work for teams who'll need us again next quarter — not just a one-time handoff.",
+    title: "We stay after launch",
+    desc: "Hosting, monitoring, and the fix when something breaks at 2am are part of the relationship, not an upsell.",
   },
   {
     idx: "05",
-    title: "The Digigrantha experience",
-    desc: "No status calls. No black boxes. A private portal with real-time phase tracking, direct developer comms, and one-click sign-off gates.",
+    title: "Progress you can see",
+    desc: "No black boxes and no chasing for updates. A private portal gives you real-time phase tracking, direct access to your developers, and one-click sign-off at every milestone.",
   },
 ];
 
@@ -50,7 +50,7 @@ export default function OfferingsSection() {
     <section className="offerings" id="offerings" aria-labelledby="offerings-heading">
       <div className="wrap">
         <div className="section-label reveal" id="offerings-heading">
-          What we actually build
+          Why you should choose DigiGrantha
         </div>
         <h2 className="section-title reveal">
           Not a menu of &quot;services.&quot; Five things we&apos;re genuinely good at.

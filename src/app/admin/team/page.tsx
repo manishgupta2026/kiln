@@ -186,7 +186,7 @@ export default function AdminTeamPage() {
             Studio Team Members CMS
           </h1>
           <p style={{ fontSize: "14px", color: "var(--muted)", marginTop: "4px" }}>
-            Add, remove, and edit team profiles displayed in the &quot;Who&apos;s building this&quot; section on <code>/about</code>.
+            Add, remove, and edit team profiles displayed in the &quot;Team behind DigiGrantha&quot; section on <code>/about</code>.
           </p>
         </div>
 
@@ -390,7 +390,7 @@ export default function AdminTeamPage() {
               {editingMember ? `Edit ${editingMember.name}` : "Add New Team Member"}
             </h2>
             <p style={{ fontSize: "13px", color: "var(--muted)", marginBottom: "20px" }}>
-              Profile will appear on the <code>/about</code> page under &quot;Who&apos;s building this&quot;.
+              Profile will appear on the <code>/about</code> page under &quot;Team behind DigiGrantha&quot;.
             </p>
 
             <form onSubmit={handleSave}>

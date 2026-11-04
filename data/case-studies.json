@@ -12,7 +12,7 @@
       "Tailwind",
       "Vercel"
     ],
-    "liveUrl": "https://5e-serpraise.vercel.app/",
+    "liveUrl": "https://5eserpraise.com",
     "version1Url": "https://5eserpraise.com",
     "version2Url": "https://5e-serpraise.vercel.app/",
     "status": "live",
@@ -34,32 +34,26 @@
       "Tailwind",
       "Neon"
     ],
-    "liveUrl": "https://manraah.vercel.app",
+    "liveUrl": null,
     "status": "in-progress",
     "featured": true,
     "displayOrder": 2,
     "createdAt": "2026-09-13T08:32:58.241Z",
-    "updatedAt": "2026-11-01T10:00:00.000Z"
-  },
-  {
-    "id": "cmtzk3o4d0002i240zv5grujz",
-    "name": "Coppter",
-    "category": "Workforce · Enterprise",
-    "oneLiner": "A workforce management system with four dedicated portals for different job roles.",
-    "resultStat": "4 portals shipped",
-    "briefDescription": "A workforce intelligence platform built around four distinct roles — a leadership dashboard for strategic analytics, HR operations tools, personalized growth assessments for employees, and a mentor-facing view for career guidance. Four different logins, because four different people need four different tools, not one dashboard wearing four hats.",
-    "tags": [
-      "Next.js",
-      "TypeScript",
-      "Tailwind",
-      "Neon"
-    ],
-    "liveUrl": "https://coppter-frontend.onrender.com/",
-    "status": "live",
-    "featured": true,
-    "displayOrder": 3,
-    "createdAt": "2026-09-13T08:32:57.565Z",
-    "updatedAt": "2026-11-01T10:00:00.000Z"
+    "updatedAt": "2026-11-01T10:00:00.000Z",
+    "photos": [
+      "/photos/manraah/manraah-1.jpeg",
+      "/photos/manraah/manraah-2.jpeg",
+      "/photos/manraah/manraah-3.jpeg",
+      "/photos/manraah/manraah-4.jpeg",
+      "/photos/manraah/manraah-5.jpeg",
+      "/photos/manraah/manraah-6.jpeg",
+      "/photos/manraah/manraah-7.jpeg",
+      "/photos/manraah/manraah-8.jpeg",
+      "/photos/manraah/manraah-9.jpeg",
+      "/photos/manraah/manraah-10.jpeg",
+      "/photos/manraah/manraah-11.jpeg",
+      "/photos/manraah/manraah-12.jpeg"
+    ]
   },
   {
     "id": "study-nutriflex",
@@ -74,12 +68,47 @@
       "OpenAI",
       "Bootstrap"
     ],
-    "liveUrl": "https://nutriflex.vercel.app",
+    "liveUrl": null,
+    "status": "live",
+    "featured": true,
+    "displayOrder": 3,
+    "createdAt": "2026-09-14T08:00:00.000Z",
+    "updatedAt": "2026-11-01T10:00:00.000Z",
+    "photos": [
+      "/photos/nutriflex/nutriflex-1.jpeg",
+      "/photos/nutriflex/nutriflex-2.jpeg",
+      "/photos/nutriflex/nutriflex-3.jpeg",
+      "/photos/nutriflex/nutriflex-4.jpeg",
+      "/photos/nutriflex/nutriflex-5.jpeg"
+    ]
+  },
+  {
+    "id": "cmtzk3o4d0002i240zv5grujz",
+    "name": "Coppter",
+    "category": "Workforce · Enterprise",
+    "oneLiner": "A workforce management system with four dedicated portals for different job roles.",
+    "resultStat": "4 portals shipped",
+    "briefDescription": "A workforce intelligence platform built around four distinct roles — a leadership dashboard for strategic analytics, HR operations tools, personalized growth assessments for employees, and a mentor-facing view for career guidance. Four different logins, because four different people need four different tools, not one dashboard wearing four hats.",
+    "tags": [
+      "Next.js",
+      "TypeScript",
+      "Tailwind",
+      "Neon"
+    ],
+    "liveUrl": null,
     "status": "live",
     "featured": true,
     "displayOrder": 4,
-    "createdAt": "2026-09-14T08:00:00.000Z",
-    "updatedAt": "2026-11-01T10:00:00.000Z"
+    "createdAt": "2026-09-13T08:32:57.565Z",
+    "updatedAt": "2026-11-01T10:00:00.000Z",
+    "photos": [
+      "/photos/coppter/coppter-1.jpeg",
+      "/photos/coppter/coppter-2.jpeg",
+      "/photos/coppter/coppter-3.jpeg",
+      "/photos/coppter/coppter-4.jpeg",
+      "/photos/coppter/coppter-5.jpeg",
+      "/photos/coppter/coppter-6.jpeg"
+    ]
   },
   {
     "id": "cmtzk3nlb0001i2408g0a3usm",
