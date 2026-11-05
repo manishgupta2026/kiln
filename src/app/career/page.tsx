@@ -68,60 +68,16 @@ export default function CareerPage() {
               How we like to build
             </h2>
 
-            <div
-              className="reveal"
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-                gap: "24px",
-                marginTop: "16px",
-              }}
-            >
+            <div className="reveal career-values-grid">
               {VALUES.map((item) => (
-                <div
-                  key={item.idx}
-                  style={{
-                    background: "var(--surface)",
-                    padding: "24px",
-                    borderRadius: "18px",
-                    border: "2px solid var(--outline)",
-                    boxShadow: "var(--shadow-sm)",
-                  }}
-                >
-                  <div
-                    style={{
-                      fontFamily: "var(--body)",
-                      fontSize: "12px",
-                      color: "var(--ink)",
-                      background: "var(--lime)",
-                      display: "inline-block",
-                      padding: "2px 8px",
-                      borderRadius: "999px",
-                      border: "1.5px solid var(--outline)",
-                      marginBottom: "14px",
-                      fontWeight: 700,
-                    }}
-                  >
+                <div key={item.idx} className="career-value-card">
+                  <div className="career-value-badge">
                     {item.idx}
                   </div>
-                  <h3
-                    style={{
-                      fontFamily: "var(--display)",
-                      fontSize: "20px",
-                      fontWeight: 600,
-                      marginBottom: "10px",
-                      color: "var(--text)",
-                    }}
-                  >
+                  <h3 className="career-value-title">
                     {item.title}
                   </h3>
-                  <p
-                    style={{
-                      fontSize: "14px",
-                      color: "var(--muted)",
-                      lineHeight: 1.6,
-                    }}
-                  >
+                  <p className="career-value-desc">
                     {item.desc}
                   </p>
                 </div>

@@ -11,6 +11,7 @@ import ScrollReveal from "@/components/ScrollReveal";
 import TrustSection from "@/components/TrustSection";
 import PortalFeaturesSection from "@/components/PortalFeaturesSection";
 import ProcessSection from "@/components/ProcessSection";
+import StatsStrip from "@/components/StatsStrip";
 import { getSiteContent } from "@/lib/content-db";
 import { getCaseStudies } from "@/lib/case-studies-db";
 
@@ -205,24 +206,7 @@ export default async function HomePage() {
         {/* RECOGNITION / STATS */}
         <section className="recognition" id="recognition" aria-label="Key Milestones & Impact">
           <div className="wrap">
-            <div className="stats-strip reveal">
-              <div className="stat-col">
-                <div className="stat-val">50+</div>
-                <div className="stat-lbl">Projects delivered</div>
-              </div>
-              <div className="stat-col">
-                <div className="stat-val">98%</div>
-                <div className="stat-lbl">Client satisfaction</div>
-              </div>
-              <div className="stat-col">
-                <div className="stat-val">2+</div>
-                <div className="stat-lbl">Years of experience</div>
-              </div>
-              <div className="stat-col">
-                <div className="stat-val">100%</div>
-                <div className="stat-lbl">Passion for your growth</div>
-              </div>
-            </div>
+            <StatsStrip />
           </div>
         </section>
 

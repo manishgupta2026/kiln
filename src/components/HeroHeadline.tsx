@@ -27,17 +27,19 @@ export default function HeroHeadline() {
 
   return (
     <h1 className="hero-headline">
-      We build{" "}
-      <span className="hero-rotator-wrap">
-        <em
-          className={`hero-rotator-word ${
-            isTransitioning ? "out" : "in"
-          }`}
-        >
-          {ROTATING_ITEMS[index]}
-        </em>
-      </span>{" "}
-      for Ambitious Brands.
+      <span>
+        We build{" "}
+        <span className="hero-rotator-wrap">
+          <em
+            className={`hero-rotator-word ${
+              isTransitioning ? "out" : "in"
+            }`}
+          >
+            {ROTATING_ITEMS[index]}
+          </em>
+        </span>
+      </span>
+      <span className="hero-headline-sub">for Ambitious Brands.</span>
     </h1>
   );
 }
