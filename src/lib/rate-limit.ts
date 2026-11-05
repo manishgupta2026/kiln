@@ -5,9 +5,9 @@ interface RateLimitStore {
 const memoryStore: RateLimitStore = {};
 
 /**
- * Clean up expired keys periodically
+ * Clean up expired keys periodically without blocking event loop termination
  */
-setInterval(() => {
+const cleanupInterval = setInterval(() => {
   const now = Date.now();
   for (const key in memoryStore) {
     if (memoryStore[key].expiresAt < now) {
@@ -15,6 +15,10 @@ setInterval(() => {
     }
   }
 }, 60000);
+
+if (typeof cleanupInterval === "object" && typeof cleanupInterval.unref === "function") {
+  cleanupInterval.unref();
+}
 
 export function rateLimit(
   identifier: string,

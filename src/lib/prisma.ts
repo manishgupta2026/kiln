@@ -1,3 +1,8 @@
+// Disable optional bufferutil in ws to prevent "bufferUtil.mask is not a function" in bundled environments
+if (typeof process !== "undefined" && process.env) {
+  process.env.WS_NO_BUFFER_UTIL = "true";
+}
+
 import { neonConfig } from "@neondatabase/serverless";
 import { PrismaNeon } from "@prisma/adapter-neon";
 import { PrismaClient } from "@prisma/client";
@@ -6,8 +11,8 @@ import { getEnv, syncCloudflareEnv } from "@/lib/env";
 
 export * from "@/types/portal";
 
-// Ensure WebSocket is available for Neon serverless in Node / Edge
-if (typeof WebSocket === "undefined" || (typeof process !== "undefined" && Boolean(process.versions?.node))) {
+// Ensure WebSocket is available for Neon serverless when global WebSocket is absent (e.g. Node < 21)
+if (typeof WebSocket === "undefined") {
   neonConfig.webSocketConstructor = ws;
 }
 
@@ -32,13 +37,13 @@ export function getDatabaseUrl(): string | undefined {
 let _prismaInstance: any = null;
 
 export function getPrismaClient(): any {
-  syncCloudflareEnv();
-  const dbUrl = getDatabaseUrl();
-
-  // If already instantiated with the Neon adapter, reuse it
+  // If already instantiated with the Neon adapter, reuse it immediately (0ms fast path)
   if (_prismaInstance && _prismaInstance.__hasAdapter) {
     return _prismaInstance;
   }
+
+  syncCloudflareEnv();
+  const dbUrl = getDatabaseUrl();
 
   if (dbUrl) {
     try {

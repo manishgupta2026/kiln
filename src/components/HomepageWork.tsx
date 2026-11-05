@@ -1,11 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { CaseStudyRecord } from "@/lib/case-studies-db";
-import CaseStudyModal from "@/components/CaseStudyModal";
-import FullScreenPhotoViewer from "@/components/FullScreenPhotoViewer";
 import ProjectCard, { WORK_PROJECTS } from "@/components/ProjectCard";
+
+// Code-split modals so their markup and logic load on demand when opened
+const CaseStudyModal = dynamic(() => import("@/components/CaseStudyModal"), {
+  ssr: false,
+});
+const FullScreenPhotoViewer = dynamic(
+  () => import("@/components/FullScreenPhotoViewer"),
+  { ssr: false }
+);
 
 interface HomepageWorkProps {
   initialCaseStudies?: CaseStudyRecord[];
@@ -18,25 +26,46 @@ export default function HomepageWork({
   const [selectedCaseStudy, setSelectedCaseStudy] = useState<any | null>(null);
   const [selectedPhotosProject, setSelectedPhotosProject] = useState<any | null>(null);
 
-  // Merge database fields with local rich card metrics and mockups
-  const projectsToDisplay = WORK_PROJECTS.map((wp) => {
-    const match = (initialCaseStudies || []).find(
-      (cs) => cs.name.toLowerCase() === wp.name.toLowerCase()
-    );
-    const resolvedLiveUrl = match !== undefined ? match.liveUrl : wp.liveUrl;
-    return {
-      ...wp,
-      liveUrl: resolvedLiveUrl,
-      version1Url: (match as any)?.version1Url || (wp as any).version1Url,
-      version2Url: (match as any)?.version2Url || (wp as any).version2Url,
-      briefDescription: match?.briefDescription || wp.briefDescription,
-      resultStat: match?.resultStat || (wp as any).resultStat,
-      photos: (match as any)?.photos || (wp as any).photos || [],
-    };
-  });
+  const handleOpenCaseStudy = useCallback((p: any) => {
+    setSelectedCaseStudy(p);
+  }, []);
 
-  // Showcase top 3 on landing page
-  const featuredProjects = projectsToDisplay.slice(0, 3);
+  const handleCloseCaseStudy = useCallback(() => {
+    setSelectedCaseStudy(null);
+  }, []);
+
+  const handleOpenPhotos = useCallback((p: any) => {
+    setSelectedPhotosProject(p);
+  }, []);
+
+  const handleClosePhotos = useCallback(() => {
+    setSelectedPhotosProject(null);
+  }, []);
+
+  // Merge database fields with local rich card metrics and mockups (memoized)
+  const projectsToDisplay = useMemo(() => {
+    return WORK_PROJECTS.map((wp) => {
+      const match = (initialCaseStudies || []).find(
+        (cs) => cs.name.toLowerCase() === wp.name.toLowerCase()
+      );
+      const resolvedLiveUrl = match !== undefined ? match.liveUrl : wp.liveUrl;
+      return {
+        ...wp,
+        liveUrl: resolvedLiveUrl,
+        version1Url: (match as any)?.version1Url || (wp as any).version1Url,
+        version2Url: (match as any)?.version2Url || (wp as any).version2Url,
+        briefDescription: match?.briefDescription || wp.briefDescription,
+        resultStat: match?.resultStat || (wp as any).resultStat,
+        photos: (match as any)?.photos || (wp as any).photos || [],
+      };
+    });
+  }, [initialCaseStudies]);
+
+  // Showcase top 3 on landing page (memoized)
+  const featuredProjects = useMemo(
+    () => projectsToDisplay.slice(0, 3),
+    [projectsToDisplay]
+  );
 
   return (
     <section className="work" id="work" aria-labelledby="work-heading">
@@ -54,8 +83,8 @@ export default function HomepageWork({
             <ProjectCard
               key={project.id}
               study={project}
-              onOpenCaseStudy={(p) => setSelectedCaseStudy(p)}
-              onOpenPhotos={(p) => setSelectedPhotosProject(p)}
+              onOpenCaseStudy={handleOpenCaseStudy}
+              onOpenPhotos={handleOpenPhotos}
             />
           ))}
         </div>
@@ -67,17 +96,21 @@ export default function HomepageWork({
         </div>
       </div>
 
-      <CaseStudyModal
-        caseStudy={selectedCaseStudy}
-        onClose={() => setSelectedCaseStudy(null)}
-      />
+      {selectedCaseStudy && (
+        <CaseStudyModal
+          caseStudy={selectedCaseStudy}
+          onClose={handleCloseCaseStudy}
+        />
+      )}
 
-      <FullScreenPhotoViewer
-        isOpen={!!selectedPhotosProject}
-        projectName={selectedPhotosProject?.name || ""}
-        photos={selectedPhotosProject?.photos || []}
-        onClose={() => setSelectedPhotosProject(null)}
-      />
+      {selectedPhotosProject && (
+        <FullScreenPhotoViewer
+          isOpen={!!selectedPhotosProject}
+          projectName={selectedPhotosProject?.name || ""}
+          photos={selectedPhotosProject?.photos || []}
+          onClose={handleClosePhotos}
+        />
+      )}
     </section>
   );
 }

@@ -6,12 +6,20 @@ import { getEnv } from "@/lib/env";
 
 const SESSION_COOKIE = "digigrantha_session";
 
+let _cachedMiddlewareSecret: Uint8Array | null = null;
+let _cachedMiddlewareSecretRaw: string | null = null;
+
 function getJwtSecret(): Uint8Array {
   const secret =
     getEnv("NEXTAUTH_SECRET") ||
     getEnv("ADMIN_JWT_SECRET") ||
     "digigrantha-production-client-portal-jwt-secret-2026";
-  return new TextEncoder().encode(secret);
+  if (_cachedMiddlewareSecret && _cachedMiddlewareSecretRaw === secret) {
+    return _cachedMiddlewareSecret;
+  }
+  _cachedMiddlewareSecretRaw = secret;
+  _cachedMiddlewareSecret = new TextEncoder().encode(secret);
+  return _cachedMiddlewareSecret;
 }
 
 export async function middleware(request: NextRequest) {

@@ -21,8 +21,8 @@ const TICKER_ITEMS = [
   "Ideas into real products",
   "Design that makes sense",
   "Code built with purpose",
-  "AI beyond the hype",
-  "Full-stack, end to end",
+  "Full-stack architecture",
+  "End to end engineering",
   "No unnecessary handoffs",
   "Real products, real outcomes",
   "Built in-house, start to finish",
@@ -51,11 +51,11 @@ export default async function HomePage() {
             <div className="hero-grid">
               <div className="hero-inner">
                 <div className="eyebrow">
-                  <span>✦</span> Digital Product Studio
+                  <span>·</span> Digital Product Studio
                 </div>
                 <HeroHeadline />
                 <p className="hero-sub">
-                  At DigiGrantha, we take ambitious ideas and shape them into thoughtful, well-engineered digital experiences, from sleek websites to powerful web apps and AI-driven platforms.
+                  At DigiGrantha, we take ambitious ideas and shape them into thoughtful, well-engineered digital experiences, from responsive web applications to scalable client portals and digital systems.
                 </p>
 
                 <HeroIntake />
@@ -65,7 +65,7 @@ export default async function HomePage() {
               <div className="hero-visual reveal" aria-hidden="true">
                 <div className="hero-illustration">
                   <div className="hero-ill-badge-float">
-                    ⚡ Live in production
+                    Live in production
                   </div>
                   <div className="hero-ill-window">
                     <div className="hero-ill-topbar">
@@ -75,71 +75,100 @@ export default async function HomePage() {
                     </div>
                     <div className="hero-ill-body">
                       <svg viewBox="0 0 360 215" fill="none" style={{ width: "100%", height: "auto" }}>
-                        {/* Headline */}
-                        <text x="18" y="36" fill="#17201E" fontFamily="var(--display)" fontSize="20" fontWeight="800" letterSpacing="-0.02em">
+                        <defs>
+                          {/* Subtle dot pattern for workspace blueprint background */}
+                          <pattern id="hero-dot-grid" width="16" height="16" patternUnits="userSpaceOnUse">
+                            <circle cx="2" cy="2" r="0.8" fill="#17201E" opacity="0.08" />
+                          </pattern>
+                          <linearGradient id="story-card-grad" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stopColor="#FFFFFF" />
+                            <stop offset="100%" stopColor="#FAF7EE" />
+                          </linearGradient>
+                        </defs>
+
+                        {/* Background dot grid */}
+                        <rect x="0" y="0" width="360" height="215" fill="url(#hero-dot-grid)" />
+
+                        {/* Headline: Your idea. Our craft. */}
+                        <text x="18" y="32" fill="#17201E" fontFamily="var(--display)" fontSize="19.5" fontWeight="800" letterSpacing="-0.025em">
                           Your idea. Our craft.
                         </text>
                         {/* 3 teal spark rays above 'craft.' */}
-                        <path d="M182 17 L176 9" stroke="#0F5C52" strokeWidth="2.5" strokeLinecap="round" />
-                        <path d="M192 15 L192 6" stroke="#0F5C52" strokeWidth="2.5" strokeLinecap="round" />
-                        <path d="M202 17 L208 9" stroke="#0F5C52" strokeWidth="2.5" strokeLinecap="round" />
+                        <path d="M180 15 L174 8" stroke="#0F5C52" strokeWidth="2.5" strokeLinecap="round" />
+                        <path d="M190 13 L190 5" stroke="#0F5C52" strokeWidth="2.5" strokeLinecap="round" />
+                        <path d="M200 15 L206 8" stroke="#0F5C52" strokeWidth="2.5" strokeLinecap="round" />
 
-                        {/* Line 2 with mint brush highlight under 'love.' */}
-                        <text x="18" y="66" fill="#17201E" fontFamily="var(--display)" fontSize="20" fontWeight="800" letterSpacing="-0.02em">
+                        {/* Line 2: A product people love. */}
+                        <text x="18" y="59" fill="#17201E" fontFamily="var(--display)" fontSize="19.5" fontWeight="800" letterSpacing="-0.025em">
                           A product people love.
                         </text>
-                        <path d="M110 74 C138 72, 172 74, 198 72" stroke="#BFE5D9" strokeWidth="4.5" strokeLinecap="round" opacity="0.9" />
+                        {/* Mint brush highlight under 'love.' */}
+                        <path d="M140 66 C166 64, 194 66, 214 65" stroke="#BFE5D9" strokeWidth="4.5" strokeLinecap="round" />
+                        {/* Amber star spark near love */}
+                        <path d="M224 53 Q226 57 230 58 Q226 59 224 63 Q222 59 218 58 Q222 57 224 53 Z" fill="#F4A228" />
 
-                        {/* Interactive Pill Buttons */}
+                        {/* Studio Tag & connecting trail */}
                         <g>
-                          <rect x="18" y="90" width="94" height="30" rx="15" fill="#F4A228" stroke="#17201E" strokeWidth="2" />
-                          <text x="65" y="109" textAnchor="middle" fill="#17201E" fontFamily="var(--display)" fontSize="13" fontWeight="800">
-                            Launch →
+                          <rect x="18" y="78" width="90" height="22" rx="11" fill="#F4A228" stroke="#17201E" strokeWidth="1.8" />
+                          <text x="63" y="93" textAnchor="middle" fill="#17201E" fontFamily="var(--display)" fontSize="10" fontWeight="800" letterSpacing="0.04em">
+                            THE PROMISE
                           </text>
+                          <path d="M116 89 L238 89" stroke="#17201E" strokeWidth="1.2" strokeDasharray="3 4" opacity="0.35" />
                         </g>
 
+                        {/* Story Card: "Every great product starts as a story. We help write yours." */}
                         <g>
-                          <rect x="122" y="90" width="84" height="30" rx="15" fill="#FFFFFF" stroke="#17201E" strokeWidth="2" />
-                          <text x="164" y="109" textAnchor="middle" fill="#17201E" fontFamily="var(--display)" fontSize="13" fontWeight="800">
-                            Inspect
-                          </text>
-                        </g>
+                          {/* Hard offset shadow */}
+                          <rect x="21.5" y="112.5" width="228" height="88" rx="14" fill="#17201E" />
+                          {/* Card body */}
+                          <rect x="18" y="109" width="228" height="88" rx="14" fill="url(#story-card-grad)" stroke="#17201E" strokeWidth="2" />
 
-                        {/* Stat Box 1: WIN RATE 60.5% */}
-                        <g>
-                          <rect x="18" y="140" width="134" height="48" rx="10" fill="#BFE5D9" stroke="#17201E" strokeWidth="2" />
-                          <text x="30" y="157" fill="#17201E" fontFamily="var(--display)" fontSize="10" fontWeight="800" letterSpacing="0.06em">
-                            WIN RATE
-                          </text>
-                          <text x="30" y="177" fill="#0F5C52" fontFamily="var(--display)" fontSize="18" fontWeight="800">
-                            60.5%
-                          </text>
-                        </g>
+                          {/* Left pine vertical stripe */}
+                          <rect x="28" y="120" width="3.5" height="66" rx="1.75" fill="#0F5C52" />
 
-                        {/* Stat Box 2: USERS 1,000+ */}
-                        <g>
-                          <rect x="162" y="140" width="96" height="48" rx="10" fill="#FFFFFF" stroke="#17201E" strokeWidth="2" />
-                          <text x="174" y="157" fill="#17201E" fontFamily="var(--display)" fontSize="10" fontWeight="800" letterSpacing="0.06em">
-                            USERS
+                          {/* Subtitle tag */}
+                          <text x="40" y="132" fill="#5F6B68" fontFamily="var(--display)" fontSize="9.5" fontWeight="800" letterSpacing="0.06em">
+                            · THE BEGINNING
                           </text>
-                          <text x="174" y="177" fill="#17201E" fontFamily="var(--display)" fontSize="18" fontWeight="800">
-                            1,000+
+
+                          {/* Narrative line 1 */}
+                          <text x="40" y="150" fill="#17201E" fontFamily="var(--display)" fontSize="11.5" fontWeight="700" letterSpacing="-0.01em">
+                            Every great product starts as a story.
                           </text>
+
+                          {/* Narrative line 2 (Payoff) */}
+                          <text x="40" y="174" fill="#0F5C52" fontFamily="var(--display)" fontSize="14" fontWeight="800" fontStyle="italic" letterSpacing="-0.015em">
+                            We help write yours.
+                          </text>
+
+                          {/* Amber sparkle star */}
+                          <path d="M182 165 Q184 170 188 171 Q184 172 182 177 Q180 172 176 171 Q180 170 182 165 Z" fill="#F4A228" />
+
+                          {/* Mint Ship button badge */}
+                          <g>
+                            <rect x="194" y="159" width="42" height="22" rx="11" fill="#BFE5D9" stroke="#17201E" strokeWidth="1.5" />
+                            <text x="215" y="174" textAnchor="middle" fill="#0F5C52" fontFamily="var(--display)" fontSize="11" fontWeight="800">
+                              Ship ↗
+                            </text>
+                          </g>
                         </g>
 
                         {/* Botanical Leaf Stem (Right Side) */}
-                        <path d="M276 195 C272 155, 285 110, 326 58" stroke="#0F5C52" strokeWidth="3.5" strokeLinecap="round" fill="none" />
+                        <path d="M276 200 C270 155, 284 105, 328 48" stroke="#0F5C52" strokeWidth="3.5" strokeLinecap="round" fill="none" />
                         {/* Leaf 1 (Mint, pointing left) */}
-                        <path d="M275 160 C260 156, 256 166, 268 174 C276 177, 277 167, 275 160 Z" fill="#BFE5D9" stroke="#17201E" strokeWidth="2" />
+                        <path d="M274 162 C258 158, 254 168, 267 176 C275 179, 276 169, 274 162 Z" fill="#BFE5D9" stroke="#17201E" strokeWidth="2" />
                         {/* Leaf 2 (Amber, pointing right top) */}
-                        <path d="M312 86 C326 78, 338 88, 332 98 C324 103, 316 93, 312 86 Z" fill="#F4A228" stroke="#17201E" strokeWidth="2" />
+                        <path d="M312 84 C326 76, 338 86, 332 96 C324 101, 316 91, 312 84 Z" fill="#F4A228" stroke="#17201E" strokeWidth="2" />
                         {/* Leaf 3 (Lime, pointing right mid) */}
-                        <path d="M296 120 C310 112, 324 122, 318 132 C310 137, 301 127, 296 120 Z" fill="#C8F049" stroke="#17201E" strokeWidth="2" />
+                        <path d="M294 122 C308 114, 322 124, 316 134 C308 139, 299 129, 294 122 Z" fill="#C8F049" stroke="#17201E" strokeWidth="2" />
+                        {/* Top sprout bud & star */}
+                        <circle cx="328" cy="46" r="4.5" fill="#0F5C52" />
+                        <path d="M326 22 Q328 26 332 27 Q328 28 326 32 Q324 28 320 27 Q324 26 326 22 Z" fill="#F4A228" />
                       </svg>
                     </div>
                   </div>
                   <div className="hero-ill-note">
-                    Handcrafted in-house ✦
+                    Handcrafted in-house
                   </div>
                 </div>
               </div>

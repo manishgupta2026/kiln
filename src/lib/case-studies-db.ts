@@ -65,14 +65,16 @@ export async function getCaseStudies(): Promise<CaseStudyRecord[]> {
     return fallback;
   }
 
+  let timer: any;
   try {
-    const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error("Database query timed out")), 1500)
-    );
+    const timeoutPromise = new Promise((_, reject) => {
+      timer = setTimeout(() => reject(new Error("Database query timed out")), 1500);
+    });
     const dbQuery = prisma.caseStudy.findMany({
       orderBy: [{ displayOrder: "asc" }, { createdAt: "asc" }],
     });
     const items: any = await Promise.race([dbQuery, timeoutPromise]);
+    if (timer) clearTimeout(timer);
 
     const formatted: CaseStudyRecord[] = items.map((item: any) => ({
       id: item.id,
@@ -98,6 +100,8 @@ export async function getCaseStudies(): Promise<CaseStudyRecord[]> {
     const fallback = getLocalFallback();
     cachedCaseStudies = { data: fallback, timestamp: now };
     return fallback;
+  } finally {
+    if (timer) clearTimeout(timer);
   }
 }
 

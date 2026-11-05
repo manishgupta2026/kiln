@@ -15,9 +15,22 @@
   },
   "keep_vars": true,
   "vars": {
+    "ENVIRONMENT": "production",
     "SMTP_HOST": "smtp.zoho.in",
     "SMTP_PORT": "465",
     "SMTP_USER": "team@digigrantha.com",
     "FROM_EMAIL": "Digigrantha <team@digigrantha.com>"
+  },
+  "env": {
+    "staging": {
+      "name": "digigrantha-staging",
+      "vars": {
+        "ENVIRONMENT": "staging",
+        "SMTP_HOST": "smtp.zoho.in",
+        "SMTP_PORT": "465",
+        "SMTP_USER": "team@digigrantha.com",
+        "FROM_EMAIL": "Digigrantha Staging <team@digigrantha.com>"
+      }
+    }
   }
 }

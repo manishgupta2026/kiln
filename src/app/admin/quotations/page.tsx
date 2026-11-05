@@ -3,9 +3,19 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import ProjectEstimator, { EstimationResult } from "@/components/ProjectEstimator";
+import dynamic from "next/dynamic";
+import type { EstimationResult } from "@/components/ProjectEstimator";
 import { ProjectQuotationRecord, QuotationLineItem } from "@/lib/quotations-db";
 import AdminNavbar from "@/components/AdminNavbar";
+
+const ProjectEstimator = dynamic(() => import("@/components/ProjectEstimator"), {
+  ssr: false,
+  loading: () => (
+    <div style={{ padding: "40px 20px", textAlign: "center", color: "var(--muted)" }}>
+      Loading Project Estimator...
+    </div>
+  ),
+});
 
 const STATUS_OPTIONS = [
   { value: "DRAFT", label: "Draft", bg: "#eae7dd", color: "var(--muted)" },

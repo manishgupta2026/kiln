@@ -37,12 +37,28 @@ export default function CursorPreview({ projects = [] }: CursorPreviewProps) {
       cp.classList.add("show");
     };
 
+    let rafId: number | null = null;
+    let targetX = 0;
+    let targetY = 0;
+
+    const updatePosition = () => {
+      cp.style.transform = `translate3d(${targetX}px, ${targetY}px, 0)`;
+      rafId = null;
+    };
+
     const handleMouseMove = (e: MouseEvent) => {
-      cp.style.left = `${e.clientX}px`;
-      cp.style.top = `${e.clientY}px`;
+      targetX = e.clientX;
+      targetY = e.clientY;
+      if (rafId === null) {
+        rafId = requestAnimationFrame(updatePosition);
+      }
     };
 
     const handleMouseLeave = () => {
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
       cp.classList.remove("show");
     };
 

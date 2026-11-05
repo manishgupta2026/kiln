@@ -10,7 +10,7 @@ const JOB_ROLES = [
   "Backend & Systems",
   "UI / UX Product Designer",
   "Mobile Developer (React Native)",
-  "AI / ML Engineer",
+  "Data & Systems Engineer",
   "DevOps & Infrastructure",
   "Other",
 ];
@@ -36,7 +36,7 @@ const INTERN_DOMAINS = [
   "Backend APIs",
   "Fullstack Dev",
   "UI / UX Design",
-  "AI & Integrations",
+  "APIs & Integrations",
   "Mobile Apps",
 ];
 

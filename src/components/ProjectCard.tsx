@@ -87,17 +87,17 @@ export const WORK_PROJECTS = [
     id: "study-nutriflex",
     idx: "03",
     name: "NutriFlex",
-    category: "HealthTech · AI Fitness",
+    category: "HealthTech · Fitness",
     status: "live" as const,
     statusLabel: "Live in production",
-    oneLiner: "Your personal AI fitness assistant delivering dynamic workout plans and weekly health tasks.",
+    oneLiner: "Personal fitness platform delivering dynamic workout progressions and structured health routines.",
     resultStat: "100% personalized",
     metrics: [
-      { icon: "⚡", val: "AI", label: "Task generator" },
-      { icon: "🎯", val: "100%", label: "Personalized" },
-      { icon: "💪", val: "Full", label: "Fitness suite" },
+      { icon: "→", val: "Dynamic", label: "Task engine" },
+      { icon: "·", val: "100%", label: "Personalized" },
+      { icon: "✓", val: "Full", label: "Fitness suite" },
     ],
-    tags: ["Next.js", "React", "OpenAI", "Bootstrap"],
+    tags: ["Next.js", "React", "TypeScript", "Bootstrap"],
     liveUrl: null,
     photos: [
       "/photos/nutriflex/nutriflex-1.jpeg",
@@ -108,7 +108,7 @@ export const WORK_PROJECTS = [
     ],
     secondaryLabel: "Read case study",
     briefDescription:
-      "An intelligent fitness and nutrition platform built to eliminate generic routines. NutriFlex generates customized weekly workout schedules, dynamic exercise progressions, and AI-driven motivational encouragement tailored to individual goals.",
+      "An adaptive fitness and nutrition platform built to eliminate generic routines. NutriFlex generates customized weekly workout schedules, dynamic exercise progressions, and structured goal tracking tailored to individual athletes.",
   },
   {
     id: "cmtzk3o4d0002i240zv5grujz",
@@ -162,15 +162,15 @@ export const WORK_PROJECTS = [
     id: "cmtzk3myp0000i2408jebuygu",
     idx: "06",
     name: "TradeSage",
-    category: "FinTech · AI Trading",
+    category: "FinTech · Algorithmic Trading",
     status: "live" as const,
     statusLabel: "Live in production",
-    oneLiner: "An AI-powered trading platform that analyzes market patterns and executes data-driven trades.",
+    oneLiner: "An algorithmic trading platform that analyzes market patterns and executes data-driven trades.",
     resultStat: "70.5% win rate",
     metrics: [
       { icon: "↗", val: "70.5%", label: "Win rate" },
       { icon: "⛁", val: "5+", label: "Trading models" },
-      { icon: "⚡", val: "Real-time", label: "Market execution" },
+      { icon: "→", val: "Real-time", label: "Market execution" },
     ],
     tags: ["Python", "XGBoost", "GitHub Actions", "SmartAPI"],
     liveUrl: "https://tradesagaai.duckdns.org/",
@@ -635,19 +635,19 @@ export function NutriFlexMockup() {
         <rect x="0" y="2" width="16" height="16" rx="4" fill="#525CEB" />
         <path d="M4 10h8M6 7v6M10 7v6" stroke="#FFFFFF" strokeWidth="1.4" strokeLinecap="round" />
         <text x="22" y="14" fill="#FFFFFF" fontFamily="system-ui, sans-serif" fontSize="11" fontWeight="800">NutriFlex</text>
-        <text x="76" y="14" fill="#818CF8" fontFamily="system-ui, sans-serif" fontSize="8" fontWeight="600">· AI Assistant</text>
+        <text x="76" y="14" fill="#818CF8" fontFamily="system-ui, sans-serif" fontSize="8" fontWeight="600">· Workout Suite</text>
 
         {/* Status Pill */}
         <rect x="210" y="1" width="82" height="18" rx="9" fill="#1E1B4B" stroke="#6366F1" strokeWidth="1" />
         <circle cx="219" cy="10" r="2.5" fill="#10B981" />
-        <text x="226" y="13" fill="#C7D2FE" fontFamily="system-ui, sans-serif" fontSize="7.5" fontWeight="700">AI Active</text>
+        <text x="226" y="13" fill="#C7D2FE" fontFamily="system-ui, sans-serif" fontSize="7.5" fontWeight="700">Active</text>
       </g>
 
       {/* Hero Workout Generator Card */}
       <g transform="translate(14, 56)">
         <rect x="0" y="0" width="292" height="78" rx="8" fill="#1F2937" stroke="#374151" strokeWidth="1" />
         <text x="14" y="20" fill="#F9FAFB" fontFamily="system-ui, sans-serif" fontSize="12" fontWeight="800">Dynamic Workout Generator</text>
-        <text x="14" y="34" fill="#9CA3AF" fontFamily="system-ui, sans-serif" fontSize="8.5">AI-powered weekly fitness task progression</text>
+        <text x="14" y="34" fill="#9CA3AF" fontFamily="system-ui, sans-serif" fontSize="8.5">Dynamic weekly fitness progression engine</text>
 
         {/* Progress Rings */}
         <g transform="translate(195, 12)">
@@ -689,7 +689,7 @@ export function NutriFlexMockup() {
         <rect x="200" y="0" width="92" height="66" rx="8" fill="#1F2937" stroke="#374151" strokeWidth="1" />
         <rect x="208" y="8" width="18" height="18" rx="4" fill="#701A75" />
         <path d="M217 14 C215 12, 212 14, 212 16 C212 19, 217 22, 217 22 C217 22, 222 19, 222 16 C222 14, 219 12, 217 14 Z" fill="#F472B6" />
-        <text x="232" y="16" fill="#F9FAFB" fontFamily="system-ui, sans-serif" fontSize="8" fontWeight="700">AI Coach</text>
+        <text x="232" y="16" fill="#F9FAFB" fontFamily="system-ui, sans-serif" fontSize="8" fontWeight="700">Daily Coach</text>
         <text x="232" y="24" fill="#9CA3AF" fontFamily="system-ui, sans-serif" fontSize="6.5">Motivational</text>
         <rect x="208" y="34" width="76" height="4" rx="2" fill="#374151" />
         <rect x="208" y="42" width="60" height="4" rx="2" fill="#374151" />
@@ -699,7 +699,7 @@ export function NutriFlexMockup() {
   );
 }
 
-export default function ProjectCard({ study, onOpenCaseStudy, onOpenPhotos }: ProjectCardProps) {
+function ProjectCardInner({ study, onOpenCaseStudy, onOpenPhotos }: ProjectCardProps) {
   const is5e =
     study.name.toLowerCase().includes("5e") ||
     study.name.toLowerCase().includes("serpraise");
@@ -867,3 +867,6 @@ export default function ProjectCard({ study, onOpenCaseStudy, onOpenPhotos }: Pr
     </div>
   );
 }
+
+const ProjectCard = React.memo(ProjectCardInner);
+export default ProjectCard;

@@ -1,120 +1,29 @@
 [
   {
-    "id": "study-5e-serpraise",
-    "name": "5e Serpraise",
-    "category": "Corporate Training · OD Consulting",
-    "oneLiner": "Corporate training and organizational development platform built across two major generational releases.",
-    "resultStat": "20+ years legacy · 2 versions",
-    "briefDescription": "A human resources, corporate training, and organization development initiative operating since 2003 across India and Australia. We architected and delivered both generations of their digital experience: Version 1 on production and Version 2 with a modernized, editorial design system and interactive module architecture.",
+    "id": "cmtzk3myp0000i2408jebuygu",
+    "name": "TradeSage",
+    "category": "Trading & fintech",
+    "oneLiner": "Taught a model to trade so we didn't have to guess twice.",
+    "resultStat": "70.5% win rate",
+    "briefDescription": "An algorithmic trading system for the Indian equity market. We trained a model on ten years of NSE data across 2,200+ stocks, then wrapped it in automated risk controls — position sizing, regime filters, and a daily loss kill-switch — so the model can't outrun its own discipline.",
     "tags": [
-      "Next.js",
-      "TypeScript",
-      "Tailwind",
-      "Vercel"
+      "Python",
+      "XGBoost",
+      "GitHub Actions",
+      "SmartAPI"
     ],
-    "liveUrl": "https://5eserpraise.com",
-    "version1Url": "https://5eserpraise.com",
-    "version2Url": "https://5e-serpraise.vercel.app/",
+    "liveUrl": null,
     "status": "live",
     "featured": true,
     "displayOrder": 1,
-    "createdAt": "2026-09-10T08:00:00.000Z",
-    "updatedAt": "2026-11-01T10:00:00.000Z"
-  },
-  {
-    "id": "cmtzk3on50003i240peo85zlm",
-    "name": "Manraah",
-    "category": "HealthTech · Mental Wellness",
-    "oneLiner": "A mental wellness platform with dedicated student, professional, and admin experiences.",
-    "resultStat": "3 user groups",
-    "briefDescription": "A mental wellness platform with entirely separate experiences for students, professionals, and admins — each with its own permissions, flows, and interface, not one dashboard trying to serve three audiences at once.",
-    "tags": [
-      "Next.js",
-      "TypeScript",
-      "Tailwind",
-      "Neon"
-    ],
-    "liveUrl": null,
-    "status": "in-progress",
-    "featured": true,
-    "displayOrder": 2,
-    "createdAt": "2026-09-13T08:32:58.241Z",
-    "updatedAt": "2026-11-01T10:00:00.000Z",
-    "photos": [
-      "/photos/manraah/manraah-1.jpeg",
-      "/photos/manraah/manraah-2.jpeg",
-      "/photos/manraah/manraah-3.jpeg",
-      "/photos/manraah/manraah-4.jpeg",
-      "/photos/manraah/manraah-5.jpeg",
-      "/photos/manraah/manraah-6.jpeg",
-      "/photos/manraah/manraah-7.jpeg",
-      "/photos/manraah/manraah-8.jpeg",
-      "/photos/manraah/manraah-9.jpeg",
-      "/photos/manraah/manraah-10.jpeg",
-      "/photos/manraah/manraah-11.jpeg",
-      "/photos/manraah/manraah-12.jpeg"
-    ]
-  },
-  {
-    "id": "study-nutriflex",
-    "name": "NutriFlex",
-    "category": "HealthTech · AI Fitness",
-    "oneLiner": "Your personal AI fitness assistant delivering dynamic workout plans and weekly health tasks.",
-    "resultStat": "Personal AI coach",
-    "briefDescription": "An intelligent fitness and nutrition platform built to eliminate generic routines. NutriFlex generates customized weekly workout schedules, dynamic exercise progressions, and AI-driven motivational encouragement tailored to individual goals.",
-    "tags": [
-      "Next.js",
-      "React",
-      "OpenAI",
-      "Bootstrap"
-    ],
-    "liveUrl": null,
-    "status": "live",
-    "featured": true,
-    "displayOrder": 3,
-    "createdAt": "2026-09-14T08:00:00.000Z",
-    "updatedAt": "2026-11-01T10:00:00.000Z",
-    "photos": [
-      "/photos/nutriflex/nutriflex-1.jpeg",
-      "/photos/nutriflex/nutriflex-2.jpeg",
-      "/photos/nutriflex/nutriflex-3.jpeg",
-      "/photos/nutriflex/nutriflex-4.jpeg",
-      "/photos/nutriflex/nutriflex-5.jpeg"
-    ]
-  },
-  {
-    "id": "cmtzk3o4d0002i240zv5grujz",
-    "name": "Coppter",
-    "category": "Workforce · Enterprise",
-    "oneLiner": "A workforce management system with four dedicated portals for different job roles.",
-    "resultStat": "4 portals shipped",
-    "briefDescription": "A workforce intelligence platform built around four distinct roles — a leadership dashboard for strategic analytics, HR operations tools, personalized growth assessments for employees, and a mentor-facing view for career guidance. Four different logins, because four different people need four different tools, not one dashboard wearing four hats.",
-    "tags": [
-      "Next.js",
-      "TypeScript",
-      "Tailwind",
-      "Neon"
-    ],
-    "liveUrl": null,
-    "status": "live",
-    "featured": true,
-    "displayOrder": 4,
-    "createdAt": "2026-09-13T08:32:57.565Z",
-    "updatedAt": "2026-11-01T10:00:00.000Z",
-    "photos": [
-      "/photos/coppter/coppter-1.jpeg",
-      "/photos/coppter/coppter-2.jpeg",
-      "/photos/coppter/coppter-3.jpeg",
-      "/photos/coppter/coppter-4.jpeg",
-      "/photos/coppter/coppter-5.jpeg",
-      "/photos/coppter/coppter-6.jpeg"
-    ]
+    "createdAt": "2026-09-13T08:32:56.065Z",
+    "updatedAt": "2026-09-16T17:55:37.220Z"
   },
   {
     "id": "cmtzk3nlb0001i2408g0a3usm",
     "name": "CourseHunt",
-    "category": "EdTech · Learning Platform",
-    "oneLiner": "A course discovery platform that helps students find the right learning opportunities.",
+    "category": "Product",
+    "oneLiner": "Built the shortcut 1,000+ students take every day.",
     "resultStat": "1,000+ daily users",
     "briefDescription": "A fast course aggregator built on Next.js and Supabase. Students were losing hours hunting for course links scattered across the internet — CourseHunt automates discovery and validation so listings are already there, and already working, when they arrive.",
     "tags": [
@@ -125,28 +34,48 @@
     "liveUrl": "https://coursehunt.tech",
     "status": "live",
     "featured": true,
-    "displayOrder": 5,
+    "displayOrder": 2,
     "createdAt": "2026-09-13T08:32:56.880Z",
-    "updatedAt": "2026-11-01T10:00:00.000Z"
+    "updatedAt": "2026-09-13T10:03:43.605Z"
   },
   {
-    "id": "cmtzk3myp0000i2408jebuygu",
-    "name": "TradeSage",
-    "category": "FinTech · AI Trading",
-    "oneLiner": "An AI-powered trading platform that analyzes market patterns and executes data-driven trades.",
-    "resultStat": "70.5% win rate",
-    "briefDescription": "An algorithmic trading system for the Indian equity market. We trained a model on ten years of NSE data across 2,200+ stocks, then wrapped it in automated risk controls — position sizing, regime filters, and a daily loss kill-switch — so the model can't outrun its own discipline.",
+    "id": "cmtzk3o4d0002i240zv5grujz",
+    "name": "Coppter",
+    "category": "Product",
+    "oneLiner": "Four different logins, four completely different jobs to be done.",
+    "resultStat": "4 role-based portals shipped",
+    "briefDescription": "A workforce intelligence platform built around four distinct roles — a leadership dashboard for strategic analytics, HR operations tools, personalized growth assessments for employees, and a mentor-facing view for career guidance. Four different logins, because four different people need four different tools, not one dashboard wearing four hats.",
     "tags": [
-      "Python",
-      "XGBoost",
-      "GitHub Actions",
-      "SmartAPI"
+      "Next.js",
+      "TypeScript",
+      "Tailwind",
+      "Neon"
     ],
-    "liveUrl": "https://tradesagaai.duckdns.org/",
+    "liveUrl": "https://coppter-frontend.onrender.com/",
     "status": "live",
     "featured": true,
-    "displayOrder": 6,
-    "createdAt": "2026-09-13T08:32:56.065Z",
-    "updatedAt": "2026-11-01T10:00:00.000Z"
+    "displayOrder": 3,
+    "createdAt": "2026-09-13T08:32:57.565Z",
+    "updatedAt": "2026-09-13T10:03:44.180Z"
+  },
+  {
+    "id": "cmtzk3on50003i240peo85zlm",
+    "name": "Manraah",
+    "category": "In progress",
+    "oneLiner": "A mental wellness platform with dedicated student, professional, and admin experiences.",
+    "resultStat": "Shipping soon",
+    "briefDescription": "A mental wellness platform with entirely separate experiences for students, professionals, and admins — each with its own permissions, flows, and interface, not one dashboard trying to serve three audiences at once.",
+    "tags": [
+      "Next.js",
+      "TypeScript",
+      "Tailwind",
+      "Neon"
+    ],
+    "liveUrl": null,
+    "status": "in-progress",
+    "featured": false,
+    "displayOrder": 4,
+    "createdAt": "2026-09-13T08:32:58.241Z",
+    "updatedAt": "2026-09-13T10:03:44.800Z"
   }
 ]

@@ -58,6 +58,8 @@ model AuthToken {
   expiresAt DateTime
   usedAt    DateTime?
   createdAt DateTime  @default(now())
+
+  @@index([userId, purpose])
 }
 
 model Brief {
@@ -74,6 +76,8 @@ model Brief {
   callNotes       String?   @db.Text
   createdAt       DateTime  @default(now())
   project         Project?
+
+  @@index([status, createdAt])
 }
 
 model Project {
@@ -113,6 +117,9 @@ model Project {
   messages     Message[]
   milestones   ProjectMilestone[]
   callRequests CallRequest[]
+
+  @@index([clientId, status])
+  @@index([status, phase])
 }
 
 // Many-to-many: a project can have several developers, a developer several projects.
@@ -125,6 +132,7 @@ model ProjectDeveloper {
   assignedAt  DateTime @default(now())
 
   @@unique([projectId, developerId])
+  @@index([developerId])
 }
 
 // The progress log / timeline the client sees
@@ -135,6 +143,8 @@ model ProjectUpdate {
   authorId  String
   note      String   @db.Text
   createdAt DateTime @default(now())
+
+  @@index([projectId, createdAt])
 }
 
 // Granular deliverables checklist with completion status
@@ -148,6 +158,8 @@ model ProjectMilestone {
   completedAt DateTime?
   order       Int       @default(0)
   createdAt   DateTime  @default(now())
+
+  @@index([projectId, order])
 }
 
 // Client-initiated sync call requests
@@ -163,6 +175,8 @@ model CallRequest {
   meetingUrl     String?
   confirmedTime  DateTime?
   createdAt      DateTime  @default(now())
+
+  @@index([projectId, createdAt])
 }
 
 model Ticket {
@@ -176,6 +190,8 @@ model Ticket {
   updatedAt   DateTime     @updatedAt
 
   messages Message[]
+
+  @@index([projectId, status, updatedAt])
 }
 
 // Doubles as general project chat (ticketId null) and ticket replies (ticketId set)
@@ -189,6 +205,8 @@ model Message {
   sender    User     @relation(fields: [senderId], references: [id], onDelete: Cascade)
   body      String   @db.Text
   createdAt DateTime @default(now())
+
+  @@index([projectId, ticketId, createdAt])
 }
 
 // Portfolio/Showcase items for public website
@@ -231,6 +249,9 @@ model CaseStudy {
   displayOrder     Int      @default(0)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+
+  @@index([featured, displayOrder])
+  @@index([status])
 }
 
 model TeamMember {
@@ -242,6 +263,8 @@ model TeamMember {
   displayOrder Int      @default(0)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+
+  @@index([displayOrder])
 }
 
 model CareerApplication {
@@ -266,6 +289,9 @@ model CareerApplication {
   adminNotes   String?  @db.Text
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+
+  @@index([status, createdAt])
+  @@index([type])
 }
 
 model ProjectQuotation {
@@ -294,6 +320,8 @@ model ProjectQuotation {
   viewToken       String    @unique @default(cuid())
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
+
+  @@index([status, createdAt])
 }
 
 model ProjectInvoice {
@@ -325,5 +353,7 @@ model ProjectInvoice {
   viewToken     String    @unique @default(cuid())
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+
+  @@index([status, dueDate])
 }
 

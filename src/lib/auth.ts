@@ -8,12 +8,20 @@ import { getEnv } from "@/lib/env";
 
 export const SESSION_COOKIE = "digigrantha_session";
 
+let _cachedJwtSecret: Uint8Array | null = null;
+let _cachedSecretRaw: string | null = null;
+
 function getJwtSecret(): Uint8Array {
   const secret =
     getEnv("NEXTAUTH_SECRET") ||
     getEnv("ADMIN_JWT_SECRET") ||
     "digigrantha-production-client-portal-jwt-secret-2026";
-  return new TextEncoder().encode(secret);
+  if (_cachedJwtSecret && _cachedSecretRaw === secret) {
+    return _cachedJwtSecret;
+  }
+  _cachedSecretRaw = secret;
+  _cachedJwtSecret = new TextEncoder().encode(secret);
+  return _cachedJwtSecret;
 }
 
 export interface SessionUser {

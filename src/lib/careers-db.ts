@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { prisma, isRealDatabaseConfigured } from "@/lib/prisma";
 import fs from "fs";
 import path from "path";
 
@@ -124,6 +124,14 @@ export async function createCareerApplication(data: {
       updatedAt: result.updatedAt.toISOString(),
     };
   } catch (dbError) {
+    if (isRealDatabaseConfigured()) {
+      console.error(
+        "[Database Error] Failed to persist career application to PostgreSQL:",
+        (dbError as Error).message
+      );
+      throw dbError;
+    }
+
     console.warn(
       "[Database Warning] PostgreSQL unreachable via Prisma. Falling back to local data store for careers. Error:",
       (dbError as Error).message
@@ -164,6 +172,19 @@ export async function getAllCareerApplications(filters?: {
   type?: string;
   status?: string;
 }): Promise<CareerApplicationRecord[]> {
+  if (!isRealDatabaseConfigured()) {
+    let store = ensureLocalStore();
+    if (filters?.type && filters.type !== "ALL") {
+      store = store.filter((r) => r.type.toUpperCase() === filters.type!.toUpperCase());
+    }
+    if (filters?.status && filters.status !== "ALL") {
+      store = store.filter((r) => r.status.toLowerCase() === filters.status!.toLowerCase());
+    }
+    return store.sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+  }
+
   try {
     const where: any = {};
     if (filters?.type && filters.type !== "ALL") {
@@ -224,6 +245,11 @@ export async function getAllCareerApplications(filters?: {
 export async function getCareerApplicationById(
   id: string
 ): Promise<CareerApplicationRecord | null> {
+  if (!isRealDatabaseConfigured()) {
+    const store = ensureLocalStore();
+    return store.find((r) => r.id === id) || null;
+  }
+
   try {
     const r = await prisma.careerApplication.findUnique({
       where: { id },
@@ -301,6 +327,10 @@ export async function updateCareerApplication(
       updatedAt: updated.updatedAt.toISOString(),
     };
   } catch (dbError) {
+    if (isRealDatabaseConfigured()) {
+      console.error("[Database Error] Failed to update career application in PostgreSQL:", (dbError as Error).message);
+      throw dbError;
+    }
     const store = ensureLocalStore();
     const index = store.findIndex((b) => b.id === id);
     if (index !== -1) {
@@ -321,6 +351,10 @@ export async function deleteCareerApplication(id: string): Promise<boolean> {
     });
     return true;
   } catch (err) {
+    if (isRealDatabaseConfigured()) {
+      console.error("[Database Error] Failed to delete career application in PostgreSQL:", (err as Error).message);
+      throw err;
+    }
     const store = ensureLocalStore();
     const filtered = store.filter((b) => b.id !== id);
     if (filtered.length !== store.length) {

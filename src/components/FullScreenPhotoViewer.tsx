@@ -147,7 +147,12 @@ export default function FullScreenPhotoViewer({
                 }}
                 aria-label={`View photo ${idx + 1}`}
               >
-                <img src={photo} alt={`${projectName} thumbnail ${idx + 1}`} />
+                <img
+                  src={photo}
+                  alt={`${projectName} thumbnail ${idx + 1}`}
+                  loading="lazy"
+                  decoding="async"
+                />
               </button>
             ))}
           </div>

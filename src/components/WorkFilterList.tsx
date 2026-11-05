@@ -1,10 +1,18 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
+import dynamic from "next/dynamic";
 import { CaseStudyRecord } from "@/lib/case-studies-db";
-import CaseStudyModal from "@/components/CaseStudyModal";
-import FullScreenPhotoViewer from "@/components/FullScreenPhotoViewer";
 import ProjectCard, { WORK_PROJECTS } from "@/components/ProjectCard";
+
+// Code-split modals for on-demand loading
+const CaseStudyModal = dynamic(() => import("@/components/CaseStudyModal"), {
+  ssr: false,
+});
+const FullScreenPhotoViewer = dynamic(
+  () => import("@/components/FullScreenPhotoViewer"),
+  { ssr: false }
+);
 
 interface WorkFilterListProps {
   initialCaseStudies?: CaseStudyRecord[];
@@ -19,6 +27,22 @@ export default function WorkFilterList({
   const [activeFilter, setActiveFilter] = useState<string>(initialFilter);
   const [selectedCaseStudy, setSelectedCaseStudy] = useState<any | null>(null);
   const [selectedPhotosProject, setSelectedPhotosProject] = useState<any | null>(null);
+
+  const handleOpenCaseStudy = useCallback((p: any) => {
+    setSelectedCaseStudy(p);
+  }, []);
+
+  const handleCloseCaseStudy = useCallback(() => {
+    setSelectedCaseStudy(null);
+  }, []);
+
+  const handleOpenPhotos = useCallback((p: any) => {
+    setSelectedPhotosProject(p);
+  }, []);
+
+  const handleClosePhotos = useCallback(() => {
+    setSelectedPhotosProject(null);
+  }, []);
 
   // Map to rich project card structures
   const allProjects = useMemo(() => {
@@ -90,23 +114,27 @@ export default function WorkFilterList({
           <ProjectCard
             key={project.id}
             study={project}
-            onOpenCaseStudy={(p) => setSelectedCaseStudy(p)}
-            onOpenPhotos={(p) => setSelectedPhotosProject(p)}
+            onOpenCaseStudy={handleOpenCaseStudy}
+            onOpenPhotos={handleOpenPhotos}
           />
         ))}
       </div>
 
-      <CaseStudyModal
-        caseStudy={selectedCaseStudy}
-        onClose={() => setSelectedCaseStudy(null)}
-      />
+      {selectedCaseStudy && (
+        <CaseStudyModal
+          caseStudy={selectedCaseStudy}
+          onClose={handleCloseCaseStudy}
+        />
+      )}
 
-      <FullScreenPhotoViewer
-        isOpen={!!selectedPhotosProject}
-        projectName={selectedPhotosProject?.name || ""}
-        photos={selectedPhotosProject?.photos || []}
-        onClose={() => setSelectedPhotosProject(null)}
-      />
+      {selectedPhotosProject && (
+        <FullScreenPhotoViewer
+          isOpen={!!selectedPhotosProject}
+          projectName={selectedPhotosProject?.name || ""}
+          photos={selectedPhotosProject?.photos || []}
+          onClose={handleClosePhotos}
+        />
+      )}
     </>
   );
 }

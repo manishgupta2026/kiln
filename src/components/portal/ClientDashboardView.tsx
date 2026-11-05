@@ -2,12 +2,16 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import PhaseTracker from "@/components/portal/PhaseTracker";
 import ProjectQuickLinks from "@/components/portal/ProjectQuickLinks";
 import MilestoneChecklist from "@/components/portal/MilestoneChecklist";
 import PhaseApprovalGate from "@/components/portal/PhaseApprovalGate";
 import BillingTracker from "@/components/portal/BillingTracker";
-import RequestCallModal from "@/components/portal/RequestCallModal";
+
+const RequestCallModal = dynamic(() => import("@/components/portal/RequestCallModal"), {
+  ssr: false,
+});
 
 interface ClientDashboardViewProps {
   project: any;
@@ -390,12 +394,14 @@ export default function ClientDashboardView({ project: initialProject }: ClientD
       </div>
 
       {/* FEATURE 4: Client Self-Serve Call Request Modal */}
-      <RequestCallModal
-        projectId={project.id}
-        isOpen={showCallModal}
-        onClose={() => setShowCallModal(false)}
-        onSubmitted={refreshProject}
-      />
+      {showCallModal && (
+        <RequestCallModal
+          projectId={project.id}
+          isOpen={showCallModal}
+          onClose={() => setShowCallModal(false)}
+          onSubmitted={refreshProject}
+        />
+      )}
     </div>
   );
 }

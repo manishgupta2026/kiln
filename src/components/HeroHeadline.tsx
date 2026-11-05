@@ -14,15 +14,19 @@ export default function HeroHeadline() {
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   useEffect(() => {
-    const timer = setInterval(() => {
+    let transitionTimer: NodeJS.Timeout | null = null;
+    const intervalTimer = setInterval(() => {
       setIsTransitioning(true);
-      setTimeout(() => {
+      transitionTimer = setTimeout(() => {
         setIndex((prev) => (prev + 1) % ROTATING_ITEMS.length);
         setIsTransitioning(false);
       }, 260);
     }, 2400);
 
-    return () => clearInterval(timer);
+    return () => {
+      clearInterval(intervalTimer);
+      if (transitionTimer) clearTimeout(transitionTimer);
+    };
   }, []);
 
   return (

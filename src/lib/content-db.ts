@@ -7,6 +7,8 @@ export interface TrustSlot {
   id: string;
   label: string;
   isHighlighted?: boolean;
+  logo?: string | null;
+  bgStyle?: "clear" | "white" | "mint" | "default";
 }
 
 export interface TrustSectionConfig {
@@ -114,10 +116,11 @@ export async function getSiteContent(): Promise<SiteContent> {
     return fallback;
   }
 
+  let timer: any;
   try {
-    const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error("Database query timed out")), 1500)
-    );
+    const timeoutPromise = new Promise((_, reject) => {
+      timer = setTimeout(() => reject(new Error("Database query timed out")), 1500);
+    });
 
     const trustQuery = prisma.siteSetting.findUnique({
       where: { key: "trust" },
@@ -131,6 +134,7 @@ export async function getSiteContent(): Promise<SiteContent> {
       Promise.all([trustQuery, dbProjectsQuery]),
       timeoutPromise as Promise<any>,
     ]);
+    if (timer) clearTimeout(timer);
 
     const trustConfig: TrustSectionConfig = trustSetting
       ? (trustSetting.value as unknown as TrustSectionConfig)
@@ -169,6 +173,8 @@ export async function getSiteContent(): Promise<SiteContent> {
     const fallback = getLocalFallback();
     cachedSiteContent = { data: fallback, timestamp: now };
     return fallback;
+  } finally {
+    if (timer) clearTimeout(timer);
   }
 }
 

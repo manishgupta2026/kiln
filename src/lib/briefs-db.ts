@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { prisma, isRealDatabaseConfigured } from "@/lib/prisma";
 import fs from "fs";
 import path from "path";
 
@@ -83,6 +83,14 @@ export async function createBrief(data: {
       createdAt: result.createdAt.toISOString(),
     };
   } catch (dbError) {
+    if (isRealDatabaseConfigured()) {
+      console.error(
+        "[Database Error] Failed to persist brief to PostgreSQL:",
+        (dbError as Error).message
+      );
+      throw dbError;
+    }
+
     console.warn(
       "[Database Warning] PostgreSQL unreachable via Prisma. Falling back to local data store for development. Error:",
       (dbError as Error).message
@@ -109,6 +117,13 @@ export async function createBrief(data: {
 }
 
 export async function getAllBriefs(): Promise<BriefRecord[]> {
+  if (!isRealDatabaseConfigured()) {
+    const briefs = ensureLocalStore();
+    return briefs.sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+  }
+
   try {
     const records = await prisma.brief.findMany({
       include: {
@@ -148,6 +163,11 @@ export async function getAllBriefs(): Promise<BriefRecord[]> {
 }
 
 export async function getBriefById(id: string): Promise<BriefRecord | null> {
+  if (!isRealDatabaseConfigured()) {
+    const briefs = ensureLocalStore();
+    return briefs.find((b) => b.id === id) || null;
+  }
+
   try {
     const r = await prisma.brief.findUnique({
       where: { id },
@@ -220,6 +240,10 @@ export async function scheduleBriefCall(
       project: updated.project,
     };
   } catch (dbError) {
+    if (isRealDatabaseConfigured()) {
+      console.error("[Database Error] Failed to update brief meeting in PostgreSQL:", (dbError as Error).message);
+      throw dbError;
+    }
     const briefs = ensureLocalStore();
     const index = briefs.findIndex((b) => b.id === id);
     if (index !== -1) {
@@ -263,6 +287,10 @@ export async function updateBriefStatus(
       project: updated.project,
     };
   } catch (dbError) {
+    if (isRealDatabaseConfigured()) {
+      console.error("[Database Error] Failed to update brief status in PostgreSQL:", (dbError as Error).message);
+      throw dbError;
+    }
     console.warn(
       "[Database Warning] PostgreSQL unreachable via Prisma. Falling back to local data store for development. Error:",
       (dbError as Error).message

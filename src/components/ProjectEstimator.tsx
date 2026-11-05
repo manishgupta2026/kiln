@@ -90,7 +90,7 @@ export interface FeatureOption {
   inr: number;
   usd: number;
   hours: number;
-  category: "auth" | "payments" | "ai" | "realtime" | "integrations" | "infra";
+  category: "auth" | "payments" | "automation" | "realtime" | "integrations" | "infra";
 }
 
 export const FEATURE_ADDONS: FeatureOption[] = [
@@ -123,21 +123,21 @@ export const FEATURE_ADDONS: FeatureOption[] = [
   },
   {
     id: "ai_llm_integration",
-    name: "AI / LLM Integration (OpenAI/Claude)",
-    description: "Structured JSON completions, custom prompts, smart assistants, or automated report generation.",
+    name: "Automated Data & LLM Workflows",
+    description: "Structured JSON data pipelines, automated report generation, and third-party API integrations.",
     inr: 55000,
     usd: 650,
     hours: 24,
-    category: "ai",
+    category: "automation",
   },
   {
     id: "ai_rag_vectors",
-    name: "Vector Search & Custom RAG Knowledge",
-    description: "Semantic search, document embeddings, and AI answering from proprietary business files.",
+    name: "Semantic Vector Search & Knowledge Indexing",
+    description: "Fast semantic retrieval, document indexing, and internal search over proprietary business files.",
     inr: 85000,
     usd: 1000,
     hours: 35,
-    category: "ai",
+    category: "automation",
   },
   {
     id: "realtime_websockets",

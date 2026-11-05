@@ -7,10 +7,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#13493e" },
-    { media: "(prefers-color-scheme: dark)", color: "#17201E" },
-  ],
+  themeColor: "#0F5C52",
 };
 
 const fraunces = Fraunces({
@@ -22,7 +19,6 @@ const fraunces = Fraunces({
 });
 
 const inter = Inter({
-  weight: ["400", "500", "600", "700"],
   subsets: ["latin"],
   variable: "--body",
   display: "swap",
@@ -56,13 +52,9 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: `(function(){
               try {
-                var m = localStorage.getItem('dg-mode') || 'light';
-                document.documentElement.setAttribute('data-theme', m);
-                if (m === 'dark') {
-                  document.documentElement.classList.add('dark');
-                } else {
-                  document.documentElement.classList.remove('dark');
-                }
+                localStorage.removeItem('dg-mode');
+                document.documentElement.setAttribute('data-theme', 'light');
+                document.documentElement.classList.remove('dark');
               } catch(e) {}
             })()`,
           }}

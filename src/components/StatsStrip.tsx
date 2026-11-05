@@ -22,8 +22,8 @@ function easeOutExpo(t: number): number {
 
 export default function StatsStrip() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const spanRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const [inView, setInView] = useState(false);
-  const [counts, setCounts] = useState<number[]>([0, 0, 0, 0]);
   const [completed, setCompleted] = useState(false);
   const animationFrameRef = useRef<number | null>(null);
 
@@ -39,23 +39,28 @@ export default function StatsStrip() {
       const elapsed = currentTime - startTime;
       const overallProgress = Math.min(elapsed / duration, 1);
 
-      const nextCounts = STATS_DATA.map((stat, idx) => {
+      STATS_DATA.forEach((stat, idx) => {
         // Stagger each column's count-up start by 80ms
         const colDelay = idx * 80;
         const colElapsed = Math.max(0, elapsed - colDelay);
         const colDuration = Math.max(duration - colDelay, 800);
         const colProgress = Math.min(colElapsed / colDuration, 1);
         const eased = easeOutExpo(colProgress);
+        const val = Math.round(eased * stat.target);
 
-        return Math.round(eased * stat.target);
+        const span = spanRefs.current[idx];
+        if (span) {
+          span.textContent = String(val);
+        }
       });
-
-      setCounts(nextCounts);
 
       if (overallProgress < 1) {
         animationFrameRef.current = requestAnimationFrame(animate);
       } else {
-        setCounts(STATS_DATA.map((s) => s.target));
+        STATS_DATA.forEach((stat, idx) => {
+          const span = spanRefs.current[idx];
+          if (span) span.textContent = String(stat.target);
+        });
         setCompleted(true);
       }
     };
@@ -71,7 +76,10 @@ export default function StatsStrip() {
     const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (prefersReduced) {
       setInView(true);
-      setCounts(STATS_DATA.map((s) => s.target));
+      STATS_DATA.forEach((stat, idx) => {
+        const span = spanRefs.current[idx];
+        if (span) span.textContent = String(stat.target);
+      });
       setCompleted(true);
       return;
     }
@@ -124,8 +132,14 @@ export default function StatsStrip() {
           }}
         >
           <div className="stat-val animated-stat-val">
-            <span className="stat-num-ticker">
-              {inView ? counts[idx] : stat.target}
+            <span
+              ref={(el) => {
+                spanRefs.current[idx] = el;
+              }}
+              className="stat-num-ticker"
+              suppressHydrationWarning
+            >
+              {stat.target}
             </span>
             <span className="stat-suffix">{stat.suffix}</span>
           </div>

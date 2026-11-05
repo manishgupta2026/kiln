@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 const MILESTONES = [
   "Shipped 5e Serpraise — corporate training and organizational development platform built across two major generational releases (V1 & V2).",
   "Built Manraah — a mental wellness platform with dedicated experiences for students, professionals, and administrators.",
-  "Shipped NutriFlex — an AI-powered fitness assistant delivering dynamic workout progressions and personalized weekly health tasks.",
+  "Shipped NutriFlex — an adaptive fitness platform delivering dynamic workout progressions and structured health routines.",
   "Shipped Coppter — 4 role-based portals for an enterprise workforce intelligence platform, from zero to live deployment.",
   "Shipped CourseHunt — a course aggregator now used by 1,000+ students every day.",
   "Built TradeSage — an algorithmic trading system live on real capital, currently running at a 60.5% win rate.",
@@ -109,6 +109,8 @@ export default async function AboutPage() {
                       <img
                         src={member.avatar}
                         alt={member.name}
+                        loading="lazy"
+                        decoding="async"
                         style={{ width: "100%", height: "100%", objectFit: "cover" }}
                       />
                     ) : (

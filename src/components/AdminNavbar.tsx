@@ -22,12 +22,22 @@ interface NavItem {
   id: string;
   label: string;
   shortLabel: string;
-  icon: string;
+  icon: React.ReactNode;
   href: string;
   tabKey?: string;
   badge?: number | null;
   badgeAlert?: boolean;
   category: "operations" | "talent" | "content";
+}
+
+let _adminBadgeCache: {
+  data: { newBriefs: number; newCareers: number; totalQuotes: number };
+  timestamp: number;
+} | null = null;
+const BADGE_CACHE_TTL = 30000;
+
+export function invalidateAdminBadgeCache() {
+  _adminBadgeCache = null;
 }
 
 export default function AdminNavbar({
@@ -45,63 +55,119 @@ export default function AdminNavbar({
     newBriefs: number;
     newCareers: number;
     totalQuotes: number;
-  }>({
-    newBriefs: badgeCounts?.newBriefs || 0,
-    newCareers: badgeCounts?.newCareers || 0,
-    totalQuotes: badgeCounts?.totalQuotes || 0,
+  }>(() => {
+    const prev = _adminBadgeCache?.data || { newBriefs: 0, newCareers: 0, totalQuotes: 0 };
+    if (badgeCounts) {
+      return {
+        newBriefs: badgeCounts.newBriefs !== undefined ? badgeCounts.newBriefs : prev.newBriefs,
+        newCareers: badgeCounts.newCareers !== undefined ? badgeCounts.newCareers : prev.newCareers,
+        totalQuotes: badgeCounts.totalQuotes !== undefined ? badgeCounts.totalQuotes : prev.totalQuotes,
+      };
+    }
+    if (_adminBadgeCache && Date.now() - _adminBadgeCache.timestamp < BADGE_CACHE_TTL) {
+      return _adminBadgeCache.data;
+    }
+    return prev;
   });
 
-  // If badge counts weren't provided by parent page, fetch them asynchronously
+  // Fetch or refresh badge counts with intelligent caching & merging
   useEffect(() => {
-    if (badgeCounts) {
-      setInternalBadges({
+    let isMounted = true;
+
+    // Check what is missing if parent provided partial badgeCounts
+    const hasCompleteProps =
+      badgeCounts &&
+      badgeCounts.newBriefs !== undefined &&
+      badgeCounts.newCareers !== undefined &&
+      badgeCounts.totalQuotes !== undefined;
+
+    if (hasCompleteProps) {
+      const counts = {
         newBriefs: badgeCounts.newBriefs || 0,
         newCareers: badgeCounts.newCareers || 0,
         totalQuotes: badgeCounts.totalQuotes || 0,
-      });
+      };
+      setInternalBadges(counts);
+      _adminBadgeCache = { data: counts, timestamp: Date.now() };
       return;
     }
 
-    let isMounted = true;
+    if (badgeCounts) {
+      // Partial props provided: update what we have immediately
+      setInternalBadges((prev) => {
+        const merged = {
+          newBriefs: badgeCounts.newBriefs !== undefined ? badgeCounts.newBriefs : prev.newBriefs,
+          newCareers: badgeCounts.newCareers !== undefined ? badgeCounts.newCareers : prev.newCareers,
+          totalQuotes: badgeCounts.totalQuotes !== undefined ? badgeCounts.totalQuotes : prev.totalQuotes,
+        };
+        _adminBadgeCache = { data: merged, timestamp: Date.now() };
+        return merged;
+      });
+    }
+
+    // If cache is fresh and we didn't miss critical props, reuse it
+    if (_adminBadgeCache && Date.now() - _adminBadgeCache.timestamp < BADGE_CACHE_TTL && !badgeCounts) {
+      setInternalBadges(_adminBadgeCache.data);
+      return;
+    }
+
     const fetchCounters = async () => {
       try {
-        const [briefsRes, careersRes, quotesRes] = await Promise.allSettled([
-          fetch("/api/admin/briefs"),
-          fetch("/api/admin/careers"),
-          fetch("/api/admin/quotations"),
-        ]);
+        const needsBriefs = !badgeCounts || badgeCounts.newBriefs === undefined;
+        const needsCareers = !badgeCounts || badgeCounts.newCareers === undefined;
+        const needsQuotes = !badgeCounts || badgeCounts.totalQuotes === undefined;
 
-        let newB = 0;
-        let newC = 0;
-        let totQ = 0;
+        const promises: Promise<any>[] = [];
+        if (needsBriefs) promises.push(fetch("/api/admin/briefs"));
+        if (needsCareers) promises.push(fetch("/api/admin/careers"));
+        if (needsQuotes) promises.push(fetch("/api/admin/quotations"));
 
-        if (briefsRes.status === "fulfilled" && briefsRes.value.ok) {
-          const bJson = await briefsRes.value.json();
-          if (bJson.success && Array.isArray(bJson.data)) {
-            newB = bJson.data.filter((b: any) => b.status === "new").length;
+        const results = await Promise.allSettled(promises);
+        let resIdx = 0;
+
+        let newB = badgeCounts?.newBriefs ?? _adminBadgeCache?.data.newBriefs ?? 0;
+        let newC = badgeCounts?.newCareers ?? _adminBadgeCache?.data.newCareers ?? 0;
+        let totQ = badgeCounts?.totalQuotes ?? _adminBadgeCache?.data.totalQuotes ?? 0;
+
+        if (needsBriefs) {
+          const r = results[resIdx++];
+          if (r && r.status === "fulfilled" && r.value.ok) {
+            const bJson = await r.value.json();
+            if (bJson.success && Array.isArray(bJson.data)) {
+              newB = bJson.data.filter((b: any) => b.status === "new").length;
+            }
           }
         }
 
-        if (careersRes.status === "fulfilled" && careersRes.value.ok) {
-          const cJson = await careersRes.value.json();
-          if (cJson.success && Array.isArray(cJson.data)) {
-            newC = cJson.data.filter((c: any) => c.status === "new").length;
+        if (needsCareers) {
+          const r = results[resIdx++];
+          if (r && r.status === "fulfilled" && r.value.ok) {
+            const cJson = await r.value.json();
+            if (cJson.success && Array.isArray(cJson.data)) {
+              newC = cJson.data.filter((c: any) => c.status === "new").length;
+            }
           }
         }
 
-        if (quotesRes.status === "fulfilled" && quotesRes.value.ok) {
-          const qJson = await quotesRes.value.json();
-          if (qJson.success && Array.isArray(qJson.data)) {
-            totQ = qJson.data.length;
+        if (needsQuotes) {
+          const r = results[resIdx++];
+          if (r && r.status === "fulfilled" && r.value.ok) {
+            const qJson = await r.value.json();
+            if (qJson.success && Array.isArray(qJson.data)) {
+              totQ = qJson.data.length;
+            }
           }
         }
+
+        const counts = {
+          newBriefs: newB,
+          newCareers: newC,
+          totalQuotes: totQ,
+        };
+        _adminBadgeCache = { data: counts, timestamp: Date.now() };
 
         if (isMounted) {
-          setInternalBadges({
-            newBriefs: newB,
-            newCareers: newC,
-            totalQuotes: totQ,
-          });
+          setInternalBadges(counts);
         }
       } catch {
         // Silently fail if unauthenticated or offline
@@ -109,8 +175,16 @@ export default function AdminNavbar({
     };
 
     fetchCounters();
+
+    const handleCustomRefresh = () => {
+      _adminBadgeCache = null;
+      fetchCounters();
+    };
+    window.addEventListener("digigrantha-refresh-badges", handleCustomRefresh);
+
     return () => {
       isMounted = false;
+      window.removeEventListener("digigrantha-refresh-badges", handleCustomRefresh);
     };
   }, [badgeCounts]);
 
@@ -147,7 +221,12 @@ export default function AdminNavbar({
       id: "briefs",
       label: "Inbound Briefs",
       shortLabel: "Briefs",
-      icon: "📥",
+      icon: (
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="22 12 16 12 14 15 10 15 8 12 2 12" />
+          <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />
+        </svg>
+      ),
       href: "/admin?tab=briefs",
       tabKey: "briefs",
       badge: internalBadges.newBriefs > 0 ? internalBadges.newBriefs : null,
@@ -158,7 +237,13 @@ export default function AdminNavbar({
       id: "portalProjects",
       label: "Client Builds",
       shortLabel: "Builds",
-      icon: "🚀",
+      icon: (
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <polygon points="12 2 2 7 12 12 22 7 12 2" />
+          <polyline points="2 17 12 22 22 17" />
+          <polyline points="2 12 12 17 22 12" />
+        </svg>
+      ),
       href: "/admin?tab=portalProjects",
       tabKey: "portalProjects",
       category: "operations",
@@ -167,7 +252,16 @@ export default function AdminNavbar({
       id: "quotations",
       label: "Quotes & Estimator",
       shortLabel: "Quotes",
-      icon: "🧮",
+      icon: (
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="4" y="2" width="16" height="20" rx="2" />
+          <line x1="8" y1="6" x2="16" y2="6" />
+          <line x1="16" y1="14" x2="16" y2="18" />
+          <path d="M16 10h.01" />
+          <path d="M12 10h.01" />
+          <path d="M8 10h.01" />
+        </svg>
+      ),
       href: pathname === "/admin" ? "/admin?tab=quotations" : "/admin/quotations",
       tabKey: "quotations",
       badge: internalBadges.totalQuotes > 0 ? internalBadges.totalQuotes : null,
@@ -178,7 +272,13 @@ export default function AdminNavbar({
       id: "invoices",
       label: "Invoices & Billing",
       shortLabel: "Invoices",
-      icon: "🧾",
+      icon: (
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z" />
+          <line x1="8" y1="8" x2="16" y2="8" />
+          <line x1="8" y1="12" x2="16" y2="12" />
+        </svg>
+      ),
       href: "/admin/invoices",
       category: "operations",
     },
@@ -186,7 +286,12 @@ export default function AdminNavbar({
       id: "careers",
       label: "Careers & Talent",
       shortLabel: "Careers",
-      icon: "💼",
+      icon: (
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+          <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+        </svg>
+      ),
       href: pathname === "/admin" ? "/admin?tab=careers" : "/admin/careers",
       tabKey: "careers",
       badge: internalBadges.newCareers > 0 ? internalBadges.newCareers : null,
@@ -197,7 +302,14 @@ export default function AdminNavbar({
       id: "team",
       label: "Studio Team",
       shortLabel: "Team",
-      icon: "👥",
+      icon: (
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+          <circle cx="9" cy="7" r="4" />
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+          <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+        </svg>
+      ),
       href: "/admin/team",
       tabKey: "team",
       category: "talent",
@@ -206,7 +318,12 @@ export default function AdminNavbar({
       id: "developers",
       label: "Dev Roster",
       shortLabel: "Devs",
-      icon: "🛡️",
+      icon: (
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="16 18 22 12 16 6" />
+          <polyline points="8 6 2 12 8 18" />
+        </svg>
+      ),
       href: "/admin/developers",
       tabKey: "developers",
       category: "talent",
@@ -215,15 +332,27 @@ export default function AdminNavbar({
       id: "case-studies",
       label: "Case Studies",
       shortLabel: "Work CMS",
-      icon: "🎨",
+      icon: (
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2" />
+          <line x1="3" y1="9" x2="21" y2="9" />
+          <line x1="9" y1="21" x2="9" y2="9" />
+        </svg>
+      ),
       href: "/admin/case-studies",
       category: "content",
     },
     {
       id: "trust",
       label: "Site Content & Trust",
-      shortLabel: "Content",
-      icon: "🌐",
+      shortLabel: "Trust CMS",
+      icon: (
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="2" y1="12" x2="22" y2="12" />
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+        </svg>
+      ),
       href: "/admin?tab=trust",
       tabKey: "trust",
       category: "content",

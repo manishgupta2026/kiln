@@ -1,11 +1,64 @@
 import type { NextConfig } from "next";
 import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
 
-initOpenNextCloudflareForDev();
+if (process.env.NODE_ENV === "development" && process.argv.some((arg) => arg.includes("dev"))) {
+  initOpenNextCloudflareForDev();
+}
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  serverExternalPackages: ["@prisma/client", ".prisma/client"],
+  compress: true,
+  poweredByHeader: false,
+  compiler: {
+    removeConsole:
+      process.env.NODE_ENV === "production" ? { exclude: ["error", "warn"] } : false,
+  },
+  images: {
+    formats: ["image/avif", "image/webp"],
+    minimumCacheTTL: 31536000,
+  },
+  serverExternalPackages: [
+    "@prisma/client",
+    ".prisma/client",
+    "@neondatabase/serverless",
+    "@prisma/adapter-neon",
+    "ws",
+    "bufferutil",
+  ],
+  experimental: {
+    optimizePackageImports: ["@vercel/analytics", "jose", "bcryptjs"],
+  },
+  async headers() {
+    return [
+      {
+        source: "/photos/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=86400, stale-while-revalidate=604800",
+          },
+        ],
+      },
+      {
+        source: "/projects/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=86400, stale-while-revalidate=604800",
+          },
+        ],
+      },
+      {
+        source: "/:file((?:favicon\\.ico|signature\\.png))",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=86400, stale-while-revalidate=604800",
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;

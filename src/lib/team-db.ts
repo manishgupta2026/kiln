@@ -57,14 +57,16 @@ export async function getTeamMembers(): Promise<TeamMemberRecord[]> {
     return fallback;
   }
 
+  let timer: any;
   try {
-    const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error("Database query timed out")), 1500)
-    );
+    const timeoutPromise = new Promise((_, reject) => {
+      timer = setTimeout(() => reject(new Error("Database query timed out")), 1500);
+    });
     const dbQuery = prisma.teamMember.findMany({
       orderBy: [{ displayOrder: "asc" }, { createdAt: "asc" }],
     });
     const items: any = await Promise.race([dbQuery, timeoutPromise]);
+    if (timer) clearTimeout(timer);
 
     const formatted: TeamMemberRecord[] = items.map((item: any) => {
       let name = item.name;
@@ -101,6 +103,8 @@ export async function getTeamMembers(): Promise<TeamMemberRecord[]> {
     const fallback = getLocalFallback();
     cachedTeam = { data: fallback, timestamp: now };
     return fallback;
+  } finally {
+    if (timer) clearTimeout(timer);
   }
 }
 

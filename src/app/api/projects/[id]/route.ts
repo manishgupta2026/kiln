@@ -12,13 +12,8 @@ export async function GET(
   }
 
   const { id } = await params;
-  const { allowed, project } = await canAccessProject(user, id);
 
-  if (!allowed || !project) {
-    return NextResponse.json({ success: false, error: "Project not found or access denied." }, { status: 404 });
-  }
-
-  // Include full details, latest updates, tickets, milestones, call requests
+  // Single-query fetch: retrieve project with all relations in 1 DB roundtrip
   const fullProject = await prisma.project.findUnique({
     where: { id },
     include: {
@@ -49,6 +44,26 @@ export async function GET(
       brief: true,
     },
   });
+
+  if (!fullProject) {
+    return NextResponse.json({ success: false, error: "Project not found or access denied." }, { status: 404 });
+  }
+
+  // Authorization check in-memory without duplicate DB query
+  let isAllowed = false;
+  if (user.role === "ADMIN") {
+    isAllowed = true;
+  } else if (user.role === "CLIENT") {
+    isAllowed = fullProject.clientId === user.userId;
+  } else if (user.role === "DEVELOPER") {
+    isAllowed = fullProject.developers.some(
+      (d: any) => d.developerId === user.userId || d.developer?.id === user.userId
+    );
+  }
+
+  if (!isAllowed) {
+    return NextResponse.json({ success: false, error: "Project not found or access denied." }, { status: 404 });
+  }
 
   return NextResponse.json({ success: true, project: fullProject });
 }

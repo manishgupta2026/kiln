@@ -26,6 +26,8 @@ yarn-error.log*
 # Local env files - KEEP SECRETS OUT OF GIT
 .env
 .env*.local
+.env.staging*
+.dev.vars*
 
 # Vercel
 .vercel

@@ -8,8 +8,18 @@ import { TrustSectionConfig, TrustSlot } from "@/lib/content-db";
 import { TeamMemberRecord } from "@/lib/team-db";
 import { CareerApplicationRecord } from "@/lib/careers-db";
 import { ProjectQuotationRecord, QuotationLineItem } from "@/lib/quotations-db";
-import ProjectEstimator, { EstimationResult } from "@/components/ProjectEstimator";
+import type { EstimationResult } from "@/components/ProjectEstimator";
+import dynamic from "next/dynamic";
 import AdminNavbar from "@/components/AdminNavbar";
+
+const ProjectEstimator = dynamic(() => import("@/components/ProjectEstimator"), {
+  ssr: false,
+  loading: () => (
+    <div style={{ padding: "40px 20px", textAlign: "center", color: "var(--muted)" }}>
+      Loading Project Estimator...
+    </div>
+  ),
+});
 
 interface BriefItem {
   id: string;
@@ -54,6 +64,8 @@ export default function AdminDashboardPage() {
   const [briefs, setBriefs] = useState<BriefItem[]>([]);
   const [loadingBriefs, setLoadingBriefs] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [briefSearch, setBriefSearch] = useState("");
+  const [briefStatusFilter, setBriefStatusFilter] = useState("all");
 
   // Portal Projects State
   const [portalProjects, setPortalProjects] = useState<ClientPortalProject[]>([]);
@@ -73,6 +85,7 @@ export default function AdminDashboardPage() {
   const [loadingTrust, setLoadingTrust] = useState(true);
   const [savingTrust, setSavingTrust] = useState(false);
   const [trustSuccessMsg, setTrustSuccessMsg] = useState<string | null>(null);
+  const [trustErrorMsg, setTrustErrorMsg] = useState<string | null>(null);
 
   // Showcase Projects State
   const [projectsList, setProjectsList] = useState<Project[]>([]);
@@ -303,53 +316,57 @@ export default function AdminDashboardPage() {
   }, []);
 
   const handleConvertEstimateToQuote = (est: EstimationResult) => {
+    if (!est) return;
     const isRupee = est.currency === "INR";
-    setQCurrency(est.currency);
-    setQProjectTitle(`${est.archetype.name} — Full Build`);
+    setQCurrency(est.currency || "INR");
+    setQProjectTitle(`${est.archetype?.name || "Project"} — Full Build`);
     setQOverview(
-      `Bespoke engineering and design scope for ${est.archetype.name}.\n` +
-      `Includes full design fidelity (${est.designTier.name}), core functional modules, and production deployment on modern cloud architecture.`
+      `Bespoke engineering and design scope for ${est.archetype?.name || "the project"}.\n` +
+      `Includes full design fidelity (${est.designTier?.name || "Bespoke"}), core functional modules, and production deployment on modern cloud architecture.`
     );
-    setQTimeline(est.timelineWeeks);
+    setQTimeline(est.timelineWeeks || "4 – 6 Weeks");
     setQPaymentSchedule("40% Advance Deposit upon contract signing, 40% upon Staging Feature-Complete, 20% on Final Production Handover.");
-    setQTechStack(est.archetype.defaultStack.join(", "));
+    setQTechStack(est.archetype?.defaultStack?.join(", ") || "Next.js, TypeScript, Tailwind CSS");
 
     const items: QuotationLineItem[] = [
       {
         id: "base_arch",
-        title: `${est.archetype.name} — Core Architecture`,
-        description: est.archetype.description,
-        hours: est.archetype.baseHours,
-        amount: isRupee ? est.archetype.baseInr : est.archetype.baseUsd,
+        title: `${est.archetype?.name || "Base"} — Core Architecture`,
+        description: est.archetype?.description || "Foundation architecture and layout",
+        hours: est.archetype?.baseHours || 40,
+        amount: isRupee ? (est.archetype?.baseInr || 0) : (est.archetype?.baseUsd || 0),
       },
     ];
 
-    if (est.designTier.inr > 0 || est.designTier.usd > 0) {
+    if (est.designTier && (est.designTier.inr > 0 || est.designTier.usd > 0)) {
       items.push({
         id: "design_system",
         title: `Design System: ${est.designTier.name}`,
-        description: est.designTier.description,
+        description: est.designTier.description || "Custom design system",
         hours: 20,
         amount: isRupee ? est.designTier.inr : est.designTier.usd,
       });
     }
 
-    est.selectedFeatures.forEach((feat) => {
-      items.push({
-        id: `feat_${feat.id}`,
-        title: feat.name,
-        description: feat.description,
-        hours: feat.hours,
-        amount: isRupee ? feat.inr : feat.usd,
+    if (Array.isArray(est.selectedFeatures)) {
+      est.selectedFeatures.forEach((feat) => {
+        items.push({
+          id: `feat_${feat.id}`,
+          title: feat.name,
+          description: feat.description || "",
+          hours: feat.hours || 0,
+          amount: isRupee ? feat.inr : feat.usd,
+        });
       });
-    });
+    }
 
-    if (est.maintenancePrice > 0) {
+    if (est.maintenancePrice && est.maintenancePrice > 0) {
       items.push({
         id: "maintenance",
-        title: est.maintenanceOption.name,
-        description: est.maintenanceOption.description,
-        amount: est.maintenancePrice,
+        title: est.maintenanceOption?.name || "Maintenance & SLA",
+        description: est.maintenanceOption?.description || "Ongoing maintenance & support",
+        hours: 0,
+        amount: Math.round(est.maintenancePrice),
       });
     }
 
@@ -689,6 +706,7 @@ export default function AdminDashboardPage() {
     if (!trustConfig) return;
     setSavingTrust(true);
     setTrustSuccessMsg(null);
+    setTrustErrorMsg(null);
 
     try {
       const res = await fetch("/api/admin/content/trust", {
@@ -701,9 +719,13 @@ export default function AdminDashboardPage() {
         setTrustConfig(data.data);
         setTrustSuccessMsg("✓ All Trust section settings saved successfully! Live on website.");
         setTimeout(() => setTrustSuccessMsg(null), 5000);
+      } else {
+        setTrustErrorMsg(data.error || "Failed to save settings. Please verify you are logged in as admin.");
+        setTimeout(() => setTrustErrorMsg(null), 6000);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to save trust config:", err);
+      setTrustErrorMsg(`Failed to save: ${err.message || String(err)}`);
     } finally {
       setSavingTrust(false);
     }
@@ -715,6 +737,8 @@ export default function AdminDashboardPage() {
       id: `slot_${Date.now()}`,
       label: "New Company",
       isHighlighted: false,
+      logo: null,
+      bgStyle: "clear",
     };
     setTrustConfig({
       ...trustConfig,
@@ -738,13 +762,49 @@ export default function AdminDashboardPage() {
     });
   };
 
-  const handleSlotHighlightToggle = (id: string) => {
+  const handleSlotBgStyleChange = (id: string, bgStyle: "clear" | "white" | "mint" | "default") => {
     if (!trustConfig) return;
     setTrustConfig({
       ...trustConfig,
       slots: trustConfig.slots.map((s) =>
-        s.id === id ? { ...s, isHighlighted: !s.isHighlighted } : s
+        s.id === id ? { ...s, bgStyle, isHighlighted: bgStyle === "mint" } : s
       ),
+    });
+  };
+
+  const handleSlotLogoChange = (id: string, logo: string | null) => {
+    if (!trustConfig) return;
+    setTrustConfig({
+      ...trustConfig,
+      slots: trustConfig.slots.map((s) => (s.id === id ? { ...s, logo } : s)),
+    });
+  };
+
+  const handleSlotLogoUpload = (id: string, file: File) => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const dataUrl = e.target?.result as string;
+      if (dataUrl) {
+        handleSlotLogoChange(id, dataUrl);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSlotHighlightToggle = (id: string) => {
+    if (!trustConfig) return;
+    setTrustConfig({
+      ...trustConfig,
+      slots: trustConfig.slots.map((s) => {
+        if (s.id !== id) return s;
+        const willBeHighlighted = !s.isHighlighted;
+        return {
+          ...s,
+          isHighlighted: willBeHighlighted,
+          bgStyle: willBeHighlighted ? "mint" : "clear",
+        };
+      }),
     });
   };
 
@@ -977,6 +1037,18 @@ export default function AdminDashboardPage() {
   const totalCareers = careerApps.length;
   const newCareers = careerApps.filter((a) => a.status === "new").length;
 
+  const filteredBriefs = briefs.filter((brief) => {
+    if (briefStatusFilter !== "all" && brief.status !== briefStatusFilter) return false;
+    if (!briefSearch.trim()) return true;
+    const q = briefSearch.toLowerCase();
+    return (
+      brief.name.toLowerCase().includes(q) ||
+      brief.email.toLowerCase().includes(q) ||
+      (brief.description || "").toLowerCase().includes(q) ||
+      (brief.projectType || "").toLowerCase().includes(q)
+    );
+  });
+
   return (
     <>
       <AdminNavbar
@@ -992,257 +1064,293 @@ export default function AdminDashboardPage() {
       />
 
       <div className="admin-wrap">
-        {/* Top Header */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "flex-end",
-            marginBottom: "24px",
-            flexWrap: "wrap",
-            gap: "12px",
-          }}
-        >
+        {/* Dynamic Section Header */}
+        <div className="admin-header-panel">
           <div>
-            <h1 className="admin-title" style={{ margin: 0 }}>
-              Digigrantha <span>Admin Studio</span>
-            </h1>
-            <div style={{ fontFamily: "var(--mono)", fontSize: "12px", color: "var(--muted)", marginTop: "4px" }}>
-              Client Portal Hub, Engineering Roster &amp; Live Site CMS
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
+              <span className="admin-nav-pulse-dot" />
+              <span style={{ fontFamily: "var(--mono)", fontSize: "11px", fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                Admin Studio · {activeTab === "briefs" || activeTab === "portalProjects" || activeTab === "quotations" ? "Operations" : activeTab === "trust" ? "Content CMS" : "Talent"}
+              </span>
             </div>
+            <h1 className="admin-header-title">
+              {activeTab === "briefs" && "Inbound Client Briefs"}
+              {activeTab === "portalProjects" && "Active Client Builds"}
+              {activeTab === "developers" && "Engineering Team Roster"}
+              {activeTab === "trust" && "Client Proof & Trust Wall"}
+              {activeTab === "team" && "Studio Team (About)"}
+              {activeTab === "careers" && "Careers & Talent Pipeline"}
+              {activeTab === "quotations" && "Estimates & Quotations"}
+            </h1>
+            <p className="admin-header-subtitle">
+              {activeTab === "briefs" && "Review project inquiries, schedule discovery calls, and convert qualified leads into client portal builds."}
+              {activeTab === "portalProjects" && "Track active production builds, milestone deliverables, repositories, and private client portal access."}
+              {activeTab === "developers" && "Manage internal engineering roster, developer access credentials, and portal assignments."}
+              {activeTab === "trust" && "Manage client logos, testimonial slots, and visibility for the 'Who we've worked with' section."}
+              {activeTab === "team" && "Curate studio team members, roles, display order, and profiles displayed on the public About page."}
+              {activeTab === "careers" && "Review incoming talent applications, resume links, domain skills, and interview pipeline stages."}
+              {activeTab === "quotations" && "Calculate, customize, and issue comprehensive client price proposals with dual-currency support."}
+            </p>
           </div>
 
-          <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+          <div className="admin-header-actions">
             <Link
               href="/"
               target="_blank"
-              style={{
-                fontFamily: "var(--mono)",
-                fontSize: "11.5px",
-                color: "var(--muted)",
-                padding: "6px 12px",
-                border: "1px solid var(--line)",
-                borderRadius: "6px",
-                background: "var(--card)",
-                textDecoration: "none",
-              }}
+              className="admin-btn"
+              title="Open public website in a new tab"
             >
-              Public Site ↗
+              <span>Public Site</span>
+              <span style={{ fontSize: "11px", opacity: 0.6 }}>↗</span>
             </Link>
+
+            {activeTab === "developers" && (
+              <button
+                type="button"
+                onClick={() => setShowInviteDevModal(true)}
+                className="admin-btn admin-btn-primary"
+              >
+                + Invite Developer
+              </button>
+            )}
+
+            {activeTab === "team" && (
+              <button
+                type="button"
+                onClick={() => {
+                  setEditingTeamMember(null);
+                  setTeamForm({ name: "", role: "", avatar: "", bio: "", displayOrder: teamMembers.length + 1 });
+                  setShowTeamModal(true);
+                }}
+                className="admin-btn admin-btn-primary"
+              >
+                + Add Member
+              </button>
+            )}
           </div>
         </div>
 
-        {/* Tabs Navigation */}
-      <div style={{ display: "flex", gap: "10px", marginBottom: "28px", borderBottom: "1px solid var(--line)", paddingBottom: "12px", flexWrap: "wrap" }}>
-        <button
-          type="button"
-          onClick={() => setActiveTab("briefs")}
-          className={`chip ${activeTab === "briefs" ? "active" : ""}`}
-          style={{ display: "flex", alignItems: "center", gap: "8px" }}
-        >
-          <span>📥 Inbound Briefs</span>
-          {newBriefs > 0 && (
-            <span style={{ background: "#c93b2b", color: "#fff", padding: "1px 7px", borderRadius: "999px", fontSize: "10px" }}>
-              {newBriefs}
-            </span>
-          )}
-        </button>
+        {/* Categorized Subnav Pill Switcher */}
+        <div className="admin-subnav-wrap">
+          <div className="admin-subnav-categories">
+            {/* Group 1: Operations */}
+            <div className="admin-subnav-group">
+              <span className="admin-subnav-group-label">Operations</span>
+              <button
+                type="button"
+                onClick={() => setActiveTab("briefs")}
+                className={`admin-tab-chip ${activeTab === "briefs" ? "active" : ""}`}
+              >
+                <span>Briefs</span>
+                {newBriefs > 0 ? (
+                  <span className="chip-alert">{newBriefs}</span>
+                ) : (
+                  <span className="chip-count">({totalBriefs})</span>
+                )}
+              </button>
 
-        <button
-          type="button"
-          onClick={() => setActiveTab("portalProjects")}
-          className={`chip ${activeTab === "portalProjects" ? "active" : ""}`}
-          style={{ display: "flex", alignItems: "center", gap: "8px" }}
-        >
-          <span>🚀 Active Client Builds</span>
-          <span style={{ fontSize: "11px", color: "var(--muted)" }}>
-            ({portalProjects.length})
-          </span>
-        </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("portalProjects")}
+                className={`admin-tab-chip ${activeTab === "portalProjects" ? "active" : ""}`}
+              >
+                <span>Builds</span>
+                <span className="chip-count">({portalProjects.length})</span>
+              </button>
 
-        <button
-          type="button"
-          onClick={() => setActiveTab("developers")}
-          className={`chip ${activeTab === "developers" ? "active" : ""}`}
-          style={{ display: "flex", alignItems: "center", gap: "8px" }}
-        >
-          <span>👥 Engineering Team</span>
-          <span style={{ fontSize: "11px", color: "var(--muted)" }}>
-            ({developers.length})
-          </span>
-        </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("quotations")}
+                className={`admin-tab-chip ${activeTab === "quotations" ? "active" : ""}`}
+              >
+                <span>Quotes</span>
+                <span className="chip-count">({quotationsList.length})</span>
+              </button>
 
-        <button
-          type="button"
-          onClick={() => setActiveTab("trust")}
-          className={`chip ${activeTab === "trust" ? "active" : ""}`}
-          style={{ display: "flex", alignItems: "center", gap: "8px" }}
-        >
-          <span>🏢 Trust CMS</span>
-          <span style={{ fontSize: "10px", padding: "2px 6px", borderRadius: "4px", background: trustConfig?.enabled ? "var(--accent-soft)" : "#eae7dd", color: trustConfig?.enabled ? "var(--accent)" : "var(--muted)" }}>
-            {trustConfig?.enabled ? "LIVE" : "OFF"}
-          </span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab("team")}
-          className={`chip ${activeTab === "team" ? "active" : ""}`}
-          style={{ display: "flex", alignItems: "center", gap: "8px" }}
-        >
-          <span>👥 Studio Team (About)</span>
-          <span style={{ fontSize: "11px", color: "var(--muted)" }}>
-            ({teamMembers.length})
-          </span>
-        </button>
-
-        <Link
-          href="/admin/case-studies"
-          className="chip"
-          style={{ display: "flex", alignItems: "center", gap: "8px", textDecoration: "none" }}
-        >
-          <span>🎨 Case Studies</span>
-          <span style={{ fontSize: "11px", color: "var(--accent)" }}>
-            ↗
-          </span>
-        </Link>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab("careers")}
-          className={`chip ${activeTab === "careers" ? "active" : ""}`}
-          style={{ display: "flex", alignItems: "center", gap: "8px" }}
-        >
-          <span>💼 Careers & Talent</span>
-          {newCareers > 0 ? (
-            <span style={{ background: "#c93b2b", color: "#fff", padding: "1px 7px", borderRadius: "999px", fontSize: "10px" }}>
-              {newCareers}
-            </span>
-          ) : (
-            <span style={{ fontSize: "11px", color: "var(--muted)" }}>
-              ({careerApps.length})
-            </span>
-          )}
-        </button>
-
-        <Link
-          href="/admin/team"
-          className="chip"
-          style={{ display: "flex", alignItems: "center", gap: "8px", textDecoration: "none" }}
-          title="Open Dedicated Team CMS Page"
-        >
-          <span>Team Studio Page</span>
-          <span style={{ fontSize: "11px", color: "var(--accent)" }}>
-            ↗
-          </span>
-        </Link>
-
-        <Link
-          href="/admin/careers"
-          className="chip"
-          style={{ display: "flex", alignItems: "center", gap: "8px", textDecoration: "none" }}
-          title="Open Dedicated Careers Management Page"
-        >
-          <span>Careers Studio</span>
-          <span style={{ fontSize: "11px", color: "var(--accent)" }}>
-            ↗
-          </span>
-        </Link>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab("quotations")}
-          className={`chip ${activeTab === "quotations" ? "active" : ""}`}
-          style={{ display: "flex", alignItems: "center", gap: "8px" }}
-        >
-          <span>🧮 Quotes &amp; Estimator</span>
-          <span style={{ fontSize: "11px", color: "var(--muted)" }}>
-            ({quotationsList.length})
-          </span>
-        </button>
-
-        <Link
-          href="/admin/quotations"
-          className="chip"
-          style={{ display: "flex", alignItems: "center", gap: "8px", textDecoration: "none" }}
-          title="Open Dedicated Quotations & Indian Market Price Estimator"
-        >
-          <span>Quotations Studio</span>
-          <span style={{ fontSize: "11px", color: "var(--accent)" }}>
-            ↗
-          </span>
-        </Link>
-
-        <Link
-          href="/admin/invoices"
-          className="chip"
-          style={{ display: "flex", alignItems: "center", gap: "8px", textDecoration: "none" }}
-          title="Open Dedicated Invoices & Billing Management"
-        >
-          <span>🧾 Invoices &amp; Billing</span>
-          <span style={{ fontSize: "11px", color: "var(--accent)" }}>
-            ↗
-          </span>
-        </Link>
-      </div>
-
-      {/* ================= TAB 1: INBOUND BRIEFS ================= */}
-      {activeTab === "briefs" && (
-        <div>
-          <div className="admin-stats">
-            <div className="admin-stat-card">
-              <div className="admin-stat-label">Total Submissions</div>
-              <div className="admin-stat-val">{totalBriefs}</div>
+              <Link
+                href="/admin/invoices"
+                className="admin-tab-chip"
+                title="Dedicated Invoices Management"
+              >
+                <span>Invoices</span>
+                <span style={{ fontSize: "11px", opacity: 0.7 }}>↗</span>
+              </Link>
             </div>
-            <div className="admin-stat-card">
-              <div className="admin-stat-label">New / Unreviewed</div>
-              <div className="admin-stat-val" style={{ color: "#c93b2b" }}>
-                {newBriefs}
-              </div>
+
+            {/* Group 2: Talent */}
+            <div className="admin-subnav-group">
+              <span className="admin-subnav-group-label">Talent</span>
+              <button
+                type="button"
+                onClick={() => setActiveTab("careers")}
+                className={`admin-tab-chip ${activeTab === "careers" ? "active" : ""}`}
+              >
+                <span>Careers</span>
+                {newCareers > 0 ? (
+                  <span className="chip-alert">{newCareers}</span>
+                ) : (
+                  <span className="chip-count">({careerApps.length})</span>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab("developers")}
+                className={`admin-tab-chip ${activeTab === "developers" ? "active" : ""}`}
+              >
+                <span>Developers</span>
+                <span className="chip-count">({developers.length})</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab("team")}
+                className={`admin-tab-chip ${activeTab === "team" ? "active" : ""}`}
+              >
+                <span>Team</span>
+                <span className="chip-count">({teamMembers.length})</span>
+              </button>
             </div>
-            <div className="admin-stat-card">
-              <div className="admin-stat-label">Converted to Builds</div>
-              <div className="admin-stat-val" style={{ color: "var(--accent)" }}>
-                {convertedBriefs}
-              </div>
+
+            {/* Group 3: Site Content */}
+            <div className="admin-subnav-group">
+              <span className="admin-subnav-group-label">Content</span>
+              <button
+                type="button"
+                onClick={() => setActiveTab("trust")}
+                className={`admin-tab-chip ${activeTab === "trust" ? "active" : ""}`}
+              >
+                <span>Trust &amp; Logos</span>
+                <span
+                  style={{
+                    fontSize: "9.5px",
+                    padding: "1px 6px",
+                    borderRadius: "4px",
+                    background: trustConfig?.enabled ? "var(--accent-soft)" : "#eae7dd",
+                    color: trustConfig?.enabled ? "var(--accent)" : "var(--muted)",
+                    fontWeight: 700,
+                  }}
+                >
+                  {trustConfig?.enabled ? "LIVE" : "OFF"}
+                </span>
+              </button>
+
+              <Link
+                href="/admin/case-studies"
+                className="admin-tab-chip"
+                title="Dedicated Case Studies CMS"
+              >
+                <span>Case Studies</span>
+                <span style={{ fontSize: "11px", opacity: 0.7 }}>↗</span>
+              </Link>
             </div>
           </div>
+        </div>
 
-          {loadingBriefs ? (
-            <div style={{ padding: "40px 0", textAlign: "center", fontFamily: "var(--mono)", color: "var(--muted)" }}>
-              Loading briefs...
+        {/* ================= TAB 1: INBOUND BRIEFS ================= */}
+        {activeTab === "briefs" && (
+          <div>
+            <div className="admin-stats">
+              <div className="admin-stat-card">
+                <div className="admin-stat-label">Total Submissions</div>
+                <div className="admin-stat-val">{totalBriefs}</div>
+              </div>
+              <div className="admin-stat-card">
+                <div className="admin-stat-label">New / Unreviewed</div>
+                <div className="admin-stat-val" style={{ color: "#c93b2b" }}>
+                  {newBriefs}
+                </div>
+              </div>
+              <div className="admin-stat-card">
+                <div className="admin-stat-label">Converted to Builds</div>
+                <div className="admin-stat-val" style={{ color: "var(--accent)" }}>
+                  {convertedBriefs}
+                </div>
+              </div>
             </div>
-          ) : briefs.length === 0 ? (
-            <div
-              style={{
-                background: "var(--card)",
-                padding: "48px 24px",
-                textAlign: "center",
-                borderRadius: "14px",
-                border: "1px solid var(--line)",
-              }}
-            >
-              <p style={{ fontFamily: "var(--display)", fontSize: "22px", color: "var(--ink)" }}>
-                No briefs submitted yet.
-              </p>
+
+            {/* Briefs Search & Filter Toolbar */}
+            <div className="admin-toolbar">
+              <div className="admin-search-box">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: "var(--muted)" }}>
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+                <input
+                  type="text"
+                  placeholder="Search briefs by client, email, or project..."
+                  value={briefSearch}
+                  onChange={(e) => setBriefSearch(e.target.value)}
+                />
+                {briefSearch && (
+                  <button
+                    type="button"
+                    onClick={() => setBriefSearch("")}
+                    style={{ background: "none", border: "none", color: "var(--muted)", cursor: "pointer", fontSize: "12px" }}
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+
+              <div className="admin-filter-pills">
+                {[
+                  { id: "all", label: "All Briefs", count: totalBriefs },
+                  { id: "new", label: "New", count: newBriefs },
+                  { id: "read", label: "Reviewed", count: readBriefs },
+                  { id: "converted", label: "Converted", count: convertedBriefs },
+                ].map((f) => (
+                  <button
+                    key={f.id}
+                    type="button"
+                    className={`admin-filter-pill ${briefStatusFilter === f.id ? "active" : ""}`}
+                    onClick={() => setBriefStatusFilter(f.id)}
+                  >
+                    {f.label} ({f.count})
+                  </button>
+                ))}
+              </div>
             </div>
-          ) : (
-            <div className="admin-table-wrap">
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>Status</th>
-                    <th>Date</th>
-                    <th>Client</th>
-                    <th>Contact</th>
-                    <th>Type</th>
-                    <th>Budget</th>
-                    <th>Description</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {briefs.map((brief) => {
+
+            {loadingBriefs ? (
+              <div style={{ padding: "40px 0", textAlign: "center", fontFamily: "var(--mono)", color: "var(--muted)" }}>
+                Loading briefs...
+              </div>
+            ) : filteredBriefs.length === 0 ? (
+              <div
+                style={{
+                  background: "var(--surface)",
+                  padding: "48px 24px",
+                  textAlign: "center",
+                  borderRadius: "14px",
+                  border: "2px solid var(--outline)",
+                  boxShadow: "var(--shadow-sm)",
+                }}
+              >
+                <p style={{ fontFamily: "var(--display)", fontSize: "18px", fontWeight: 700, color: "var(--text)", margin: "0 0 6px 0" }}>
+                  {briefs.length === 0 ? "No briefs submitted yet" : "No briefs match your search filter"}
+                </p>
+                <p style={{ fontSize: "13px", color: "var(--muted)", margin: 0 }}>
+                  {briefs.length === 0 ? "Inbound client project briefs will appear here when submitted." : "Try adjusting your search query or switching the status filter."}
+                </p>
+              </div>
+            ) : (
+              <div className="admin-table-wrap">
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Status</th>
+                      <th>Date</th>
+                      <th>Client</th>
+                      <th>Contact</th>
+                      <th>Type</th>
+                      <th>Budget</th>
+                      <th>Description</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredBriefs.map((brief) => {
                     const isExpanded = expandedId === brief.id;
                     const formattedDate = new Date(brief.createdAt).toLocaleDateString("en-US", {
                       day: "numeric",
@@ -1254,31 +1362,7 @@ export default function AdminDashboardPage() {
                     return (
                       <tr key={brief.id}>
                         <td>
-                          <span
-                            className={`admin-status-badge ${brief.status}`}
-                            style={{
-                              background:
-                                brief.status === "converted"
-                                  ? "var(--accent-soft)"
-                                  : brief.status === "call_scheduled"
-                                  ? "#e0e7ff"
-                                  : brief.status === "call_completed"
-                                  ? "#fef3c7"
-                                  : brief.status === "new"
-                                  ? "#fde8e4"
-                                  : "#eae7dd",
-                              color:
-                                brief.status === "converted"
-                                  ? "var(--accent)"
-                                  : brief.status === "call_scheduled"
-                                  ? "#3730a3"
-                                  : brief.status === "call_completed"
-                                  ? "#92400e"
-                                  : brief.status === "new"
-                                  ? "#c93b2b"
-                                  : "var(--muted)",
-                            }}
-                          >
+                          <span className={`admin-status-badge ${brief.status}`}>
                             {brief.status.replace("_", " ")}
                           </span>
                         </td>
@@ -1298,7 +1382,7 @@ export default function AdminDashboardPage() {
                             </a>
                             {brief.phone && (
                               <div style={{ fontFamily: "var(--mono)", fontSize: "11px", color: "var(--muted)" }}>
-                                📞 {brief.phone}
+                                Tel: {brief.phone}
                               </div>
                             )}
                           </div>
@@ -1803,74 +1887,282 @@ export default function AdminDashboardPage() {
                   </button>
                 </div>
 
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: "16px" }}>
-                  {trustConfig.slots.map((slot, index) => (
-                    <div
-                      key={slot.id}
-                      style={{
-                        background: slot.isHighlighted ? "var(--accent-soft)" : "var(--bg)",
-                        border: `1.5px ${slot.isHighlighted ? "solid var(--accent)" : "dashed var(--line)"}`,
-                        borderRadius: "12px",
-                        padding: "16px",
-                        position: "relative",
-                      }}
-                    >
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
-                        <span style={{ fontFamily: "var(--mono)", fontSize: "11px", color: "var(--muted)" }}>
-                          Slot #{index + 1}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveSlot(slot.id)}
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "18px" }}>
+                  {trustConfig.slots.map((slot, index) => {
+                    const currentBg = slot.bgStyle || (slot.isHighlighted ? "mint" : "clear");
+
+                    return (
+                      <div
+                        key={slot.id}
+                        style={{
+                          background: "#ffffff",
+                          border: "1.5px solid var(--line)",
+                          borderRadius: "14px",
+                          padding: "16px",
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "12px",
+                          boxShadow: "0 2px 6px rgba(0,0,0,0.03)",
+                        }}
+                      >
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <span style={{ fontFamily: "var(--mono)", fontSize: "11px", fontWeight: 700, background: "#f0ece1", color: "var(--ink)", padding: "2px 8px", borderRadius: "4px" }}>
+                            Slot #{index + 1}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveSlot(slot.id)}
+                            style={{
+                              background: "none",
+                              border: "none",
+                              color: "#c93b2b",
+                              cursor: "pointer",
+                              fontSize: "12px",
+                              fontFamily: "var(--mono)",
+                              fontWeight: 600,
+                            }}
+                          >
+                            ✕ Delete
+                          </button>
+                        </div>
+
+                        {/* Live Slot Preview Box */}
+                        <div
                           style={{
-                            background: "none",
-                            border: "none",
-                            color: "#c93b2b",
-                            cursor: "pointer",
-                            fontSize: "12px",
-                            fontFamily: "var(--mono)",
+                            minHeight: "88px",
+                            borderRadius: "10px",
+                            padding: "12px",
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            textAlign: "center",
+                            transition: "all 0.15s ease",
+                            background:
+                              currentBg === "clear"
+                                ? "repeating-conic-gradient(#f9f9f9 0% 25%, #f1f1f1 0% 50%) 50% / 12px 12px"
+                                : currentBg === "white"
+                                ? "#ffffff"
+                                : "var(--accent-soft)",
+                            border:
+                              currentBg === "clear"
+                                ? "2px dashed var(--line)"
+                                : currentBg === "white"
+                                ? "2px solid var(--line)"
+                                : "2px solid var(--accent)",
                           }}
                         >
-                          ✕ Delete
-                        </button>
+                          <span style={{ fontSize: "9px", fontFamily: "var(--mono)", color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "4px" }}>
+                            Preview ({currentBg === "clear" ? "Transparent" : currentBg})
+                          </span>
+                          {slot.logo ? (
+                            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "6px", width: "100%", padding: "4px 0" }}>
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img
+                                src={slot.logo}
+                                alt={slot.label || "Logo preview"}
+                                style={{
+                                  maxHeight: "44px",
+                                  maxWidth: "150px",
+                                  objectFit: "contain",
+                                  display: "block",
+                                }}
+                              />
+                              {slot.label && slot.label.trim() !== "" && (
+                                <span style={{ fontSize: "14px", fontFamily: "var(--display)", color: "#17201E", fontWeight: 800, whiteSpace: "pre-line", textAlign: "center", lineHeight: 1.2 }}>
+                                  {slot.label}
+                                </span>
+                              )}
+                            </div>
+                          ) : !slot.label || slot.label === "—" || slot.label.toLowerCase().includes("your logo") ? (
+                            <span style={{ fontSize: "12px", fontFamily: "var(--mono)", color: "var(--muted)", whiteSpace: "pre-line" }}>
+                              {slot.label || "—"}
+                            </span>
+                          ) : (
+                            <span style={{ fontSize: "18px", fontFamily: "var(--display)", color: "#17201E", fontWeight: 800, whiteSpace: "pre-line" }}>
+                              {slot.label}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Logo Upload & URL Option */}
+                        <div style={{ background: "#f8f7f2", padding: "10px", borderRadius: "8px", border: "1px solid var(--line)" }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
+                            <span style={{ fontFamily: "var(--mono)", fontSize: "11px", fontWeight: 700, color: "#17201E" }}>
+                              Company Logo
+                            </span>
+                            {slot.logo && (
+                              <button
+                                type="button"
+                                onClick={() => handleSlotLogoChange(slot.id, null)}
+                                style={{
+                                  background: "none",
+                                  border: "none",
+                                  color: "#c93b2b",
+                                  cursor: "pointer",
+                                  fontSize: "11px",
+                                  fontFamily: "var(--mono)",
+                                  fontWeight: 600,
+                                }}
+                              >
+                                ✕ Remove Logo
+                              </button>
+                            )}
+                          </div>
+
+                          <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                            <label
+                              style={{
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: "6px",
+                                background: "#ffffff",
+                                border: "1.5px solid var(--outline)",
+                                borderRadius: "6px",
+                                padding: "6px 12px",
+                                fontSize: "11px",
+                                fontFamily: "var(--mono)",
+                                cursor: "pointer",
+                                flexShrink: 0,
+                                color: "#17201E",
+                                fontWeight: 700,
+                              }}
+                            >
+                              📁 Upload Logo
+                              <input
+                                type="file"
+                                accept="image/png,image/jpeg,image/svg+xml,image/webp"
+                                style={{ display: "none" }}
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) handleSlotLogoUpload(slot.id, file);
+                                }}
+                              />
+                            </label>
+                            <input
+                              type="text"
+                              value={slot.logo && !slot.logo.startsWith("data:") ? slot.logo : ""}
+                              onChange={(e) => handleSlotLogoChange(slot.id, e.target.value.trim() || null)}
+                              placeholder={slot.logo?.startsWith("data:") ? "Image file attached" : "Or paste logo URL (/logo.svg)"}
+                              style={{
+                                flex: 1,
+                                fontSize: "12px",
+                                fontFamily: "var(--mono)",
+                                padding: "6px 8px",
+                                border: "1.5px solid var(--outline)",
+                                borderRadius: "6px",
+                                background: "#ffffff",
+                                color: "#17201E",
+                                caretColor: "#17201E",
+                                fontWeight: 600,
+                              }}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Slot Label Text */}
+                        <div>
+                          <label style={{ display: "block", fontFamily: "var(--mono)", fontSize: "11px", fontWeight: 700, color: "#17201E", marginBottom: "4px" }}>
+                            Client Name or Placeholder Text:
+                          </label>
+                          <textarea
+                            rows={2}
+                            value={slot.label}
+                            onChange={(e) => handleSlotLabelChange(slot.id, e.target.value)}
+                            placeholder="e.g. Acme Corp or '—'"
+                            style={{
+                              width: "100%",
+                              fontSize: "13px",
+                              fontFamily: "var(--mono)",
+                              padding: "8px 10px",
+                              border: "1.5px solid var(--outline)",
+                              borderRadius: "6px",
+                              background: "#ffffff",
+                              color: "#17201E",
+                              caretColor: "#17201E",
+                              fontWeight: 600,
+                              resize: "vertical",
+                            }}
+                          />
+                        </div>
+
+                        {/* Background Style Options */}
+                        <div>
+                          <span style={{ display: "block", fontFamily: "var(--mono)", fontSize: "11px", fontWeight: 700, color: "#17201E", marginBottom: "6px" }}>
+                            Slot Background:
+                          </span>
+                          <div style={{ display: "flex", gap: "6px" }}>
+                            <button
+                              type="button"
+                              onClick={() => handleSlotBgStyleChange(slot.id, "clear")}
+                              style={{
+                                flex: 1,
+                                padding: "6px 4px",
+                                fontSize: "11px",
+                                fontFamily: "var(--mono)",
+                                borderRadius: "6px",
+                                cursor: "pointer",
+                                border: currentBg === "clear" ? "1.5px solid #17201E" : "1px solid var(--line)",
+                                background: currentBg === "clear" ? "#f4f1ea" : "#ffffff",
+                                fontWeight: currentBg === "clear" ? 700 : 500,
+                                color: "#17201E",
+                              }}
+                            >
+                              ▫️ Clear
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleSlotBgStyleChange(slot.id, "white")}
+                              style={{
+                                flex: 1,
+                                padding: "6px 4px",
+                                fontSize: "11px",
+                                fontFamily: "var(--mono)",
+                                borderRadius: "6px",
+                                cursor: "pointer",
+                                border: currentBg === "white" ? "1.5px solid #17201E" : "1px solid var(--line)",
+                                background: currentBg === "white" ? "#f4f1ea" : "#ffffff",
+                                fontWeight: currentBg === "white" ? 700 : 500,
+                                color: "#17201E",
+                              }}
+                            >
+                              ◻️ White
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleSlotBgStyleChange(slot.id, "mint")}
+                              style={{
+                                flex: 1,
+                                padding: "6px 4px",
+                                fontSize: "11px",
+                                fontFamily: "var(--mono)",
+                                borderRadius: "6px",
+                                cursor: "pointer",
+                                border: currentBg === "mint" ? "1.5px solid #0F5C52" : "1px solid var(--line)",
+                                background: currentBg === "mint" ? "var(--accent-soft)" : "#ffffff",
+                                fontWeight: currentBg === "mint" ? 700 : 500,
+                                color: currentBg === "mint" ? "#0F5C52" : "#17201E",
+                              }}
+                            >
+                              🟩 Mint
+                            </button>
+                          </div>
+                        </div>
                       </div>
-
-                      <textarea
-                        rows={2}
-                        value={slot.label}
-                        onChange={(e) => handleSlotLabelChange(slot.id, e.target.value)}
-                        placeholder="Company name or '—'"
-                        style={{
-                          width: "100%",
-                          fontSize: "13px",
-                          fontFamily: "var(--mono)",
-                          textAlign: "center",
-                          padding: "8px",
-                          border: "1px solid var(--line)",
-                          borderRadius: "6px",
-                          background: "var(--card)",
-                        }}
-                      />
-
-                      <label style={{ display: "flex", alignItems: "center", gap: "6px", marginTop: "10px", cursor: "pointer" }}>
-                        <input
-                          type="checkbox"
-                          checked={!!slot.isHighlighted}
-                          onChange={() => handleSlotHighlightToggle(slot.id)}
-                          style={{ accentColor: "var(--accent)" }}
-                        />
-                        <span style={{ fontFamily: "var(--mono)", fontSize: "11px", color: "var(--ink)" }}>
-                          Accent Highlight Border
-                        </span>
-                      </label>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 
               {trustSuccessMsg && (
                 <div style={{ fontFamily: "var(--mono)", fontSize: "13px", color: "var(--accent)", marginBottom: "16px", background: "var(--accent-soft)", padding: "10px 14px", borderRadius: "6px" }}>
                   ✓ {trustSuccessMsg}
+                </div>
+              )}
+
+              {trustErrorMsg && (
+                <div style={{ fontFamily: "var(--mono)", fontSize: "13px", color: "#c93b2b", marginBottom: "16px", background: "#fdf0ed", border: "1px solid #f8d7da", padding: "10px 14px", borderRadius: "6px" }}>
+                  ✕ {trustErrorMsg}
                 </div>
               )}
 
@@ -2660,21 +2952,21 @@ export default function AdminDashboardPage() {
                   className={`chip ${careerFilterType === "JOB" ? "active" : ""}`}
                   onClick={() => setCareerFilterType("JOB")}
                 >
-                  💼 Jobs ({careerApps.filter((a) => a.type === "JOB").length})
+                  Jobs ({careerApps.filter((a) => a.type === "JOB").length})
                 </button>
                 <button
                   type="button"
                   className={`chip ${careerFilterType === "INTERNSHIP" ? "active" : ""}`}
                   onClick={() => setCareerFilterType("INTERNSHIP")}
                 >
-                  🎓 Internships ({careerApps.filter((a) => a.type === "INTERNSHIP").length})
+                  Internships ({careerApps.filter((a) => a.type === "INTERNSHIP").length})
                 </button>
                 <button
                   type="button"
                   className={`chip ${careerFilterType === "FREELANCING" ? "active" : ""}`}
                   onClick={() => setCareerFilterType("FREELANCING")}
                 >
-                  ⚡ Freelancers ({careerApps.filter((a) => a.type === "FREELANCING").length})
+                  Freelance ({careerApps.filter((a) => a.type === "FREELANCING").length})
                 </button>
               </div>
             </div>

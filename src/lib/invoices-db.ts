@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { prisma, isRealDatabaseConfigured } from "@/lib/prisma";
 import fs from "fs";
 import path from "path";
 import {
@@ -48,6 +48,13 @@ export function generateInvoiceNumber(): string {
 }
 
 export async function getAllInvoices(): Promise<ProjectInvoiceRecord[]> {
+  if (!isRealDatabaseConfigured()) {
+    const local = ensureLocalStore();
+    return local.sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+  }
+
   try {
     if (prisma?.projectInvoice) {
       const records = await prisma.projectInvoice.findMany({
@@ -66,6 +73,11 @@ export async function getAllInvoices(): Promise<ProjectInvoiceRecord[]> {
 }
 
 export async function getInvoiceById(id: string): Promise<ProjectInvoiceRecord | null> {
+  if (!isRealDatabaseConfigured()) {
+    const local = ensureLocalStore();
+    return local.find((inv) => inv.id === id) || null;
+  }
+
   try {
     if (prisma?.projectInvoice) {
       const record = await prisma.projectInvoice.findUnique({
@@ -82,6 +94,11 @@ export async function getInvoiceById(id: string): Promise<ProjectInvoiceRecord |
 }
 
 export async function getInvoiceByToken(token: string): Promise<ProjectInvoiceRecord | null> {
+  if (!isRealDatabaseConfigured()) {
+    const local = ensureLocalStore();
+    return local.find((inv) => inv.viewToken === token) || null;
+  }
+
   try {
     if (prisma?.projectInvoice) {
       const record = await prisma.projectInvoice.findUnique({
@@ -163,6 +180,10 @@ export async function createInvoice(data: {
       return serializePrismaInvoice(created);
     }
   } catch (err: any) {
+    if (isRealDatabaseConfigured()) {
+      console.error("[Database Error] Failed to persist invoice to PostgreSQL:", err.message);
+      throw err;
+    }
     console.warn("Prisma projectInvoice.create failed, falling back to local file:", err.message);
   }
 
@@ -228,6 +249,10 @@ export async function updateInvoice(
       return serializePrismaInvoice(updated);
     }
   } catch (err: any) {
+    if (isRealDatabaseConfigured()) {
+      console.error("[Database Error] Failed to update invoice in PostgreSQL:", err.message);
+      throw err;
+    }
     console.warn("Prisma projectInvoice.update failed, updating local file:", err.message);
   }
 
@@ -254,6 +279,10 @@ export async function deleteInvoice(id: string): Promise<boolean> {
       return true;
     }
   } catch (err: any) {
+    if (isRealDatabaseConfigured()) {
+      console.error("[Database Error] Failed to delete invoice in PostgreSQL:", err.message);
+      throw err;
+    }
     console.warn("Prisma projectInvoice.delete failed, deleting from local file:", err.message);
   }
 

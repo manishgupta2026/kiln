@@ -43,11 +43,11 @@ export default function HeroIntake() {
 
   return (
     <div className="intake reveal">
-      <div className="intake-label">WHAT ARE YOU LOOKING TO BUILD?</div>
+      <div className="intake-label">What are you looking to build?</div>
       <input
         type="text"
         id="heroInput"
-        placeholder="A business website, a SaaS platform, an AI-powered product, or something entirely new..."
+        placeholder="A web application, customer portal, internal tool, SaaS platform, or new product..."
         value={inputValue}
         onChange={(e) => setInputValue(e.target.value)}
         onKeyDown={(e) => {

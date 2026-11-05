@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { prisma, isRealDatabaseConfigured } from "@/lib/prisma";
 import fs from "fs";
 import path from "path";
 
@@ -164,6 +164,14 @@ export async function createQuotation(data: {
       updatedAt: created.updatedAt.toISOString(),
     };
   } catch (dbError) {
+    if (isRealDatabaseConfigured()) {
+      console.error(
+        "[Database Error] Failed to persist quotation to PostgreSQL:",
+        (dbError as Error).message
+      );
+      throw dbError;
+    }
+
     console.warn(
       "[Database Warning] PostgreSQL unreachable via Prisma. Falling back to local data store for quotations. Error:",
       (dbError as Error).message
@@ -205,6 +213,13 @@ export async function createQuotation(data: {
 }
 
 export async function getAllQuotations(): Promise<ProjectQuotationRecord[]> {
+  if (!isRealDatabaseConfigured()) {
+    const store = ensureLocalStore();
+    return store.sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+  }
+
   try {
     const records = await (prisma as any).projectQuotation.findMany({
       orderBy: { createdAt: "desc" },
@@ -250,6 +265,11 @@ export async function getAllQuotations(): Promise<ProjectQuotationRecord[]> {
 }
 
 export async function getQuotationById(id: string): Promise<ProjectQuotationRecord | null> {
+  if (!isRealDatabaseConfigured()) {
+    const store = ensureLocalStore();
+    return store.find((q) => q.id === id) || null;
+  }
+
   try {
     const r = await (prisma as any).projectQuotation.findUnique({
       where: { id },
@@ -290,6 +310,11 @@ export async function getQuotationById(id: string): Promise<ProjectQuotationReco
 }
 
 export async function getQuotationByToken(token: string): Promise<ProjectQuotationRecord | null> {
+  if (!isRealDatabaseConfigured()) {
+    const store = ensureLocalStore();
+    return store.find((q) => q.viewToken === token) || null;
+  }
+
   try {
     const r = await (prisma as any).projectQuotation.findUnique({
       where: { viewToken: token },
@@ -389,6 +414,10 @@ export async function updateQuotation(
       updatedAt: updated.updatedAt.toISOString(),
     };
   } catch (dbError) {
+    if (isRealDatabaseConfigured()) {
+      console.error("[Database Error] Failed to update quotation in PostgreSQL:", (dbError as Error).message);
+      throw dbError;
+    }
     const store = ensureLocalStore();
     const index = store.findIndex((q) => q.id === id);
     if (index !== -1) {
@@ -411,6 +440,10 @@ export async function deleteQuotation(id: string): Promise<boolean> {
     });
     return true;
   } catch (err) {
+    if (isRealDatabaseConfigured()) {
+      console.error("[Database Error] Failed to delete quotation in PostgreSQL:", (err as Error).message);
+      throw err;
+    }
     const store = ensureLocalStore();
     const filtered = store.filter((q) => q.id !== id);
     if (filtered.length !== store.length) {
