@@ -174,9 +174,14 @@ export default async function AboutPage() {
         <section className="cta-strip">
           <div className="wrap reveal">
             <div className="cta-inner">
-              <h2>Think we&apos;d be a good fit?</h2>
+              <div className="cta-copy">
+                <h2>Have an idea lets make it Real.</h2>
+                <p className="cta-sub">
+                  Send us a 30s brief, we would reply within 1–2 business days.
+                </p>
+              </div>
               <Link href="/#brief" className="btn-primary">
-                Tell us what you&apos;re building →
+                Tell us about it →
               </Link>
             </div>
           </div>
