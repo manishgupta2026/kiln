@@ -138,7 +138,7 @@ export default function NotFound() {
         </section>
       </main>
 
-      <Footer showNote={false} />
+      <Footer />
     </>
   );
 }

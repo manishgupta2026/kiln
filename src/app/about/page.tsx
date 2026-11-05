@@ -183,7 +183,7 @@ export default async function AboutPage() {
         </section>
       </main>
 
-      <Footer showNote={false} />
+      <Footer />
     </>
   );
 }

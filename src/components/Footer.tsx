@@ -29,16 +29,14 @@ export default function Footer({ showNote = true }: FooterProps) {
           </div>
         </div>
 
-        {showNote && (
-          <div className="footer-bottom">
-            <div className="footer-note">
-              © 2026 DigiGrantha. Expressive digital product &amp; web studio. Built in-house, start to finish.
-            </div>
-            <div style={{ fontFamily: "var(--mono)", fontSize: "12px", color: "var(--mint)" }}>
-              ✦ Handcrafted in-house
-            </div>
+        <div className="footer-bottom">
+          <div className="footer-note">
+            © 2026 DigiGrantha. Expressive digital product &amp; web studio. Built in-house, start to finish.
           </div>
-        )}
+          <div style={{ fontFamily: "var(--mono)", fontSize: "12px", color: "var(--mint)" }}>
+            ✦ Handcrafted in-house
+          </div>
+        </div>
       </div>
     </footer>
   );

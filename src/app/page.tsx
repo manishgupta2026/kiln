@@ -281,7 +281,7 @@ export default async function HomePage() {
         </section>
       </main>
 
-      <Footer showNote={true} />
+      <Footer />
       <FloatingCta />
     </>
   );

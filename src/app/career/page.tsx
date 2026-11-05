@@ -131,7 +131,7 @@ export default function CareerPage() {
         </section>
       </main>
 
-      <Footer showNote={true} />
+      <Footer />
     </>
   );
 }

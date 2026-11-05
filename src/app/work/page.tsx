@@ -57,7 +57,7 @@ export default async function WorkPage() {
         </section>
       </main>
 
-      <Footer showNote={false} />
+      <Footer />
     </>
   );
 }
