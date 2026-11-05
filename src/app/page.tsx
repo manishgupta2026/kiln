@@ -182,15 +182,21 @@ export default async function HomePage() {
             <div className="proof-items">
               <div className="proof-item">
                 <mark>1,000+ daily users:</mark>
-                <span>A product people open every single day.</span>
+                <span>
+                  <a href="#work" className="proof-project">CourseHunt</a> — a course discovery platform people open every single day.
+                </span>
               </div>
               <div className="proof-item">
                 <mark>Live in production:</mark>
-                <span>An algorithmic trading platform running with real capital, where reliability isn&apos;t optional.</span>
+                <span>
+                  <a href="#work" className="proof-project">TradeSage</a> — an algorithmic trading platform running with real capital, where reliability isn&apos;t optional.
+                </span>
               </div>
               <div className="proof-item">
                 <mark>4 role-based portals:</mark>
-                <span>An enterprise workforce intelligence platform serving every level of the organization, from one system.</span>
+                <span>
+                  <a href="#work" className="proof-project">Coppter</a> — an enterprise workforce intelligence platform serving every level of the organization, from one system.
+                </span>
               </div>
             </div>
           </div>

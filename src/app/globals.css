@@ -91,6 +91,8 @@
 html {
   scroll-behavior: smooth;
   color-scheme: light dark;
+  overflow-x: hidden;
+  max-width: 100%;
 }
 
 body {
@@ -103,6 +105,9 @@ body {
   position: relative;
   min-height: 100vh;
   transition: background-color 0.2s ease, color 0.2s ease;
+  overflow-x: hidden;
+  max-width: 100%;
+  width: 100%;
 }
 
 /* Subtle organic grain */
@@ -150,11 +155,18 @@ select:focus-visible {
   padding: 0 40px;
   position: relative;
   z-index: 2;
+  width: 100%;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .wrap {
     padding: 0 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .wrap {
+    padding: 0 16px;
   }
 }
 
@@ -711,11 +723,17 @@ html.dark .logo-tagline {
   .nav-menu-btn {
     display: flex;
   }
+  .mobile-nav-drawer {
+    top: 66px;
+  }
 }
 
 @media (max-width: 520px) {
   .nav-cta {
     display: none;
+  }
+  .mobile-nav-drawer {
+    top: 59px;
   }
   .logo-brand .logo {
     font-size: 21px;
@@ -995,8 +1013,53 @@ html.dark .hero-ill-window {
 }
 
 @media (max-width: 640px) {
-  h1.hero-headline br {
-    display: none;
+  .hero {
+    padding: 40px 0 0;
+  }
+  .hero-illustration {
+    padding: 16px;
+    border-radius: 20px;
+    box-shadow: 4px 4px 0 #17201E;
+  }
+  .hero-ill-badge-float {
+    top: -10px;
+    right: 6px;
+    font-size: 11px;
+    padding: 5px 12px;
+    transform: rotate(2deg);
+  }
+  .hero-ill-note {
+    bottom: -10px;
+    left: 6px;
+    font-size: 13px;
+    padding: 5px 12px;
+    transform: rotate(-2deg);
+  }
+  .intake {
+    padding: 18px 16px;
+  }
+  .intake input[type=text] {
+    font-size: 14px;
+    padding: 10px 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero {
+    padding: 32px 0 0;
+  }
+  .hero-sub {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .intake-bottom {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .intake-bottom .btn-primary {
+    width: 100%;
+    justify-content: center;
   }
 }
 
@@ -1118,12 +1181,40 @@ html.dark .hero-ill-window {
   min-width: 0;
 }
 
+.proof-project {
+  color: #0F5C52;
+  font-weight: 800;
+  text-decoration: underline;
+  text-decoration-color: var(--yellow);
+  text-decoration-thickness: 2.5px;
+  text-underline-offset: 3px;
+  transition: color 0.15s ease;
+}
+
+.proof-project:hover {
+  color: #17201E;
+}
+
+[data-theme="dark"] .proof-project,
+html.dark .proof-project {
+  color: var(--green-bright);
+}
+
+[data-theme="dark"] .proof-project:hover,
+html.dark .proof-project:hover {
+  color: #FFFFFF;
+}
+
 @media (max-width: 768px) {
   .proof-item {
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
     font-size: 15.5px;
+  }
+  .proof-item mark {
+    white-space: normal;
+    max-width: 100%;
   }
 }
 
@@ -1213,6 +1304,26 @@ html.dark .offer-row:nth-child(4) {
   .offer-row p {
     grid-column: 2;
     margin-top: 4px;
+  }
+}
+
+@media (max-width: 540px) {
+  .offer-row {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 18px 16px;
+    gap: 8px;
+  }
+  .offer-row .idx {
+    font-size: 18px;
+  }
+  .offer-row h3 {
+    font-size: 19px;
+  }
+  .offer-row p {
+    font-size: 14px;
+    margin-top: 0;
   }
 }
 
@@ -1754,6 +1865,25 @@ html.dark .project-card-btn-secondary {
   .work-grid.landing-row .project-card-btn-secondary {
     padding: 7px 14px !important;
     font-size: 11.5px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .project-card-actions,
+  .work-grid.landing-row .project-card-actions {
+    flex-direction: column !important;
+    width: 100% !important;
+    gap: 8px !important;
+  }
+  .project-card-btn-primary,
+  .project-card-btn-secondary,
+  .work-grid.landing-row .project-card-btn-primary,
+  .work-grid.landing-row .project-card-btn-secondary {
+    width: 100% !important;
+    justify-content: center !important;
+    text-align: center !important;
+    padding: 9px 14px !important;
+    font-size: 12px !important;
   }
 }
 
@@ -2615,11 +2745,21 @@ html.dark .process-phase-badge {
 
 @media (max-width: 680px) {
   .brief-form {
-    padding: 24px 20px;
+    padding: 24px 18px;
+    border-radius: 18px;
   }
   .form-row {
     grid-template-columns: 1fr;
     gap: 16px;
+  }
+  .brief-submit {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+  }
+  .brief-submit .btn-primary {
+    width: 100%;
+    justify-content: center;
   }
 }
 
@@ -2847,6 +2987,28 @@ footer .logo-tagline {
   color: #BFE3D6;
 }
 
+@media (max-width: 768px) {
+  footer {
+    padding: 44px 0 28px;
+  }
+  .footer-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+    padding-bottom: 28px;
+  }
+  .footer-links {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .footer-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}
+
 #float-cta {
   position: fixed;
   bottom: 24px;
@@ -2869,6 +3031,15 @@ footer .logo-tagline {
   pointer-events: none;
   transform: translateY(12px);
   transition: opacity 0.2s ease, transform 0.2s ease, box-shadow 0.12s ease;
+}
+
+@media (max-width: 640px) {
+  #float-cta {
+    bottom: 16px;
+    right: 16px;
+    padding: 10px 16px;
+    font-size: 12px;
+  }
 }
 
 #float-cta.show {
@@ -3029,6 +3200,35 @@ footer .logo-tagline {
   gap: 12px;
   padding-top: 20px;
   border-top: 2px solid var(--outline);
+}
+
+@media (max-width: 640px) {
+  .case-study-backdrop {
+    padding: 16px 12px;
+  }
+  .case-study-modal {
+    padding: 28px 20px 24px;
+    max-height: 92vh;
+    border-radius: 18px;
+  }
+  .case-study-title {
+    font-size: 24px !important;
+    padding-right: 36px;
+  }
+  .case-study-desc {
+    font-size: 14px;
+    line-height: 1.55;
+  }
+  .case-study-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .case-study-actions .btn-primary,
+  .case-study-actions .btn-secondary {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
 }
 
 /* ============================================================
@@ -3561,6 +3761,24 @@ html.dark .why {
   border-radius: var(--radius-lg);
   padding: 38px;
   box-shadow: var(--shadow-xl);
+}
+
+@media (max-width: 768px) {
+  .career-tabs-bar {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .career-tab-btn {
+    padding: 16px 14px;
+  }
+  .career-tab-title {
+    font-size: 18px;
+  }
+  .career-form {
+    padding: 24px 18px;
+    border-radius: 18px;
+  }
 }
 
 /* ============================================================

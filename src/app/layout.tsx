@@ -1,7 +1,17 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Fraunces, Inter, Caveat } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#13493e" },
+    { media: "(prefers-color-scheme: dark)", color: "#17201E" },
+  ],
+};
 
 const fraunces = Fraunces({
   weight: ["400", "600", "700", "800"],
