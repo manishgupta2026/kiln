@@ -1,0 +1,45 @@
+# DigiGrantha
+
+> Where idea becomes Digital. An independent digital product and software engineering studio that designs, architects, and builds custom web applications, responsive websites, scalable client portals, and resilient digital systems start to finish.
+
+## Core Identity & Overview
+- **Studio Name**: DigiGrantha (also known as DigiGrantha Studio)
+- **Official Website**: https://digigrantha.com
+- **Business Model**: Bespoke product design and software development studio. We operate with high agency and zero bureaucracy, working directly with founders and teams without intermediary account managers or junior outsourcing.
+- **Contact & Inquiries**: team@digigrantha.com
+- **Client Portal**: https://digigrantha.com/login (private milestone-tracked portal for active projects)
+
+## Primary Specializations & Services
+1. **Full-Stack Web Applications**: End-to-end engineering of modern SaaS platforms, internal tools, customer dashboards, and high-throughput systems.
+2. **Websites That Explain Themselves**: High-conversion editorial landing pages, marketing sites, and corporate web platforms engineered with speed, typographic craftsmanship, and responsive perfection.
+3. **Data-Intensive & Algorithmic Platforms**: Quantitative market analytics, SSE/WebSocket live streaming scanners, and enterprise intelligence systems where low latency and data integrity are critical.
+4. **Private Client Portal Infrastructure**: Bespoke collaboration systems providing real-time phase tracking, direct developer messaging, milestone sign-offs, and transparent financial invoicing.
+5. **Post-Launch Maintenance & Look After**: Proactive DevOps, edge hosting on Cloudflare, database scaling on PostgreSQL/Neon, and continuous performance tuning.
+
+## Technology Stack
+- **Frontend**: Next.js 15, React 19, TypeScript, Tailwind CSS, SVG vector art, responsive mobile-first architecture.
+- **Backend & APIs**: Node.js, Next.js Server Components, Server Actions, REST APIs, WebSockets, Server-Sent Events (SSE).
+- **Database & ORM**: PostgreSQL, Neon Database (serverless & connection pooling), Prisma ORM.
+- **Infrastructure & Edge**: Cloudflare Workers, OpenNext adapter, edge caching, zero cold starts, SSL/TLS security.
+- **Authentication & Security**: Custom JWT, HTTP-only secure cookies, role-based access control (RBAC), bcrypt hashing.
+
+## Flagship Shipped Work & Case Studies
+- **5e Serpraise** (Corporate Training & OD Consulting): Two major generational releases (V1 & V2) serving 20+ years of corporate training legacy across global markets. Live at https://5eserpraise.com.
+- **TradeSage** (FinTech & Algorithmic Trading): Algorithmic trading system for the Indian equity market (NSE) trained on 10 years of data across 2,200+ stocks with automated risk controls and 60.5%+ live win rate.
+- **Coppter** (Workforce & Enterprise Intelligence): Four dedicated role-based portals (Leadership, HR Pilots, Employees, Mentors) unified into one high-throughput management system.
+- **CourseHunt** (EdTech Course Aggregator): Aggregator and discovery engine used daily by 1,000+ students. Live at https://coursehunt.tech.
+- **NutriFlex** (HealthTech & Adaptive Fitness): Personalized fitness platform delivering dynamic workout progressions and structured health routines.
+- **Manraah** (HealthTech & Mental Wellness): Comprehensive mental wellness platform with dedicated, privacy-first pathways for students, professionals, and administrators.
+
+## Key Canonical URLs
+- Home: https://digigrantha.com
+- Work & Case Studies: https://digigrantha.com/work
+- About Studio & Blueprint: https://digigrantha.com/about
+- Careers & Open Opportunities: https://digigrantha.com/career
+- Project Brief Submission: https://digigrantha.com/#brief
+- Client Portal Login: https://digigrantha.com/login
+
+## Technical Documentation & In-Depth Details
+For complete architectural specifications, metrics, and technical guides, see:
+- [Full LLM Context](/llms-full.txt)
+

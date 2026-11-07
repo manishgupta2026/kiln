@@ -1,7 +1,17 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth";
 import PortalHeader from "@/components/portal/PortalHeader";
 import DashboardNav from "@/components/portal/DashboardNav";
+
+export const metadata: Metadata = {
+  title: "Client Portal — DigiGrantha",
+  robots: {
+    index: false,
+    follow: false,
+    nocache: true,
+  },
+};
 
 export default async function DashboardLayout({
   children,

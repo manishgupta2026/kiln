@@ -28,8 +28,34 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ["@vercel/analytics", "jose", "bcryptjs"],
   },
+  async redirects() {
+    return [
+      {
+        source: "/careers",
+        destination: "/career",
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
+      {
+        source: "/(.*)",
+        headers: [
+          {
+            key: "X-Content-Type-Options",
+            value: "nosniff",
+          },
+          {
+            key: "X-Frame-Options",
+            value: "SAMEORIGIN",
+          },
+          {
+            key: "Referrer-Policy",
+            value: "strict-origin-when-cross-origin",
+          },
+        ],
+      },
       {
         source: "/photos/:path*",
         headers: [
@@ -49,7 +75,7 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        source: "/:file((?:favicon\\.ico|signature\\.png))",
+        source: "/:file((?:favicon\\.ico|signature\\.png|og-image\\.png|llms\\.txt|llms-full\\.txt))",
         headers: [
           {
             key: "Cache-Control",

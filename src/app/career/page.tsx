@@ -4,10 +4,21 @@ import Footer from "@/components/Footer";
 import ScrollReveal from "@/components/ScrollReveal";
 import CareerForm from "@/components/CareerForm";
 
+import { BreadcrumbJsonLd } from "@/components/JsonLd";
+
 export const metadata: Metadata = {
-  title: "Careers — Digigrantha",
+  title: "Careers & Opportunities — DigiGrantha Studio",
   description:
-    "Join Digigrantha. Opportunities for Full-time Engineers & Designers, Interns, and Freelance Specialists.",
+    "Explore engineering and product design roles at DigiGrantha. We build with high agency, modern TypeScript architecture, and zero corporate bureaucracy.",
+  alternates: {
+    canonical: "https://digigrantha.com/career",
+  },
+  openGraph: {
+    title: "Careers & Opportunities — DigiGrantha Studio",
+    description:
+      "Build real production software with high agency. Opportunities for full-stack engineers, UI/UX designers, interns, and specialists.",
+    url: "https://digigrantha.com/career",
+  },
 };
 
 const VALUES = [
@@ -36,6 +47,12 @@ const VALUES = [
 export default function CareerPage() {
   return (
     <>
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", item: "https://digigrantha.com" },
+          { name: "Careers", item: "https://digigrantha.com/career" },
+        ]}
+      />
       <ScrollReveal />
       <Header />
 

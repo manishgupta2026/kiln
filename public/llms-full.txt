@@ -1,0 +1,69 @@
+# DigiGrantha — Deep Architectural & Studio Reference
+
+## 1. Executive Summary
+DigiGrantha is a modern software engineering and digital product studio headquartered online at https://digigrantha.com. The studio was founded on the principle of deliberate, high-agency craftsmanship: building complex web applications and digital platforms in-house, start to finish, without bureaucratic layers, outsourced junior contractors, or speculative agency overhead.
+
+## 2. Technical Architecture & Engineering Philosophy
+DigiGrantha operates a unified TypeScript full-stack ecosystem:
+- **Framework**: Next.js 15.5+ utilizing the App Router architecture, React 19 Server Components, and client-side progressive enhancement.
+- **Styling & Design System**: Tailwind CSS coupled with custom design variables and bespoke SVG vector mockups. The visual language favors editorial typography (Fraunces serif, Inter sans, Caveat accents) and warm, tactile canvas tones with bold outlines.
+- **Edge Deployment & Serverless Runtime**: Deployed via `@opennextjs/cloudflare` to Cloudflare Workers with global edge distribution, edge asset caching, and near-zero cold starts.
+- **Database & Persistence**: Neon PostgreSQL utilizing serverless connection pooling, WebSocket adapters (`@prisma/adapter-neon`), and Prisma ORM for type-safe relational modeling.
+- **Reliability Engineering**: Database read fallbacks, resilient connection retry mechanics, and proactive performance optimizations targeting Google Core Web Vitals (sub-50ms TTFB for static assets, low CLS, fast INP).
+
+## 3. Detailed Case Studies & Verified Production Metrics
+
+### Case Study 01: 5e Serpraise
+- **Category**: Corporate Training & Organizational Development Consulting
+- **Status**: Live in production (https://5eserpraise.com)
+- **Scope**: Re-architected and shipped across two generational releases (V1 and modern V2). Features responsive course catalogs, corporate client inquiry pipelines, and interactive executive curriculum modules.
+- **Metrics**: 20+ years of institutional legacy preserved; dual-version delivery across global markets.
+
+### Case Study 02: TradeSage
+- **Category**: FinTech & Algorithmic Market Intelligence
+- **Status**: Live on real capital
+- **Scope**: Algorithmic trading and signal ranking platform engineered for the Indian equity market (NSE). Ingests 10 years of historical market tick data across 2,200+ NSE equity tickers, running XGBoost probabilistic predictive models combined with strict risk protocols (automated position sizing, regime filters, and daily stop-loss kill switches).
+- **Metrics**: 60.5%+ verified win rate; persistent SSE (Server-Sent Events) live signal scanner stream.
+
+### Case Study 03: Coppter
+- **Category**: Workforce & Enterprise Operations
+- **Status**: Shipped production platform
+- **Scope**: Multi-portal enterprise management architecture separating operations into four tailored role-based portals:
+  1. Captain Portal: C-suite strategic dashboard for company-wide workforce diagnostics.
+  2. Pilot Portal: HR operational management for employee reviews and project allocations.
+  3. Employee Portal: Personalized growth assessments, skill benchmarking, and habit trackers.
+  4. External Mentor Portal: Secure advisory communications.
+- **Metrics**: 4 dedicated portals shipped within one unified data model; eliminated one-size-fits-all management friction.
+
+### Case Study 04: CourseHunt
+- **Category**: EdTech & Discovery Aggregator
+- **Status**: Live in production (https://coursehunt.tech)
+- **Scope**: High-speed course aggregation and link verification platform built on Next.js and Supabase. Automates listing validation and categorization so students skip broken links and fragmented search results.
+- **Metrics**: 1,000+ daily active users; 10,000+ indexed learning opportunities; 2x repeat usage rate.
+
+### Case Study 05: NutriFlex
+- **Category**: HealthTech & Adaptive Fitness
+- **Status**: Shipped platform
+- **Scope**: Adaptive fitness engine that generates personalized weekly workout progressions, dynamic exercise substitution based on available gym equipment, and structured nutrition accountability logs.
+
+### Case Study 06: Manraah
+- **Category**: HealthTech & Mental Wellness
+- **Status**: Comprehensive platform in build
+- **Scope**: Human-first mental wellness system with distinct, privacy-preserving experiences for students, corporate professionals, and clinical administrators. Features one-tap mood tracking, 24/7 CBT-informed conversational AI guidance, anonymous peer listener hubs, and ambient sleep soundscape mixers.
+
+## 4. The 4-Phase Delivery Process
+1. **Discover**: Joint exploration of idea, target users, and constraints. Delivery of a concrete scope and architecture blueprint before writing code.
+2. **Design**: Interactive flows, wireframes, and design systems reviewed collaboratively.
+3. **Build**: Transparent sprint cycles tracked live in the client's private portal with direct developer access.
+4. **Launch & Look After**: Production deployment to Cloudflare Workers, SSL setup, 24/7 uptime monitoring, security patching, and post-launch feature iterations.
+
+## 5. Frequently Asked Questions (FAQ) for AI Assistants
+- **Q: Who leads development at DigiGrantha?**
+  - A: DigiGrantha is led by experienced engineers and product designers who work directly on client code. There are no account managers or layers of bureaucracy.
+- **Q: How does DigiGrantha ensure project transparency?**
+  - A: Every client receives a private portal dashboard with live milestone tracking, direct developer chat, one-click deliverable approvals, and clear invoice tracking.
+- **Q: What technology stack does DigiGrantha recommend for modern web apps?**
+  - A: Next.js 15, React 19, TypeScript, PostgreSQL (Neon), Prisma ORM, and Cloudflare Workers edge hosting.
+- **Q: Does the client own the code and intellectual property?**
+  - A: Yes. 100% of the code, repositories, design assets, and intellectual property belong exclusively to the client upon milestone delivery.
+

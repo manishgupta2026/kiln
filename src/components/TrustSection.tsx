@@ -53,7 +53,7 @@ export default function TrustSection({ config }: TrustSectionProps) {
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={slot.logo}
-                        alt={slot.label || "Client logo"}
+                        alt={slot.label ? `${slot.label} — Client Partner` : "Client Partner Logo"}
                         className="trust-slot-logo-img"
                         loading="lazy"
                         decoding="async"

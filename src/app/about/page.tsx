@@ -6,11 +6,23 @@ import ScrollReveal from "@/components/ScrollReveal";
 import FaqSection from "@/components/FaqSection";
 import { getTeamMembers } from "@/lib/team-db";
 
+import { BreadcrumbJsonLd } from "@/components/JsonLd";
+
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "About — Digigrantha",
-  description: "A small team, on purpose. Design and development, in-house, start to finish.",
+  title: "About DigiGrantha — Engineering & Digital Product Studio",
+  description:
+    "Learn about DigiGrantha: a deliberate, high-agency engineering & product design studio building websites, web applications, and enterprise platforms in-house.",
+  alternates: {
+    canonical: "https://digigrantha.com/about",
+  },
+  openGraph: {
+    title: "About DigiGrantha — Engineering & Product Design Studio",
+    description:
+      "Learn about DigiGrantha: a deliberate, high-agency engineering & product design studio building websites, web applications, and enterprise platforms in-house.",
+    url: "https://digigrantha.com/about",
+  },
 };
 
 const MILESTONES = [
@@ -28,6 +40,12 @@ export default async function AboutPage() {
 
   return (
     <>
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", item: "https://digigrantha.com" },
+          { name: "About", item: "https://digigrantha.com/about" },
+        ]}
+      />
       <ScrollReveal />
       <Header />
 
@@ -108,7 +126,7 @@ export default async function AboutPage() {
                     {member.avatar && (member.avatar.startsWith("http") || member.avatar.startsWith("/")) ? (
                       <img
                         src={member.avatar}
-                        alt={member.name}
+                        alt={`${member.name} — ${member.role} at DigiGrantha`}
                         loading="lazy"
                         decoding="async"
                         style={{ width: "100%", height: "100%", objectFit: "cover" }}

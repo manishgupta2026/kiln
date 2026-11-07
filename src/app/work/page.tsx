@@ -7,11 +7,23 @@ import CursorPreview from "@/components/CursorPreview";
 import ScrollReveal from "@/components/ScrollReveal";
 import { getCaseStudies } from "@/lib/case-studies-db";
 
+import { BreadcrumbJsonLd, PortfolioJsonLd } from "@/components/JsonLd";
+
 export const revalidate = 60; // 1 minute revalidation so admin edits reflect quickly
 
 export const metadata: Metadata = {
-  title: "Work — Digigrantha",
-  description: "Full archive of products we've shipped and what's in the oven.",
+  title: "Work & Case Studies — Digital Product & Web Portfolio",
+  description:
+    "Explore shipped digital products, enterprise portals, algorithmic platforms, and web applications engineered by DigiGrantha. Real products with verified outcomes.",
+  alternates: {
+    canonical: "https://digigrantha.com/work",
+  },
+  openGraph: {
+    title: "Work & Case Studies — DigiGrantha Portfolio",
+    description:
+      "Explore shipped digital products, enterprise portals, algorithmic platforms, and web applications engineered by DigiGrantha.",
+    url: "https://digigrantha.com/work",
+  },
 };
 
 export default async function WorkPage() {
@@ -19,6 +31,20 @@ export default async function WorkPage() {
 
   return (
     <>
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", item: "https://digigrantha.com" },
+          { name: "Work", item: "https://digigrantha.com/work" },
+        ]}
+      />
+      <PortfolioJsonLd
+        items={caseStudies.map((s) => ({
+          name: s.name,
+          description: s.oneLiner,
+          category: s.category,
+          url: s.liveUrl,
+        }))}
+      />
       <ScrollReveal />
       <Header />
 

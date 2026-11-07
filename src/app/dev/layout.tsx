@@ -1,6 +1,16 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth";
 import PortalHeader from "@/components/portal/PortalHeader";
+
+export const metadata: Metadata = {
+  title: "Developer Portal — DigiGrantha",
+  robots: {
+    index: false,
+    follow: false,
+    nocache: true,
+  },
+};
 
 export default async function DevLayout({
   children,

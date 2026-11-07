@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import HeroHeadline from "@/components/HeroHeadline";
@@ -12,10 +13,27 @@ import TrustSection from "@/components/TrustSection";
 import PortalFeaturesSection from "@/components/PortalFeaturesSection";
 import ProcessSection from "@/components/ProcessSection";
 import StatsStrip from "@/components/StatsStrip";
+import { FaqJsonLd, PortfolioJsonLd } from "@/components/JsonLd";
+import { FAQS } from "@/lib/faqs";
 import { getSiteContent } from "@/lib/content-db";
 import { getCaseStudies } from "@/lib/case-studies-db";
 
 export const revalidate = 60;
+
+export const metadata: Metadata = {
+  title: "DigiGrantha — Digital Product & Web Development Studio",
+  description:
+    "We engineer websites, bespoke web applications, and scalable client portals for ambitious brands. High agency, modern TypeScript architecture, and zero bureaucracy.",
+  alternates: {
+    canonical: "https://digigrantha.com",
+  },
+  openGraph: {
+    title: "DigiGrantha — Digital Product & Web Development Studio",
+    description:
+      "We engineer websites, bespoke web applications, and scalable client portals for ambitious brands. High agency, modern TypeScript architecture, and zero bureaucracy.",
+    url: "https://digigrantha.com",
+  },
+};
 
 const TICKER_ITEMS = [
   "Ideas into real products",
@@ -41,6 +59,15 @@ export default async function HomePage() {
 
   return (
     <>
+      <FaqJsonLd items={FAQS} />
+      <PortfolioJsonLd
+        items={caseStudies.map((s) => ({
+          name: s.name,
+          description: s.oneLiner,
+          category: s.category,
+          url: s.liveUrl,
+        }))}
+      />
       <ScrollReveal />
       <Header />
 

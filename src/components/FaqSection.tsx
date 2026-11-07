@@ -1,33 +1,8 @@
 "use client";
 
 import { useState } from "react";
-
-interface FaqItem {
-  id: string;
-  question: string;
-  answer: string;
-}
-
-const faqs: FaqItem[] = [
-  {
-    id: "faq-1",
-    question: "What happens after I send the brief?",
-    answer:
-      "We read it ourselves — no sales team in between — and reply within a day with an honest yes, no, or a couple of clarifying questions.",
-  },
-  {
-    id: "faq-2",
-    question: "Why should I trust a young team?",
-    answer:
-      "Look at the work above — real, live products with real numbers, not mockups. Judge us on what we've shipped, not on how long we've existed.",
-  },
-  {
-    id: "faq-3",
-    question: "What do you actually build?",
-    answer:
-      "The whole product — design, frontend, backend, and the infrastructure that keeps it running after launch.",
-  },
-];
+import { FAQS } from "@/lib/faqs";
+export { FAQS, type FaqItem } from "@/lib/faqs";
 
 export default function FaqSection() {
   const [openIds, setOpenIds] = useState<Record<string, boolean>>({});
@@ -40,11 +15,16 @@ export default function FaqSection() {
   };
 
   return (
-    <section className="faq" id="faq">
+    <section className="faq" id="faq" aria-labelledby="faq-heading">
       <div className="wrap">
-        <div className="section-label reveal">Quick answers</div>
-        <div className="faq-list reveal">
-          {faqs.map((faq) => {
+        <div className="section-label reveal" id="faq-heading">
+          Frequently Answered Questions
+        </div>
+        <h2 className="section-title reveal" style={{ marginBottom: "28px" }}>
+          Clear, honest answers about how we build.
+        </h2>
+        <div className="faq-list reveal" role="region" aria-label="Frequently Asked Questions">
+          {FAQS.map((faq) => {
             const isOpen = !!openIds[faq.id];
             return (
               <div key={faq.id} className={`faq-item ${isOpen ? "open" : ""}`}>
@@ -55,9 +35,11 @@ export default function FaqSection() {
                   aria-expanded={isOpen}
                 >
                   <span>{faq.question}</span>
-                  <span className="plus">+</span>
+                  <span className="plus" aria-hidden="true">
+                    {isOpen ? "−" : "+"}
+                  </span>
                 </button>
-                <div className="faq-a">
+                <div className="faq-a" style={{ display: isOpen ? "block" : "none" }}>
                   <p>{faq.answer}</p>
                 </div>
               </div>
