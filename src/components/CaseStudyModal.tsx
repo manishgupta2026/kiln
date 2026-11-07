@@ -1,15 +1,23 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { CaseStudyRecord } from "@/lib/case-studies-db";
+import { getPhotoMeta } from "@/lib/project-photos";
 
 interface CaseStudyModalProps {
   caseStudy: CaseStudyRecord | null;
   onClose: () => void;
+  onOpenPhotos?: (study: any, initialIndex?: number) => void;
 }
 
-export default function CaseStudyModal({ caseStudy, onClose }: CaseStudyModalProps) {
+export default function CaseStudyModal({ caseStudy, onClose, onOpenPhotos }: CaseStudyModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!caseStudy) return;
@@ -30,9 +38,9 @@ export default function CaseStudyModal({ caseStudy, onClose }: CaseStudyModalPro
     };
   }, [caseStudy, onClose]);
 
-  if (!caseStudy) return null;
+  if (!caseStudy || !mounted) return null;
 
-  return (
+  return createPortal(
     <div
       className="case-study-backdrop"
       onClick={(e) => {
@@ -54,8 +62,10 @@ export default function CaseStudyModal({ caseStudy, onClose }: CaseStudyModalPro
 
         <div className="case-study-meta-row">
           <span className="case-study-category">{caseStudy.category}</span>
-          {caseStudy.status === "in-progress" && (
-            <span className="status-pill">In progress</span>
+          {caseStudy.photos && caseStudy.photos.length > 0 && (
+            <span className="case-study-photos-count-badge">
+              📸 {caseStudy.photos.length} Interface Screens
+            </span>
           )}
         </div>
 
@@ -71,6 +81,78 @@ export default function CaseStudyModal({ caseStudy, onClose }: CaseStudyModalPro
         )}
 
         <div className="case-study-desc">{caseStudy.briefDescription}</div>
+
+        {/* Embedded Interactive Screenshot Filmstrip */}
+        {caseStudy.photos && caseStudy.photos.length > 0 && (
+          <div className="case-study-gallery-section">
+            <div className="case-study-gallery-header">
+              <div className="case-study-gallery-title-wrap">
+                <span className="case-study-gallery-icon">📸</span>
+                <h3 className="case-study-gallery-heading">Interface &amp; Product Screens</h3>
+                <span className="case-study-gallery-count">{caseStudy.photos.length} screens</span>
+              </div>
+              {onOpenPhotos && (
+                <button
+                  type="button"
+                  className="case-study-gallery-expand-all"
+                  onClick={() => onOpenPhotos(caseStudy, 0)}
+                  title="Expand to full-screen interactive lightbox"
+                >
+                  <span>Full-screen view ↗</span>
+                </button>
+              )}
+            </div>
+
+            <div className="case-study-gallery-filmstrip">
+              {caseStudy.photos.map((photo, idx) => {
+                const meta = getPhotoMeta(photo, idx, caseStudy.name);
+                return (
+                  <div
+                    key={photo + idx}
+                    className="case-study-gallery-card"
+                    onClick={() => {
+                      if (onOpenPhotos) {
+                        onOpenPhotos(caseStudy, idx);
+                      }
+                    }}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        if (onOpenPhotos) onOpenPhotos(caseStudy, idx);
+                      }
+                    }}
+                    aria-label={`View slide ${idx + 1}: ${meta.title}`}
+                  >
+                    <div className="case-study-gallery-img-box">
+                      <img
+                        src={photo}
+                        alt={`${caseStudy.name} - ${meta.title}`}
+                        loading="lazy"
+                        decoding="async"
+                      />
+                      <span className="case-study-gallery-step-badge">{idx + 1}</span>
+                      <div className="case-study-gallery-hover-cue">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <circle cx="11" cy="11" r="8" />
+                          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                          <line x1="11" y1="8" x2="11" y2="14" />
+                          <line x1="8" y1="11" x2="14" y2="11" />
+                        </svg>
+                      </div>
+                    </div>
+                    <div className="case-study-gallery-info">
+                      <span className="case-study-gallery-tag">{meta.tag}</span>
+                      <h4 className="case-study-gallery-item-title">{meta.title}</h4>
+                      <p className="case-study-gallery-item-desc">{meta.subtitle}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {caseStudy.tags && caseStudy.tags.length > 0 && (
           <div className="case-study-tags-section">
@@ -127,6 +209,7 @@ export default function CaseStudyModal({ caseStudy, onClose }: CaseStudyModalPro
           </div>
         ) : null}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

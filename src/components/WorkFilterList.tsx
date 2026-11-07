@@ -27,6 +27,7 @@ export default function WorkFilterList({
   const [activeFilter, setActiveFilter] = useState<string>(initialFilter);
   const [selectedCaseStudy, setSelectedCaseStudy] = useState<any | null>(null);
   const [selectedPhotosProject, setSelectedPhotosProject] = useState<any | null>(null);
+  const [initialPhotoIndex, setInitialPhotoIndex] = useState<number>(0);
 
   const handleOpenCaseStudy = useCallback((p: any) => {
     setSelectedCaseStudy(p);
@@ -36,12 +37,14 @@ export default function WorkFilterList({
     setSelectedCaseStudy(null);
   }, []);
 
-  const handleOpenPhotos = useCallback((p: any) => {
+  const handleOpenPhotos = useCallback((p: any, index: number = 0) => {
     setSelectedPhotosProject(p);
+    setInitialPhotoIndex(index);
   }, []);
 
   const handleClosePhotos = useCallback(() => {
     setSelectedPhotosProject(null);
+    setInitialPhotoIndex(0);
   }, []);
 
   // Map to rich project card structures
@@ -58,7 +61,10 @@ export default function WorkFilterList({
         version2Url: (match as any)?.version2Url || (wp as any).version2Url,
         briefDescription: match?.briefDescription || wp.briefDescription,
         resultStat: match?.resultStat || (wp as any).resultStat,
-        photos: (match as any)?.photos || (wp as any).photos || [],
+        photos:
+          (match as any)?.photos && (match as any).photos.length > 0
+            ? (match as any).photos
+            : (wp.photos || []),
       };
     });
   }, [initialCaseStudies]);
@@ -124,6 +130,10 @@ export default function WorkFilterList({
         <CaseStudyModal
           caseStudy={selectedCaseStudy}
           onClose={handleCloseCaseStudy}
+          onOpenPhotos={(study, initialIndex) => {
+            handleCloseCaseStudy();
+            handleOpenPhotos(study, initialIndex || 0);
+          }}
         />
       )}
 
@@ -132,6 +142,7 @@ export default function WorkFilterList({
           isOpen={!!selectedPhotosProject}
           projectName={selectedPhotosProject?.name || ""}
           photos={selectedPhotosProject?.photos || []}
+          initialIndex={initialPhotoIndex}
           onClose={handleClosePhotos}
         />
       )}

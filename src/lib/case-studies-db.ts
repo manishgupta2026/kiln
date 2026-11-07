@@ -76,21 +76,28 @@ export async function getCaseStudies(): Promise<CaseStudyRecord[]> {
     const items: any = await Promise.race([dbQuery, timeoutPromise]);
     if (timer) clearTimeout(timer);
 
-    const formatted: CaseStudyRecord[] = items.map((item: any) => ({
-      id: item.id,
-      name: item.name,
-      category: item.category,
-      oneLiner: item.oneLiner,
-      resultStat: item.resultStat,
-      briefDescription: item.briefDescription,
-      tags: item.tags || [],
-      liveUrl: item.liveUrl || null,
-      status: item.status || "live",
-      featured: Boolean(item.featured),
-      displayOrder: item.displayOrder ?? 0,
-      createdAt: item.createdAt,
-      updatedAt: item.updatedAt,
-    }));
+    const localFallbackItems = getLocalFallback();
+    const formatted: CaseStudyRecord[] = items.map((item: any) => {
+      const fallbackItem = localFallbackItems.find(
+        (f) => f.name.toLowerCase() === item.name.toLowerCase()
+      );
+      return {
+        id: item.id,
+        name: item.name,
+        category: item.category,
+        oneLiner: item.oneLiner,
+        resultStat: item.resultStat,
+        briefDescription: item.briefDescription,
+        tags: item.tags || [],
+        liveUrl: item.liveUrl || null,
+        status: item.status || "live",
+        featured: Boolean(item.featured),
+        displayOrder: item.displayOrder ?? 0,
+        photos: item.photos || fallbackItem?.photos,
+        createdAt: item.createdAt,
+        updatedAt: item.updatedAt,
+      };
+    });
 
     cachedCaseStudies = { data: formatted, timestamp: now };
     saveLocalFallback(formatted);

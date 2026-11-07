@@ -44,3 +44,7 @@ next-env.d.ts
 .open-next/
 .wrangler/
 
+# Agent scratch & output
+.agents/
+brag-output/
+

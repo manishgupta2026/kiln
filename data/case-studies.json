@@ -16,6 +16,12 @@
     "status": "live",
     "featured": true,
     "displayOrder": 1,
+    "photos": [
+      "/photos/tradesaga/tradesaga-1.png",
+      "/photos/tradesaga/tradesaga-2.png",
+      "/photos/tradesaga/tradesaga-3.png",
+      "/photos/tradesaga/tradesaga-4.png"
+    ],
     "createdAt": "2026-09-13T08:32:56.065Z",
     "updatedAt": "2026-09-16T17:55:37.220Z"
   },
@@ -55,6 +61,14 @@
     "status": "live",
     "featured": true,
     "displayOrder": 3,
+    "photos": [
+      "/photos/coppter/coppter-1.jpeg",
+      "/photos/coppter/coppter-2.jpeg",
+      "/photos/coppter/coppter-3.jpeg",
+      "/photos/coppter/coppter-4.jpeg",
+      "/photos/coppter/coppter-6.jpeg",
+      "/photos/coppter/coppter-5.jpeg"
+    ],
     "createdAt": "2026-09-13T08:32:57.565Z",
     "updatedAt": "2026-09-13T10:03:44.180Z"
   },
@@ -75,6 +89,20 @@
     "status": "in-progress",
     "featured": false,
     "displayOrder": 4,
+    "photos": [
+      "/photos/manraah/manraah-11.jpeg",
+      "/photos/manraah/manraah-7.jpeg",
+      "/photos/manraah/manraah-8.jpeg",
+      "/photos/manraah/manraah-9.jpeg",
+      "/photos/manraah/manraah-1.jpeg",
+      "/photos/manraah/manraah-10.jpeg",
+      "/photos/manraah/manraah-2.jpeg",
+      "/photos/manraah/manraah-3.jpeg",
+      "/photos/manraah/manraah-12.jpeg",
+      "/photos/manraah/manraah-5.jpeg",
+      "/photos/manraah/manraah-4.jpeg",
+      "/photos/manraah/manraah-6.jpeg"
+    ],
     "createdAt": "2026-09-13T08:32:58.241Z",
     "updatedAt": "2026-09-13T10:03:44.800Z"
   }
