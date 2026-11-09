@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Inter, Caveat } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
@@ -9,27 +8,6 @@ export const viewport: Viewport = {
   maximumScale: 5,
   themeColor: "#0F5C52",
 };
-
-const fraunces = Fraunces({
-  weight: ["400", "600", "700", "800"],
-  subsets: ["latin"],
-  style: ["normal", "italic"],
-  variable: "--display",
-  display: "swap",
-});
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--body",
-  display: "swap",
-});
-
-const caveat = Caveat({
-  weight: ["500", "700"],
-  subsets: ["latin"],
-  variable: "--hand",
-  display: "swap",
-});
 
 import { OrganizationJsonLd } from "@/components/JsonLd";
 
@@ -111,12 +89,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${fraunces.variable} ${inter.variable} ${caveat.variable}`}
-      suppressHydrationWarning
-    >
+    <html lang="en" suppressHydrationWarning>
       <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Fraunces:ital,opsz,wght@0,9..144,400..800;1,9..144,400..800&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+        />
         <OrganizationJsonLd />
         <script
           dangerouslySetInnerHTML={{

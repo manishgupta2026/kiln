@@ -24,10 +24,10 @@
   --ink: #17201E;
   --paper: #FBF7EA;
 
-  /* Typography Variables (from Next.js fonts) */
-  --display: var(--display), 'Fraunces', Georgia, serif;
-  --body: var(--body), 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --hand: var(--hand), 'Caveat', cursive;
+  /* Typography Variables */
+  --display: 'Fraunces', Georgia, serif;
+  --body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --hand: 'Caveat', cursive;
   --mono: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
 
   /* Layout & Semantic Aliases */
