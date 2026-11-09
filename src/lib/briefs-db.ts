@@ -1,6 +1,8 @@
-import { prisma, isRealDatabaseConfigured } from "@/lib/prisma";
-import fs from "fs";
-import path from "path";
+import {
+  prisma,
+  withDatabaseTimeout,
+  withDatabaseRetry,
+} from "@/lib/prisma";
 
 export interface BriefRecord {
   id: string;
@@ -18,37 +20,6 @@ export interface BriefRecord {
   project?: { id: string; name: string; phase: string; status: string } | null;
 }
 
-const LOCAL_STORE_PATH = path.join(process.cwd(), "data", "briefs.json");
-
-function ensureLocalStore(): BriefRecord[] {
-  try {
-    const dir = path.dirname(LOCAL_STORE_PATH);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    if (!fs.existsSync(LOCAL_STORE_PATH)) {
-      fs.writeFileSync(LOCAL_STORE_PATH, JSON.stringify([], null, 2), "utf-8");
-      return [];
-    }
-    const raw = fs.readFileSync(LOCAL_STORE_PATH, "utf-8");
-    return JSON.parse(raw);
-  } catch {
-    return [];
-  }
-}
-
-function writeLocalStore(briefs: BriefRecord[]) {
-  try {
-    const dir = path.dirname(LOCAL_STORE_PATH);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    fs.writeFileSync(LOCAL_STORE_PATH, JSON.stringify(briefs, null, 2), "utf-8");
-  } catch (err) {
-    console.error("Failed to write to local briefs fallback:", err);
-  }
-}
-
 export async function createBrief(data: {
   name: string;
   email: string;
@@ -57,19 +28,55 @@ export async function createBrief(data: {
   budget?: string | null;
   description: string;
 }): Promise<BriefRecord> {
+  const email = data.email.toLowerCase().trim();
+  const name = data.name.trim();
+  const description = data.description.trim();
+
+  // Deduplication check: if identical brief was submitted in the last 60 seconds, reuse it
+  const sixtySecondsAgo = new Date(Date.now() - 60 * 1000);
   try {
-    // Try Prisma (PostgreSQL / Neon)
-    const result = await prisma.brief.create({
-      data: {
-        name: data.name,
-        email: data.email,
-        phone: data.phone || null,
-        projectType: data.projectType,
-        budget: data.budget || null,
-        description: data.description,
-        status: "new",
+    const existing = await prisma.brief.findFirst({
+      where: {
+        email,
+        description,
+        createdAt: { gte: sixtySecondsAgo },
       },
     });
+
+    if (existing) {
+      console.warn(`[Brief] Duplicate submission detected for ${email}, returning existing record.`);
+      return {
+        id: existing.id,
+        name: existing.name,
+        email: existing.email,
+        phone: existing.phone,
+        projectType: existing.projectType,
+        budget: existing.budget,
+        description: existing.description,
+        status: existing.status as BriefRecord["status"],
+        createdAt: existing.createdAt.toISOString(),
+      };
+    }
+  } catch {
+    // If deduplication lookup fails, proceed to attempt insert
+  }
+
+  try {
+    const result = await withDatabaseTimeout(
+      prisma.brief.create({
+        data: {
+          name,
+          email,
+          phone: data.phone?.trim() || null,
+          projectType: data.projectType.trim(),
+          budget: data.budget?.trim() || null,
+          description,
+          status: "new",
+        },
+      }),
+      10000,
+      "createBrief"
+    );
 
     return {
       id: result.id,
@@ -82,123 +89,84 @@ export async function createBrief(data: {
       status: result.status as BriefRecord["status"],
       createdAt: result.createdAt.toISOString(),
     };
-  } catch (dbError) {
-    if (isRealDatabaseConfigured()) {
-      console.error(
-        "[Database Error] Failed to persist brief to PostgreSQL:",
-        (dbError as Error).message
-      );
-      throw dbError;
-    }
-
-    console.warn(
-      "[Database Warning] PostgreSQL unreachable via Prisma. Falling back to local data store for development. Error:",
-      (dbError as Error).message
-    );
-
-    // Fallback for local development when Postgres is not running
-    const briefs = ensureLocalStore();
-    const newBrief: BriefRecord = {
-      id: `local_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
-      name: data.name,
-      email: data.email,
-      phone: data.phone || null,
-      projectType: data.projectType,
-      budget: data.budget || null,
-      description: data.description,
-      status: "new",
-      createdAt: new Date().toISOString(),
-    };
-
-    briefs.unshift(newBrief);
-    writeLocalStore(briefs);
-    return newBrief;
+  } catch (dbError: any) {
+    console.error("[Database Error] Failed to persist brief to PostgreSQL:", dbError.message);
+    throw new Error("Failed to submit project brief. Database write could not be confirmed.");
   }
 }
 
 export async function getAllBriefs(): Promise<BriefRecord[]> {
-  if (!isRealDatabaseConfigured()) {
-    const briefs = ensureLocalStore();
-    return briefs.sort(
-      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
-  }
+  return withDatabaseRetry(
+    async () => {
+      const records = await withDatabaseTimeout(
+        prisma.brief.findMany({
+          include: {
+            project: {
+              select: { id: true, name: true, phase: true, status: true },
+            },
+          },
+          orderBy: { createdAt: "desc" },
+        }),
+        6000,
+        "getAllBriefs"
+      );
 
-  try {
-    const records = await prisma.brief.findMany({
-      include: {
-        project: {
-          select: { id: true, name: true, phase: true, status: true },
-        },
-      },
-      orderBy: { createdAt: "desc" },
-    });
-
-    return records.map((r: any) => ({
-      id: r.id,
-      name: r.name,
-      email: r.email,
-      phone: r.phone,
-      projectType: r.projectType,
-      budget: r.budget,
-      description: r.description,
-      status: r.status as BriefRecord["status"],
-      callScheduledAt: r.callScheduledAt ? r.callScheduledAt.toISOString() : null,
-      callMeetingUrl: r.callMeetingUrl,
-      callNotes: r.callNotes,
-      createdAt: r.createdAt.toISOString(),
-      project: r.project,
-    }));
-  } catch (dbError) {
-    console.warn(
-      "[Database Warning] PostgreSQL unreachable via Prisma. Falling back to local data store for development. Error:",
-      (dbError as Error).message
-    );
-
-    const briefs = ensureLocalStore();
-    return briefs.sort(
-      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
-  }
+      return (records || []).map((r: any) => ({
+        id: r.id,
+        name: r.name,
+        email: r.email,
+        phone: r.phone,
+        projectType: r.projectType,
+        budget: r.budget,
+        description: r.description,
+        status: r.status as BriefRecord["status"],
+        callScheduledAt: r.callScheduledAt ? r.callScheduledAt.toISOString() : null,
+        callMeetingUrl: r.callMeetingUrl,
+        callNotes: r.callNotes,
+        createdAt: r.createdAt.toISOString(),
+        project: r.project,
+      }));
+    },
+    { isIdempotent: true, operationName: "getAllBriefs" }
+  );
 }
 
 export async function getBriefById(id: string): Promise<BriefRecord | null> {
-  if (!isRealDatabaseConfigured()) {
-    const briefs = ensureLocalStore();
-    return briefs.find((b) => b.id === id) || null;
-  }
+  return withDatabaseRetry(
+    async () => {
+      const r = await withDatabaseTimeout(
+        prisma.brief.findUnique({
+          where: { id },
+          include: {
+            project: {
+              select: { id: true, name: true, phase: true, status: true },
+            },
+          },
+        }),
+        6000,
+        "getBriefById"
+      );
 
-  try {
-    const r = await prisma.brief.findUnique({
-      where: { id },
-      include: {
-        project: {
-          select: { id: true, name: true, phase: true, status: true },
-        },
-      },
-    });
+      if (!r) return null;
 
-    if (!r) return null;
-
-    return {
-      id: r.id,
-      name: r.name,
-      email: r.email,
-      phone: r.phone,
-      projectType: r.projectType,
-      budget: r.budget,
-      description: r.description,
-      status: r.status as BriefRecord["status"],
-      callScheduledAt: r.callScheduledAt ? r.callScheduledAt.toISOString() : null,
-      callMeetingUrl: r.callMeetingUrl,
-      callNotes: r.callNotes,
-      createdAt: r.createdAt.toISOString(),
-      project: r.project,
-    };
-  } catch {
-    const briefs = ensureLocalStore();
-    return briefs.find((b) => b.id === id) || null;
-  }
+      return {
+        id: r.id,
+        name: r.name,
+        email: r.email,
+        phone: r.phone,
+        projectType: r.projectType,
+        budget: r.budget,
+        description: r.description,
+        status: r.status as BriefRecord["status"],
+        callScheduledAt: r.callScheduledAt ? r.callScheduledAt.toISOString() : null,
+        callMeetingUrl: r.callMeetingUrl,
+        callNotes: r.callNotes,
+        createdAt: r.createdAt.toISOString(),
+        project: r.project,
+      };
+    },
+    { isIdempotent: true, operationName: "getBriefById" }
+  );
 }
 
 export async function scheduleBriefCall(
@@ -211,18 +179,22 @@ export async function scheduleBriefCall(
   }
 ): Promise<BriefRecord | null> {
   try {
-    const updated = await prisma.brief.update({
-      where: { id },
-      data: {
-        callScheduledAt: new Date(data.callScheduledAt),
-        callMeetingUrl: data.callMeetingUrl || null,
-        callNotes: data.callNotes || null,
-        status: data.status || "call_scheduled",
-      },
-      include: {
-        project: { select: { id: true, name: true, phase: true, status: true } },
-      },
-    });
+    const updated = await withDatabaseTimeout(
+      prisma.brief.update({
+        where: { id },
+        data: {
+          callScheduledAt: new Date(data.callScheduledAt),
+          callMeetingUrl: data.callMeetingUrl || null,
+          callNotes: data.callNotes || null,
+          status: data.status || "call_scheduled",
+        },
+        include: {
+          project: { select: { id: true, name: true, phase: true, status: true } },
+        },
+      }),
+      10000,
+      "scheduleBriefCall"
+    );
 
     return {
       id: updated.id,
@@ -239,22 +211,12 @@ export async function scheduleBriefCall(
       createdAt: updated.createdAt.toISOString(),
       project: updated.project,
     };
-  } catch (dbError) {
-    if (isRealDatabaseConfigured()) {
-      console.error("[Database Error] Failed to update brief meeting in PostgreSQL:", (dbError as Error).message);
-      throw dbError;
+  } catch (dbError: any) {
+    if (dbError?.code === "P2025") {
+      return null; // Not found
     }
-    const briefs = ensureLocalStore();
-    const index = briefs.findIndex((b) => b.id === id);
-    if (index !== -1) {
-      briefs[index].callScheduledAt = data.callScheduledAt;
-      briefs[index].callMeetingUrl = data.callMeetingUrl || null;
-      briefs[index].callNotes = data.callNotes || null;
-      briefs[index].status = data.status || "call_scheduled";
-      writeLocalStore(briefs);
-      return briefs[index];
-    }
-    return null;
+    console.error("[Database Error] Failed to update brief meeting in PostgreSQL:", dbError.message);
+    throw new Error("Failed to schedule brief meeting. Database write could not be confirmed.");
   }
 }
 
@@ -263,13 +225,17 @@ export async function updateBriefStatus(
   status: BriefRecord["status"]
 ): Promise<BriefRecord | null> {
   try {
-    const updated = await prisma.brief.update({
-      where: { id },
-      data: { status },
-      include: {
-        project: { select: { id: true, name: true, phase: true, status: true } },
-      },
-    });
+    const updated = await withDatabaseTimeout(
+      prisma.brief.update({
+        where: { id },
+        data: { status },
+        include: {
+          project: { select: { id: true, name: true, phase: true, status: true } },
+        },
+      }),
+      10000,
+      "updateBriefStatus"
+    );
 
     return {
       id: updated.id,
@@ -286,23 +252,11 @@ export async function updateBriefStatus(
       createdAt: updated.createdAt.toISOString(),
       project: updated.project,
     };
-  } catch (dbError) {
-    if (isRealDatabaseConfigured()) {
-      console.error("[Database Error] Failed to update brief status in PostgreSQL:", (dbError as Error).message);
-      throw dbError;
+  } catch (dbError: any) {
+    if (dbError?.code === "P2025") {
+      return null;
     }
-    console.warn(
-      "[Database Warning] PostgreSQL unreachable via Prisma. Falling back to local data store for development. Error:",
-      (dbError as Error).message
-    );
-
-    const briefs = ensureLocalStore();
-    const index = briefs.findIndex((b) => b.id === id);
-    if (index !== -1) {
-      briefs[index].status = status;
-      writeLocalStore(briefs);
-      return briefs[index];
-    }
-    return null;
+    console.error("[Database Error] Failed to update brief status in PostgreSQL:", dbError.message);
+    throw new Error("Failed to update brief status. Database write could not be confirmed.");
   }
 }

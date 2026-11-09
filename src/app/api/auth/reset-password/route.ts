@@ -2,10 +2,31 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { hashPassword, signSessionToken, setSessionCookie } from "@/lib/auth";
 import { validateAuthToken, consumeAuthToken } from "@/lib/tokens";
+import { rateLimitDistributed, getClientIp } from "@/lib/rate-limit";
 import { SetPasswordSchema } from "@/lib/validators";
 
 export async function POST(request: NextRequest) {
   try {
+    const ip = getClientIp(request);
+    const rl = await rateLimitDistributed(`reset:${ip}`, {
+      limit: 5,
+      windowSeconds: 60,
+      policy: "fail-closed",
+      endpointType: "auth",
+    });
+    if (!rl.success) {
+      if (rl.backendError) {
+        return NextResponse.json(
+          { success: false, error: "Password reset service temporarily unavailable. Please retry in a few moments." },
+          { status: 503, headers: { "Retry-After": "30" } }
+        );
+      }
+      return NextResponse.json(
+        { success: false, error: `Too many password reset attempts. Please wait ${rl.reset}s.` },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
     const parsed = SetPasswordSchema.safeParse(body);
     if (!parsed.success) {

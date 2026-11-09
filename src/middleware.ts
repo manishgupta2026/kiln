@@ -5,15 +5,24 @@ import { jwtVerify } from "jose";
 import { getEnv } from "@/lib/env";
 
 const SESSION_COOKIE = "digigrantha_session";
+const JWT_ISSUER = "https://digigrantha.com";
+const JWT_AUDIENCE = "digigrantha-users";
 
 let _cachedMiddlewareSecret: Uint8Array | null = null;
 let _cachedMiddlewareSecretRaw: string | null = null;
 
 function getJwtSecret(): Uint8Array {
   const secret =
+    getEnv("JWT_SECRET") ||
     getEnv("NEXTAUTH_SECRET") ||
-    getEnv("ADMIN_JWT_SECRET") ||
-    "digigrantha-production-client-portal-jwt-secret-2026";
+    getEnv("ADMIN_JWT_SECRET");
+
+  if (!secret || secret.trim().length < 32) {
+    throw new Error(
+      "CRITICAL_SECURITY_ERROR: JWT secret is missing or insufficiently strong in middleware context."
+    );
+  }
+
   if (_cachedMiddlewareSecret && _cachedMiddlewareSecretRaw === secret) {
     return _cachedMiddlewareSecret;
   }
@@ -35,7 +44,13 @@ export async function middleware(request: NextRequest) {
     }
 
     try {
-      const { payload } = await jwtVerify(token, getJwtSecret());
+      const secret = getJwtSecret();
+      const { payload } = await jwtVerify(token, secret, {
+        issuer: JWT_ISSUER,
+        audience: JWT_AUDIENCE,
+        algorithms: ["HS256"],
+      });
+
       const role = payload.role as string;
       if (role !== "CLIENT" && role !== "ADMIN") {
         if (role === "DEVELOPER") {
@@ -58,7 +73,13 @@ export async function middleware(request: NextRequest) {
     }
 
     try {
-      const { payload } = await jwtVerify(token, getJwtSecret());
+      const secret = getJwtSecret();
+      const { payload } = await jwtVerify(token, secret, {
+        issuer: JWT_ISSUER,
+        audience: JWT_AUDIENCE,
+        algorithms: ["HS256"],
+      });
+
       const role = payload.role as string;
       if (role !== "DEVELOPER" && role !== "ADMIN") {
         if (role === "CLIENT") {
@@ -86,7 +107,13 @@ export async function middleware(request: NextRequest) {
     }
 
     try {
-      const { payload } = await jwtVerify(token, getJwtSecret());
+      const secret = getJwtSecret();
+      const { payload } = await jwtVerify(token, secret, {
+        issuer: JWT_ISSUER,
+        audience: JWT_AUDIENCE,
+        algorithms: ["HS256"],
+      });
+
       const role = payload.role as string;
       if (role !== "ADMIN") {
         if (role === "DEVELOPER") return NextResponse.redirect(new URL("/dev", request.url));

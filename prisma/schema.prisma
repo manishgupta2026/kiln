@@ -297,6 +297,8 @@ model CareerApplication {
 model ProjectQuotation {
   id              String    @id @default(cuid())
   quotationNumber String    @unique
+  idempotencyKey  String?   @unique
+  payloadHash     String?
   clientName      String
   clientEmail     String
   clientPhone     String?
@@ -327,6 +329,8 @@ model ProjectQuotation {
 model ProjectInvoice {
   id            String    @id @default(cuid())
   invoiceNumber String    @unique
+  idempotencyKey String?  @unique
+  payloadHash   String?
   clientName    String
   clientEmail   String
   clientPhone   String?

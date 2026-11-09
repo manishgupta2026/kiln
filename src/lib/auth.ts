@@ -7,15 +7,29 @@ import { prisma, Role } from "@/lib/prisma";
 import { getEnv } from "@/lib/env";
 
 export const SESSION_COOKIE = "digigrantha_session";
+export const JWT_ISSUER = "https://digigrantha.com";
+export const JWT_AUDIENCE = "digigrantha-users";
 
 let _cachedJwtSecret: Uint8Array | null = null;
 let _cachedSecretRaw: string | null = null;
 
-function getJwtSecret(): Uint8Array {
+/**
+ * Resolves the JWT signing secret strictly from environment variables.
+ * Fails closed if no secret is provided or if the secret is weak (< 32 characters).
+ * NEVER falls back to hardcoded secrets.
+ */
+export function getJwtSecret(): Uint8Array {
   const secret =
+    getEnv("JWT_SECRET") ||
     getEnv("NEXTAUTH_SECRET") ||
-    getEnv("ADMIN_JWT_SECRET") ||
-    "digigrantha-production-client-portal-jwt-secret-2026";
+    getEnv("ADMIN_JWT_SECRET");
+
+  if (!secret || secret.trim().length < 32) {
+    throw new Error(
+      "CRITICAL_SECURITY_ERROR: JWT secret is missing or insufficiently strong. A secure JWT_SECRET of at least 32 characters must be configured."
+    );
+  }
+
   if (_cachedJwtSecret && _cachedSecretRaw === secret) {
     return _cachedJwtSecret;
   }
@@ -39,7 +53,11 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
   return bcrypt.compare(password, hash);
 }
 
+/**
+ * Signs a session JWT with strict algorithm, issuer, audience, and expiration claims.
+ */
 export async function signSessionToken(user: SessionUser): Promise<string> {
+  const secret = getJwtSecret();
   return new SignJWT({
     userId: user.userId,
     email: user.email,
@@ -47,18 +65,35 @@ export async function signSessionToken(user: SessionUser): Promise<string> {
     role: user.role,
   })
     .setProtectedHeader({ alg: "HS256" })
+    .setIssuer(JWT_ISSUER)
+    .setAudience(JWT_AUDIENCE)
     .setIssuedAt()
     .setExpirationTime("7d")
-    .sign(getJwtSecret());
+    .sign(secret);
 }
 
+/**
+ * Cryptographically verifies a session JWT.
+ * Validates HS256 signature, expiration, issuer, and audience.
+ * Fails closed on any discrepancy or missing environment secret.
+ */
 export async function verifySessionToken(token: string): Promise<SessionUser | null> {
   try {
-    const { payload } = await jwtVerify(token, getJwtSecret());
+    const secret = getJwtSecret();
+    const { payload } = await jwtVerify(token, secret, {
+      issuer: JWT_ISSUER,
+      audience: JWT_AUDIENCE,
+      algorithms: ["HS256"],
+    });
+
+    if (!payload.userId || !payload.email || !payload.role) {
+      return null;
+    }
+
     return {
       userId: payload.userId as string,
       email: payload.email as string,
-      name: payload.name as string,
+      name: (payload.name as string) || "",
       role: payload.role as Role,
     };
   } catch {
@@ -67,7 +102,7 @@ export async function verifySessionToken(token: string): Promise<SessionUser | n
 }
 
 /**
- * Server-side helper to read and verify the active session in Route Handlers & Server Components
+ * Server-side helper to read and verify the active session in Route Handlers & Server Components.
  */
 export async function getSessionUser(request?: NextRequest): Promise<SessionUser | null> {
   let token: string | undefined;
@@ -88,7 +123,7 @@ export async function getSessionUser(request?: NextRequest): Promise<SessionUser
 }
 
 /**
- * Set session cookie on response
+ * Set session cookie on response with secure attributes
  */
 export function setSessionCookie(response: NextResponse, token: string) {
   response.cookies.set({
@@ -103,7 +138,7 @@ export function setSessionCookie(response: NextResponse, token: string) {
 }
 
 /**
- * Clear session cookie
+ * Clear session cookie on response
  */
 export function clearSessionCookie(response: NextResponse) {
   response.cookies.set({

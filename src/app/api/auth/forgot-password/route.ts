@@ -2,16 +2,27 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createAuthToken } from "@/lib/tokens";
 import { sendPasswordResetEmail } from "@/lib/email";
-import { rateLimit } from "@/lib/rate-limit";
+import { rateLimitDistributed, getClientIp } from "@/lib/rate-limit";
 import { ForgotPasswordSchema } from "@/lib/validators";
 
 export async function POST(request: NextRequest) {
   try {
-    const ip = request.headers.get("x-forwarded-for") || "local";
-    const rl = rateLimit(`forgot:${ip}`, 5, 60);
+    const ip = getClientIp(request);
+    const rl = await rateLimitDistributed(`forgot:${ip}`, {
+      limit: 5,
+      windowSeconds: 60,
+      policy: "fail-closed",
+      endpointType: "auth",
+    });
     if (!rl.success) {
+      if (rl.backendError) {
+        return NextResponse.json(
+          { success: false, error: "Password reset service temporarily unavailable. Please retry in a few moments." },
+          { status: 503, headers: { "Retry-After": "30" } }
+        );
+      }
       return NextResponse.json(
-        { success: false, error: "Too many reset requests. Please wait before trying again." },
+        { success: false, error: `Too many reset requests. Please wait before trying again.` },
         { status: 429 }
       );
     }

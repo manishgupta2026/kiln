@@ -1,6 +1,7 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createCareerApplication } from "@/lib/careers-db";
+import { rateLimitDistributed, getClientIp } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -24,8 +25,22 @@ const careerSchema = z.object({
   website: z.string().optional(), // Honeypot field
 });
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
+    const ip = getClientIp(req);
+    const rl = await rateLimitDistributed(`career:${ip}`, {
+      limit: 5,
+      windowSeconds: 60,
+      policy: "fail-open-with-local-limiter",
+      endpointType: "public_submission",
+    });
+    if (!rl.success) {
+      return NextResponse.json(
+        { success: false, error: `Too many applications submitted. Please wait ${rl.reset}s before trying again.` },
+        { status: 429 }
+      );
+    }
+
     const body = await req.json();
 
     // Honeypot spam check: if the hidden input has content, silently accept
@@ -62,22 +77,22 @@ export async function POST(req: Request) {
       },
       { status: 201 }
     );
-  } catch (error: unknown) {
-    if (error instanceof z.ZodError) {
+  } catch (err: unknown) {
+    if (err instanceof z.ZodError) {
       return NextResponse.json(
         {
           success: false,
-          error: error.errors[0]?.message || "Validation failed",
+          error: err.errors[0]?.message || "Validation failed",
         },
         { status: 400 }
       );
     }
 
-    console.error("Error creating career application:", error);
+    console.error("Career application error:", err);
     return NextResponse.json(
       {
         success: false,
-        error: "Failed to submit application. Please check all fields and try again.",
+        error: "Failed to submit application. Please try again.",
       },
       { status: 500 }
     );

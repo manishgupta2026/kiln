@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth";
-import { getAllInvoices, createInvoice } from "@/lib/invoices-db";
+import { getAllInvoices, createInvoice, IdempotencyConflictError } from "@/lib/invoices-db";
 import { sendInvoiceEmail } from "@/lib/email";
+import { sanitizeDatabaseError } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
@@ -39,8 +40,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const idempotencyKey =
+      request.headers.get("idempotency-key") ||
+      request.headers.get("x-idempotency-key") ||
+      body.idempotencyKey ||
+      null;
+
     const newInvoice = await createInvoice({
       invoiceNumber: body.invoiceNumber,
+      idempotencyKey,
+      actorId: user.userId,
       clientName: body.clientName,
       clientEmail: body.clientEmail,
       clientPhone: body.clientPhone,
@@ -79,9 +88,15 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, data: newInvoice }, { status: 201 });
   } catch (error: any) {
+    if (error instanceof IdempotencyConflictError || error?.name === "IdempotencyConflictError") {
+      return NextResponse.json(
+        { success: false, error: error.message },
+        { status: 409 }
+      );
+    }
     console.error("Error creating invoice:", error);
     return NextResponse.json(
-      { success: false, error: error.message || "Failed to create invoice" },
+      { success: false, error: sanitizeDatabaseError(error, "Failed to create invoice") },
       { status: 500 }
     );
   }

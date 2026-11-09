@@ -20,6 +20,8 @@ export interface BankDetails {
 export interface ProjectInvoiceRecord {
   id: string;
   invoiceNumber: string;
+  idempotencyKey?: string | null;
+  payloadHash?: string | null;
   clientName: string;
   clientEmail: string;
   clientPhone?: string | null;

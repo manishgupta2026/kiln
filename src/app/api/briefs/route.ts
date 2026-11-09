@@ -1,6 +1,7 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createBrief } from "@/lib/briefs-db";
+import { rateLimitDistributed, getClientIp } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -14,8 +15,22 @@ const briefSchema = z.object({
   website: z.string().optional(), // Honeypot field
 });
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
+    const ip = getClientIp(req);
+    const rl = await rateLimitDistributed(`brief:${ip}`, {
+      limit: 5,
+      windowSeconds: 60,
+      policy: "fail-open-with-local-limiter",
+      endpointType: "public_submission",
+    });
+    if (!rl.success) {
+      return NextResponse.json(
+        { success: false, error: `Too many submissions. Please wait ${rl.reset}s before trying again.` },
+        { status: 429 }
+      );
+    }
+
     const body = await req.json();
 
     // Honeypot spam check: if the hidden website input has any text, silently reject

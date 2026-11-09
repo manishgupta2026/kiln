@@ -1,6 +1,8 @@
-import { prisma, isRealDatabaseConfigured } from "@/lib/prisma";
-import fs from "fs";
-import path from "path";
+import {
+  prisma,
+  withDatabaseTimeout,
+  withDatabaseRetry,
+} from "@/lib/prisma";
 
 export interface CareerApplicationRecord {
   id: string;
@@ -26,37 +28,6 @@ export interface CareerApplicationRecord {
   updatedAt?: string;
 }
 
-const LOCAL_STORE_PATH = path.join(process.cwd(), "data", "careers.json");
-
-function ensureLocalStore(): CareerApplicationRecord[] {
-  try {
-    const dir = path.dirname(LOCAL_STORE_PATH);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    if (!fs.existsSync(LOCAL_STORE_PATH)) {
-      fs.writeFileSync(LOCAL_STORE_PATH, JSON.stringify([], null, 2), "utf-8");
-      return [];
-    }
-    const raw = fs.readFileSync(LOCAL_STORE_PATH, "utf-8");
-    return JSON.parse(raw);
-  } catch {
-    return [];
-  }
-}
-
-function writeLocalStore(items: CareerApplicationRecord[]) {
-  try {
-    const dir = path.dirname(LOCAL_STORE_PATH);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    fs.writeFileSync(LOCAL_STORE_PATH, JSON.stringify(items, null, 2), "utf-8");
-  } catch (err) {
-    console.error("Failed to write to local careers fallback:", err);
-  }
-}
-
 export async function createCareerApplication(data: {
   type: "JOB" | "INTERNSHIP" | "FREELANCING";
   name: string;
@@ -75,30 +46,78 @@ export async function createCareerApplication(data: {
   coverNote: string;
   metadata?: Record<string, any> | null;
 }): Promise<CareerApplicationRecord> {
+  const email = data.email.toLowerCase().trim();
+  const name = data.name.trim();
+  const role = data.role.trim();
   const skillsArray = data.skills || [];
 
+  // Deduplication check: if identical applicant applied for same role within 60 seconds
+  const sixtySecondsAgo = new Date(Date.now() - 60 * 1000);
   try {
-    const result = await prisma.careerApplication.create({
-      data: {
-        type: data.type,
-        name: data.name.trim(),
-        email: data.email.trim(),
-        phone: data.phone?.trim() || null,
-        location: data.location?.trim() || null,
-        role: data.role.trim(),
-        experience: data.experience?.trim() || null,
-        portfolioUrl: data.portfolioUrl?.trim() || null,
-        githubUrl: data.githubUrl?.trim() || null,
-        linkedinUrl: data.linkedinUrl?.trim() || null,
-        resumeUrl: data.resumeUrl?.trim() || null,
-        rateOrSalary: data.rateOrSalary?.trim() || null,
-        availability: data.availability?.trim() || null,
-        skills: skillsArray,
-        coverNote: data.coverNote.trim(),
-        metadata: data.metadata || {},
-        status: "new",
+    const existing = await prisma.careerApplication.findFirst({
+      where: {
+        email,
+        role,
+        createdAt: { gte: sixtySecondsAgo },
       },
     });
+
+    if (existing) {
+      console.warn(`[Career] Duplicate application detected for ${email} (${role}), returning existing.`);
+      return {
+        id: existing.id,
+        type: existing.type as CareerApplicationRecord["type"],
+        name: existing.name,
+        email: existing.email,
+        phone: existing.phone,
+        location: existing.location,
+        role: existing.role,
+        experience: existing.experience,
+        portfolioUrl: existing.portfolioUrl,
+        githubUrl: existing.githubUrl,
+        linkedinUrl: existing.linkedinUrl,
+        resumeUrl: existing.resumeUrl,
+        rateOrSalary: existing.rateOrSalary,
+        availability: existing.availability,
+        skills: existing.skills,
+        coverNote: existing.coverNote,
+        metadata: existing.metadata as Record<string, any>,
+        status: existing.status as CareerApplicationRecord["status"],
+        adminNotes: existing.adminNotes,
+        createdAt: existing.createdAt.toISOString(),
+        updatedAt: existing.updatedAt.toISOString(),
+      };
+    }
+  } catch {
+    // Proceed if lookup fails
+  }
+
+  try {
+    const result = await withDatabaseTimeout(
+      prisma.careerApplication.create({
+        data: {
+          type: data.type,
+          name,
+          email,
+          phone: data.phone?.trim() || null,
+          location: data.location?.trim() || null,
+          role,
+          experience: data.experience?.trim() || null,
+          portfolioUrl: data.portfolioUrl?.trim() || null,
+          githubUrl: data.githubUrl?.trim() || null,
+          linkedinUrl: data.linkedinUrl?.trim() || null,
+          resumeUrl: data.resumeUrl?.trim() || null,
+          rateOrSalary: data.rateOrSalary?.trim() || null,
+          availability: data.availability?.trim() || null,
+          skills: skillsArray,
+          coverNote: data.coverNote.trim(),
+          metadata: data.metadata || {},
+          status: "new",
+        },
+      }),
+      10000,
+      "createCareerApplication"
+    );
 
     return {
       id: result.id,
@@ -123,48 +142,9 @@ export async function createCareerApplication(data: {
       createdAt: result.createdAt.toISOString(),
       updatedAt: result.updatedAt.toISOString(),
     };
-  } catch (dbError) {
-    if (isRealDatabaseConfigured()) {
-      console.error(
-        "[Database Error] Failed to persist career application to PostgreSQL:",
-        (dbError as Error).message
-      );
-      throw dbError;
-    }
-
-    console.warn(
-      "[Database Warning] PostgreSQL unreachable via Prisma. Falling back to local data store for careers. Error:",
-      (dbError as Error).message
-    );
-
-    const store = ensureLocalStore();
-    const newRecord: CareerApplicationRecord = {
-      id: `local_app_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
-      type: data.type,
-      name: data.name.trim(),
-      email: data.email.trim(),
-      phone: data.phone?.trim() || null,
-      location: data.location?.trim() || null,
-      role: data.role.trim(),
-      experience: data.experience?.trim() || null,
-      portfolioUrl: data.portfolioUrl?.trim() || null,
-      githubUrl: data.githubUrl?.trim() || null,
-      linkedinUrl: data.linkedinUrl?.trim() || null,
-      resumeUrl: data.resumeUrl?.trim() || null,
-      rateOrSalary: data.rateOrSalary?.trim() || null,
-      availability: data.availability?.trim() || null,
-      skills: skillsArray,
-      coverNote: data.coverNote.trim(),
-      metadata: data.metadata || {},
-      status: "new",
-      adminNotes: null,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-
-    store.unshift(newRecord);
-    writeLocalStore(store);
-    return newRecord;
+  } catch (dbError: any) {
+    console.error("[Database Error] Failed to persist career application to PostgreSQL:", dbError.message);
+    throw new Error("Failed to submit career application. Database write could not be confirmed.");
   }
 }
 
@@ -172,118 +152,94 @@ export async function getAllCareerApplications(filters?: {
   type?: string;
   status?: string;
 }): Promise<CareerApplicationRecord[]> {
-  if (!isRealDatabaseConfigured()) {
-    let store = ensureLocalStore();
-    if (filters?.type && filters.type !== "ALL") {
-      store = store.filter((r) => r.type.toUpperCase() === filters.type!.toUpperCase());
-    }
-    if (filters?.status && filters.status !== "ALL") {
-      store = store.filter((r) => r.status.toLowerCase() === filters.status!.toLowerCase());
-    }
-    return store.sort(
-      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
-  }
+  return withDatabaseRetry(
+    async () => {
+      const where: any = {};
+      if (filters?.type && filters.type !== "ALL") {
+        where.type = filters.type.toUpperCase();
+      }
+      if (filters?.status && filters.status !== "ALL") {
+        where.status = filters.status.toLowerCase();
+      }
 
-  try {
-    const where: any = {};
-    if (filters?.type && filters.type !== "ALL") {
-      where.type = filters.type.toUpperCase();
-    }
-    if (filters?.status && filters.status !== "ALL") {
-      where.status = filters.status.toLowerCase();
-    }
+      const records = await withDatabaseTimeout(
+        prisma.careerApplication.findMany({
+          where,
+          orderBy: { createdAt: "desc" },
+        }),
+        6000,
+        "getAllCareerApplications"
+      );
 
-    const records = await prisma.careerApplication.findMany({
-      where,
-      orderBy: { createdAt: "desc" },
-    });
-
-    return records.map((r: any) => ({
-      id: r.id,
-      type: r.type as CareerApplicationRecord["type"],
-      name: r.name,
-      email: r.email,
-      phone: r.phone,
-      location: r.location,
-      role: r.role,
-      experience: r.experience,
-      portfolioUrl: r.portfolioUrl,
-      githubUrl: r.githubUrl,
-      linkedinUrl: r.linkedinUrl,
-      resumeUrl: r.resumeUrl,
-      rateOrSalary: r.rateOrSalary,
-      availability: r.availability,
-      skills: r.skills || [],
-      coverNote: r.coverNote,
-      metadata: r.metadata as Record<string, any>,
-      status: r.status as CareerApplicationRecord["status"],
-      adminNotes: r.adminNotes,
-      createdAt: r.createdAt.toISOString(),
-      updatedAt: r.updatedAt.toISOString(),
-    }));
-  } catch (dbError) {
-    console.warn(
-      "[Database Warning] PostgreSQL unreachable via Prisma. Falling back to local data store for careers. Error:",
-      (dbError as Error).message
-    );
-
-    let store = ensureLocalStore();
-    if (filters?.type && filters.type !== "ALL") {
-      store = store.filter((r) => r.type.toUpperCase() === filters.type!.toUpperCase());
-    }
-    if (filters?.status && filters.status !== "ALL") {
-      store = store.filter((r) => r.status.toLowerCase() === filters.status!.toLowerCase());
-    }
-
-    return store.sort(
-      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
-  }
+      return (records || []).map((r: any) => ({
+        id: r.id,
+        type: r.type as CareerApplicationRecord["type"],
+        name: r.name,
+        email: r.email,
+        phone: r.phone,
+        location: r.location,
+        role: r.role,
+        experience: r.experience,
+        portfolioUrl: r.portfolioUrl,
+        githubUrl: r.githubUrl,
+        linkedinUrl: r.linkedinUrl,
+        resumeUrl: r.resumeUrl,
+        rateOrSalary: r.rateOrSalary,
+        availability: r.availability,
+        skills: r.skills || [],
+        coverNote: r.coverNote,
+        metadata: r.metadata as Record<string, any>,
+        status: r.status as CareerApplicationRecord["status"],
+        adminNotes: r.adminNotes,
+        createdAt: r.createdAt.toISOString(),
+        updatedAt: r.updatedAt.toISOString(),
+      }));
+    },
+    { isIdempotent: true, operationName: "getAllCareerApplications" }
+  );
 }
 
 export async function getCareerApplicationById(
   id: string
 ): Promise<CareerApplicationRecord | null> {
-  if (!isRealDatabaseConfigured()) {
-    const store = ensureLocalStore();
-    return store.find((r) => r.id === id) || null;
-  }
+  return withDatabaseRetry(
+    async () => {
+      const r = await withDatabaseTimeout(
+        prisma.careerApplication.findUnique({
+          where: { id },
+        }),
+        6000,
+        "getCareerApplicationById"
+      );
 
-  try {
-    const r = await prisma.careerApplication.findUnique({
-      where: { id },
-    });
+      if (!r) return null;
 
-    if (!r) return null;
-
-    return {
-      id: r.id,
-      type: r.type as CareerApplicationRecord["type"],
-      name: r.name,
-      email: r.email,
-      phone: r.phone,
-      location: r.location,
-      role: r.role,
-      experience: r.experience,
-      portfolioUrl: r.portfolioUrl,
-      githubUrl: r.githubUrl,
-      linkedinUrl: r.linkedinUrl,
-      resumeUrl: r.resumeUrl,
-      rateOrSalary: r.rateOrSalary,
-      availability: r.availability,
-      skills: r.skills || [],
-      coverNote: r.coverNote,
-      metadata: r.metadata as Record<string, any>,
-      status: r.status as CareerApplicationRecord["status"],
-      adminNotes: r.adminNotes,
-      createdAt: r.createdAt.toISOString(),
-      updatedAt: r.updatedAt.toISOString(),
-    };
-  } catch {
-    const store = ensureLocalStore();
-    return store.find((b) => b.id === id) || null;
-  }
+      return {
+        id: r.id,
+        type: r.type as CareerApplicationRecord["type"],
+        name: r.name,
+        email: r.email,
+        phone: r.phone,
+        location: r.location,
+        role: r.role,
+        experience: r.experience,
+        portfolioUrl: r.portfolioUrl,
+        githubUrl: r.githubUrl,
+        linkedinUrl: r.linkedinUrl,
+        resumeUrl: r.resumeUrl,
+        rateOrSalary: r.rateOrSalary,
+        availability: r.availability,
+        skills: r.skills || [],
+        coverNote: r.coverNote,
+        metadata: r.metadata as Record<string, any>,
+        status: r.status as CareerApplicationRecord["status"],
+        adminNotes: r.adminNotes,
+        createdAt: r.createdAt.toISOString(),
+        updatedAt: r.updatedAt.toISOString(),
+      };
+    },
+    { isIdempotent: true, operationName: "getCareerApplicationById" }
+  );
 }
 
 export async function updateCareerApplication(
@@ -298,10 +254,14 @@ export async function updateCareerApplication(
     if (data.status) updatePayload.status = data.status;
     if (data.adminNotes !== undefined) updatePayload.adminNotes = data.adminNotes;
 
-    const updated = await prisma.careerApplication.update({
-      where: { id },
-      data: updatePayload,
-    });
+    const updated = await withDatabaseTimeout(
+      prisma.careerApplication.update({
+        where: { id },
+        data: updatePayload,
+      }),
+      10000,
+      "updateCareerApplication"
+    );
 
     return {
       id: updated.id,
@@ -326,41 +286,30 @@ export async function updateCareerApplication(
       createdAt: updated.createdAt.toISOString(),
       updatedAt: updated.updatedAt.toISOString(),
     };
-  } catch (dbError) {
-    if (isRealDatabaseConfigured()) {
-      console.error("[Database Error] Failed to update career application in PostgreSQL:", (dbError as Error).message);
-      throw dbError;
+  } catch (dbError: any) {
+    if (dbError?.code === "P2025") {
+      return null;
     }
-    const store = ensureLocalStore();
-    const index = store.findIndex((b) => b.id === id);
-    if (index !== -1) {
-      if (data.status) store[index].status = data.status;
-      if (data.adminNotes !== undefined) store[index].adminNotes = data.adminNotes;
-      store[index].updatedAt = new Date().toISOString();
-      writeLocalStore(store);
-      return store[index];
-    }
-    return null;
+    console.error("[Database Error] Failed to update career application in PostgreSQL:", dbError.message);
+    throw new Error("Failed to update career application. Database write could not be confirmed.");
   }
 }
 
 export async function deleteCareerApplication(id: string): Promise<boolean> {
   try {
-    await prisma.careerApplication.delete({
-      where: { id },
-    });
+    await withDatabaseTimeout(
+      prisma.careerApplication.delete({
+        where: { id },
+      }),
+      8000,
+      "deleteCareerApplication"
+    );
     return true;
-  } catch (err) {
-    if (isRealDatabaseConfigured()) {
-      console.error("[Database Error] Failed to delete career application in PostgreSQL:", (err as Error).message);
-      throw err;
+  } catch (err: any) {
+    if (err?.code === "P2025") {
+      return false;
     }
-    const store = ensureLocalStore();
-    const filtered = store.filter((b) => b.id !== id);
-    if (filtered.length !== store.length) {
-      writeLocalStore(filtered);
-      return true;
-    }
-    return false;
+    console.error("[Database Error] Failed to delete career application in PostgreSQL:", err.message);
+    throw new Error("Failed to delete career application. Database delete could not be confirmed.");
   }
 }

@@ -1,16 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma, getDatabaseUrl } from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { verifyPassword, signSessionToken, setSessionCookie } from "@/lib/auth";
-import { rateLimit } from "@/lib/rate-limit";
+import { rateLimitDistributed, getClientIp } from "@/lib/rate-limit";
 import { LoginSchema } from "@/lib/validators";
-import { getEnv, syncCloudflareEnv } from "@/lib/env";
+import { syncCloudflareEnv } from "@/lib/env";
 
 export async function POST(request: NextRequest) {
   try {
     syncCloudflareEnv();
-    const ip = request.headers.get("x-forwarded-for") || "local";
-    const rl = rateLimit(`login:${ip}`, 10, 60);
+    const ip = getClientIp(request);
+    
+    // Strict IP-based login rate limit: max 5 attempts per minute with fail-closed policy
+    const rl = await rateLimitDistributed(`login:${ip}`, {
+      limit: 5,
+      windowSeconds: 60,
+      policy: "fail-closed",
+      endpointType: "auth",
+    });
     if (!rl.success) {
+      if (rl.backendError) {
+        return NextResponse.json(
+          { success: false, error: "Authentication service temporarily unavailable. Please retry in a few moments." },
+          { status: 503, headers: { "Retry-After": "30" } }
+        );
+      }
       return NextResponse.json(
         { success: false, error: `Too many login attempts. Please try again in ${rl.reset}s.` },
         { status: 429 }
@@ -29,74 +42,24 @@ export async function POST(request: NextRequest) {
     const { email, password } = parsed.data;
     const normalizedEmail = email.toLowerCase().trim();
 
-    const adminPasswordEnv = getEnv("ADMIN_PASSWORD");
-    const isAdminEmail =
-      normalizedEmail === "admin@digigrantha.com" ||
-      normalizedEmail === "admin@kiln.design" ||
-      normalizedEmail === "admin" ||
-      normalizedEmail.startsWith("admin@");
-
-    // 1. Direct Admin Master Password Verification
-    if (adminPasswordEnv && password === adminPasswordEnv && isAdminEmail) {
-      let adminDbUser: any = null;
-      try {
-        adminDbUser = await prisma.user.findFirst({
-          where: {
-            OR: [{ email: normalizedEmail }, { role: "ADMIN" }],
-          },
-        });
-      } catch (dbErr: any) {
-        console.warn("[Auth Warning] DB query bypassed during direct admin login:", dbErr?.message || String(dbErr));
-      }
-
-      const adminUser = {
-        userId: adminDbUser?.id || "admin-root",
-        email: adminDbUser?.email || (normalizedEmail.includes("@") ? normalizedEmail : "admin@digigrantha.com"),
-        name: adminDbUser?.name || "Studio Administrator",
-        role: "ADMIN" as const,
-      };
-
-      const sessionToken = await signSessionToken(adminUser);
-
-      const response = NextResponse.json({
-        success: true,
-        user: {
-          id: adminUser.userId,
-          email: adminUser.email,
-          name: adminUser.name,
-          role: adminUser.role,
-        },
-        redirectUrl: "/admin",
-      });
-
-      setSessionCookie(response, sessionToken);
-      return response;
-    }
-
-    // 2. Database User Lookup
+    // Exact database lookup only — no prefix matching or fallback users
     let user: any = null;
     try {
       user = await prisma.user.findUnique({
         where: { email: normalizedEmail },
       });
-
-      // Support fallback to admin role if special alias used
-      if (!user && isAdminEmail) {
-        user = await prisma.user.findFirst({
-          where: { role: "ADMIN" },
-        });
-      }
     } catch (dbErr: any) {
-      console.warn("[Auth Warning] User database lookup failed:", dbErr?.message || String(dbErr));
+      console.error("[Auth Error] User database lookup failed:", dbErr?.message || String(dbErr));
       return NextResponse.json(
         {
           success: false,
-          error: "Invalid email or password.",
+          error: "Authentication service temporarily unavailable.",
         },
-        { status: 401 }
+        { status: 500 }
       );
     }
 
+    // Require exact database account with existing password hash
     if (!user || !user.passwordHash) {
       return NextResponse.json(
         { success: false, error: "Invalid email or password." },
@@ -104,8 +67,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const isDirectAdminPass = user.role === "ADMIN" && adminPasswordEnv && password === adminPasswordEnv;
-    const isValid = isDirectAdminPass || (await verifyPassword(password, user.passwordHash));
+    // Cryptographic password verification using bcrypt
+    const isValid = await verifyPassword(password, user.passwordHash);
 
     if (!isValid) {
       return NextResponse.json(
@@ -114,6 +77,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Sign session token with strict claims (issuer, audience, 7d expiry)
     const sessionToken = await signSessionToken({
       userId: user.id,
       email: user.email,
@@ -139,15 +103,12 @@ export async function POST(request: NextRequest) {
     setSessionCookie(response, sessionToken);
     return response;
   } catch (error: any) {
+    // Log complete error details server-side without leaking internals to the client
     console.error("Login route error:", error);
-    const dbUrl = getDatabaseUrl();
-    const errorDetails = error?.message || String(error);
     return NextResponse.json(
       {
         success: false,
-        error: !dbUrl
-          ? `Database connection string (DATABASE_URL) is not set in Cloudflare Worker settings. [Debug: ${errorDetails}]`
-          : `Login failed: ${errorDetails}`,
+        error: "Unable to process login request.",
       },
       { status: 500 }
     );

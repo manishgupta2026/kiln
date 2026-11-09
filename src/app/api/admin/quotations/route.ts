@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth";
-import { getAllQuotations, createQuotation } from "@/lib/quotations-db";
+import { getAllQuotations, createQuotation, IdempotencyConflictError } from "@/lib/quotations-db";
 import { sendQuotationEmail } from "@/lib/email";
+import { sanitizeDatabaseError } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
@@ -39,8 +40,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const idempotencyKey =
+      request.headers.get("idempotency-key") ||
+      request.headers.get("x-idempotency-key") ||
+      body.idempotencyKey ||
+      null;
+
     const newQuote = await createQuotation({
       quotationNumber: body.quotationNumber,
+      idempotencyKey,
+      actorId: user.userId,
       clientName: body.clientName,
       clientEmail: body.clientEmail,
       clientPhone: body.clientPhone,
@@ -78,9 +87,15 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, data: newQuote }, { status: 201 });
   } catch (error: any) {
+    if (error instanceof IdempotencyConflictError || error?.name === "IdempotencyConflictError") {
+      return NextResponse.json(
+        { success: false, error: error.message },
+        { status: 409 }
+      );
+    }
     console.error("Error creating quotation:", error);
     return NextResponse.json(
-      { success: false, error: error.message || "Failed to create quotation" },
+      { success: false, error: sanitizeDatabaseError(error, "Failed to create quotation") },
       { status: 500 }
     );
   }

@@ -1,7 +1,11 @@
-import { prisma, isRealDatabaseConfigured } from "@/lib/prisma";
+import {
+  prisma,
+  withDatabaseTimeout,
+  withDatabaseRetry,
+  isRealDatabaseConfigured,
+} from "@/lib/prisma";
 import { Project, projects as initialProjects } from "@/data/projects";
-import fs from "fs";
-import path from "path";
+import staticContentData from "../../data/content.json";
 
 export interface TrustSlot {
   id: string;
@@ -71,36 +75,35 @@ const DEFAULT_TRUST: TrustSectionConfig = {
   ],
 };
 
-const CONTENT_FILE_PATH = path.join(process.cwd(), "data", "content.json");
-
-// Memory cache with 60 second TTL for ultra-fast response
+// In-memory cache with bounded 5-minute TTL for public showcase content
+// Multi-Isolate Cache Semantics:
+// 1. Scope: In-memory cache lives within the active Cloudflare Worker isolate.
+// 2. Admin Invalidation: Admin mutations clear the local isolate cache and trigger revalidatePath().
+// 3. Global Convergence: Other edge isolates converge to live PostgreSQL data within at most CACHE_TTL_MS (5 min).
+// 4. Data Isolation: Public data only. Private client, financial, or authentication data is NEVER stored here.
+const CACHE_TTL_MS = 5 * 60 * 1000;
 let cachedSiteContent: { data: SiteContent; timestamp: number } | null = null;
-const CACHE_TTL_MS = 60 * 1000;
+let inFlightContentPromise: Promise<SiteContent> | null = null;
 
-function getLocalFallback(): SiteContent {
+function getLocalStaticFallback(): SiteContent {
   try {
-    if (fs.existsSync(CONTENT_FILE_PATH)) {
-      const raw = fs.readFileSync(CONTENT_FILE_PATH, "utf-8");
-      return JSON.parse(raw);
+    if (
+      staticContentData &&
+      typeof staticContentData === "object" &&
+      "trust" in staticContentData &&
+      "projects" in staticContentData
+    ) {
+      return staticContentData as unknown as SiteContent;
     }
   } catch {
-    // If local file read fails, return defaults
+    // If static bundled json structure differs, return compile-time defaults
   }
   return { trust: DEFAULT_TRUST, projects: initialProjects };
 }
 
-function saveLocalFallback(content: SiteContent) {
-  try {
-    const dir = path.dirname(CONTENT_FILE_PATH);
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(CONTENT_FILE_PATH, JSON.stringify(content, null, 2), "utf-8");
-  } catch {
-    // Silently ignore in read-only production environments (like Vercel serverless)
-  }
-}
-
 export function invalidateContentCache() {
   cachedSiteContent = null;
+  inFlightContentPromise = null;
 }
 
 export async function getSiteContent(): Promise<SiteContent> {
@@ -109,101 +112,109 @@ export async function getSiteContent(): Promise<SiteContent> {
     return cachedSiteContent.data;
   }
 
-  // Fast-path: If database is not configured with real credentials, return local cache immediately (0ms)
+  // Fast-path: If database is not configured, return bundled static data
   if (!isRealDatabaseConfigured()) {
-    const fallback = getLocalFallback();
+    const fallback = getLocalStaticFallback();
     cachedSiteContent = { data: fallback, timestamp: now };
     return fallback;
   }
 
-  let timer: any;
-  try {
-    const timeoutPromise = new Promise((_, reject) => {
-      timer = setTimeout(() => reject(new Error("Database query timed out")), 1500);
-    });
-
-    const trustQuery = prisma.siteSetting.findUnique({
-      where: { key: "trust" },
-    });
-    const dbClient = prisma as any;
-    const dbProjectsQuery = dbClient.showcaseProject.findMany({
-      orderBy: { idx: "asc" },
-    });
-
-    const [trustSetting, dbProjects]: [any, any] = await Promise.race([
-      Promise.all([trustQuery, dbProjectsQuery]),
-      timeoutPromise as Promise<any>,
-    ]);
-    if (timer) clearTimeout(timer);
-
-    const trustConfig: TrustSectionConfig = trustSetting
-      ? (trustSetting.value as unknown as TrustSectionConfig)
-      : DEFAULT_TRUST;
-
-    const projects: Project[] =
-      dbProjects && dbProjects.length > 0
-        ? dbProjects.map((p: DbProjectRecord) => ({
-            id: p.id,
-            slug: p.slug,
-            idx: p.idx,
-            name: p.name,
-            category: p.category as Project["category"],
-            oneLiner: p.oneLiner,
-            homepageOneLiner: p.homepageOneLiner || undefined,
-            result: p.result,
-            tags: p.tags,
-            status: p.status === "in-progress" ? "in-progress" : undefined,
-            mobilePreview: p.mobilePreview || p.oneLiner,
-            preview: {
-              label: p.previewLabel || p.result,
-              svg:
-                p.previewSvg ||
-                `<svg viewBox="0 0 200 100"><rect x="20" y="20" width="160" height="60" rx="8" fill="#75801F" opacity="0.25"/><text x="100" y="55" text-anchor="middle" font-family="IBM Plex Mono" font-size="14" fill="#75801F">${p.name}</text></svg>`,
-            },
-            featured: p.featured,
-          }))
-        : initialProjects;
-
-    const result = { trust: trustConfig, projects };
-    cachedSiteContent = { data: result, timestamp: now };
-    saveLocalFallback(result);
-    return result;
-  } catch (error) {
-    console.warn("Using local cache for site content:", (error as Error).message);
-    const fallback = getLocalFallback();
-    cachedSiteContent = { data: fallback, timestamp: now };
-    return fallback;
-  } finally {
-    if (timer) clearTimeout(timer);
+  // Cache stampede prevention: reuse in-flight promise if multiple concurrent requests arrive
+  if (inFlightContentPromise) {
+    return inFlightContentPromise;
   }
+
+  inFlightContentPromise = (async () => {
+    try {
+      const content = await withDatabaseRetry(
+        async () => {
+          const trustQuery = prisma.siteSetting.findUnique({
+            where: { key: "trust" },
+          });
+          const dbProjectsQuery = prisma.showcaseProject.findMany({
+            orderBy: { idx: "asc" },
+          });
+
+          const [trustSetting, dbProjects] = await withDatabaseTimeout(
+            Promise.all([trustQuery, dbProjectsQuery]),
+            6000,
+            "getSiteContent"
+          );
+
+          const trustConfig: TrustSectionConfig = trustSetting
+            ? (trustSetting.value as unknown as TrustSectionConfig)
+            : DEFAULT_TRUST;
+
+          const projects: Project[] =
+            dbProjects && dbProjects.length > 0
+              ? dbProjects.map((p: DbProjectRecord) => ({
+                  id: p.id,
+                  slug: p.slug,
+                  idx: p.idx,
+                  name: p.name,
+                  category: p.category as Project["category"],
+                  oneLiner: p.oneLiner,
+                  homepageOneLiner: p.homepageOneLiner || undefined,
+                  result: p.result,
+                  tags: p.tags,
+                  status: p.status === "in-progress" ? "in-progress" : undefined,
+                  mobilePreview: p.mobilePreview || p.oneLiner,
+                  preview: {
+                    label: p.previewLabel || p.result,
+                    svg:
+                      p.previewSvg ||
+                      `<svg viewBox="0 0 200 100"><rect x="20" y="20" width="160" height="60" rx="8" fill="#75801F" opacity="0.25"/><text x="100" y="55" text-anchor="middle" font-family="IBM Plex Mono" font-size="14" fill="#75801F">${p.name}</text></svg>`,
+                  },
+                  featured: p.featured,
+                }))
+              : initialProjects;
+
+          return { trust: trustConfig, projects };
+        },
+        { isIdempotent: true, operationName: "getSiteContent" }
+      );
+
+      cachedSiteContent = { data: content, timestamp: Date.now() };
+      return content;
+    } catch (error: any) {
+      console.warn("[SiteContent] Database read unavailable, falling back to static bundled content:", error.message);
+      const fallback = getLocalStaticFallback();
+      // Cache fallback briefly (30s) during transient downtime to avoid hammering the database
+      cachedSiteContent = { data: fallback, timestamp: Date.now() - (CACHE_TTL_MS - 30_000) };
+      return fallback;
+    } finally {
+      inFlightContentPromise = null;
+    }
+  })();
+
+  return inFlightContentPromise;
 }
 
 export async function updateTrustConfig(
   updates: Partial<TrustSectionConfig>
 ): Promise<TrustSectionConfig> {
+  const current = await getSiteContent();
+  const updated: TrustSectionConfig = {
+    ...current.trust,
+    ...updates,
+  };
+
   try {
-    const current = await getSiteContent();
-    const updated: TrustSectionConfig = {
-      ...current.trust,
-      ...updates,
-    };
+    await withDatabaseTimeout(
+      prisma.siteSetting.upsert({
+        where: { key: "trust" },
+        update: { value: JSON.parse(JSON.stringify(updated)) },
+        create: { key: "trust", value: JSON.parse(JSON.stringify(updated)) },
+      }),
+      8000,
+      "updateTrustConfig"
+    );
 
-    await prisma.siteSetting.upsert({
-      where: { key: "trust" },
-      update: { value: JSON.parse(JSON.stringify(updated)) },
-      create: { key: "trust", value: JSON.parse(JSON.stringify(updated)) },
-    });
-
-    saveLocalFallback({ ...current, trust: updated });
     invalidateContentCache();
     return updated;
-  } catch (error) {
-    console.warn("Failed to update trust in Postgres, updating local cache:", (error as Error).message);
-    const local = getLocalFallback();
-    const updated = { ...local.trust, ...updates };
-    saveLocalFallback({ ...local, trust: updated });
-    invalidateContentCache();
-    return updated;
+  } catch (error: any) {
+    console.error("[Database Error] Failed to update trust settings in PostgreSQL:", error.message);
+    throw new Error("Failed to update trust settings. Database write could not be confirmed.");
   }
 }
 
@@ -221,26 +232,31 @@ export async function createProject(projectData: Omit<Project, "id">): Promise<P
       .replace(/(^-|-$)/g, "");
 
   try {
-    const dbClient = prisma as any;
-    const created: DbProjectRecord = await dbClient.showcaseProject.create({
-      data: {
-        slug,
-        idx: projectData.idx,
-        name: projectData.name,
-        category: projectData.category,
-        oneLiner: projectData.oneLiner,
-        homepageOneLiner: projectData.homepageOneLiner || null,
-        result: projectData.result,
-        tags: projectData.tags,
-        status: projectData.status || null,
-        mobilePreview: projectData.mobilePreview || null,
-        previewLabel: projectData.preview?.label || projectData.result,
-        previewSvg: projectData.preview?.svg || null,
-        featured: projectData.featured ?? true,
-      },
-    });
+    const created: DbProjectRecord = await withDatabaseTimeout(
+      prisma.showcaseProject.create({
+        data: {
+          slug,
+          idx: projectData.idx,
+          name: projectData.name.trim(),
+          category: projectData.category,
+          oneLiner: projectData.oneLiner.trim(),
+          homepageOneLiner: projectData.homepageOneLiner || null,
+          result: projectData.result.trim(),
+          tags: projectData.tags,
+          status: projectData.status || null,
+          mobilePreview: projectData.mobilePreview || null,
+          previewLabel: projectData.preview?.label || projectData.result,
+          previewSvg: projectData.preview?.svg || null,
+          featured: projectData.featured ?? true,
+        },
+      }),
+      10000,
+      "createProject"
+    );
 
-    const project: Project = {
+    invalidateContentCache();
+
+    return {
       id: created.id,
       slug: created.slug,
       idx: created.idx,
@@ -260,22 +276,9 @@ export async function createProject(projectData: Omit<Project, "id">): Promise<P
       },
       featured: created.featured,
     };
-
-    const current = await getSiteContent();
-    saveLocalFallback({ ...current, projects: [...current.projects, project] });
-    invalidateContentCache();
-    return project;
-  } catch (error) {
-    console.warn("Failed to create showcase project in Postgres, saving locally:", (error as Error).message);
-    const newProj: Project = {
-      ...projectData,
-      id: slug,
-      slug,
-    };
-    const current = getLocalFallback();
-    saveLocalFallback({ ...current, projects: [...current.projects, newProj] });
-    invalidateContentCache();
-    return newProj;
+  } catch (error: any) {
+    console.error("[Database Error] Failed to create showcase project in PostgreSQL:", error.message);
+    throw new Error("Failed to create project. Database write could not be confirmed.");
   }
 }
 
@@ -284,23 +287,28 @@ export async function updateProject(
   projectData: Partial<Project>
 ): Promise<Project | null> {
   try {
-    const dbClient = prisma as any;
-    const updated: DbProjectRecord = await dbClient.showcaseProject.update({
-      where: { id },
-      data: {
-        ...(projectData.name && { name: projectData.name }),
-        ...(projectData.category && { category: projectData.category }),
-        ...(projectData.oneLiner && { oneLiner: projectData.oneLiner }),
-        ...(projectData.homepageOneLiner !== undefined && { homepageOneLiner: projectData.homepageOneLiner }),
-        ...(projectData.result && { result: projectData.result }),
-        ...(projectData.tags && { tags: projectData.tags }),
-        ...(projectData.status !== undefined && { status: projectData.status || null }),
-        ...(projectData.mobilePreview !== undefined && { mobilePreview: projectData.mobilePreview }),
-        ...(projectData.featured !== undefined && { featured: projectData.featured }),
-      },
-    });
+    const updated: DbProjectRecord = await withDatabaseTimeout(
+      prisma.showcaseProject.update({
+        where: { id },
+        data: {
+          ...(projectData.name && { name: projectData.name.trim() }),
+          ...(projectData.category && { category: projectData.category }),
+          ...(projectData.oneLiner && { oneLiner: projectData.oneLiner.trim() }),
+          ...(projectData.homepageOneLiner !== undefined && { homepageOneLiner: projectData.homepageOneLiner }),
+          ...(projectData.result && { result: projectData.result.trim() }),
+          ...(projectData.tags && { tags: projectData.tags }),
+          ...(projectData.status !== undefined && { status: projectData.status || null }),
+          ...(projectData.mobilePreview !== undefined && { mobilePreview: projectData.mobilePreview }),
+          ...(projectData.featured !== undefined && { featured: projectData.featured }),
+        },
+      }),
+      10000,
+      "updateProject"
+    );
 
-    const project: Project = {
+    invalidateContentCache();
+
+    return {
       id: updated.id,
       slug: updated.slug,
       idx: updated.idx,
@@ -320,50 +328,31 @@ export async function updateProject(
       },
       featured: updated.featured,
     };
-
-    invalidateContentCache();
-    return project;
-  } catch (error) {
-    console.warn("Failed to update showcase project in Postgres, updating local fallback:", (error as Error).message);
-    const local = getLocalFallback();
-    const index = local.projects.findIndex((p) => p.id === id || p.slug === id);
-    if (index !== -1) {
-      local.projects[index] = { ...local.projects[index], ...projectData };
-      saveLocalFallback(local);
-      invalidateContentCache();
-      return local.projects[index];
+  } catch (error: any) {
+    if (error?.code === "P2025") {
+      return null;
     }
-    return null;
+    console.error("[Database Error] Failed to update showcase project in PostgreSQL:", error.message);
+    throw new Error("Failed to update project. Database write could not be confirmed.");
   }
 }
 
 export async function deleteProject(id: string): Promise<boolean> {
   try {
-    const dbClient = prisma as any;
-    await dbClient.showcaseProject.delete({
-      where: { id },
-    });
+    await withDatabaseTimeout(
+      prisma.showcaseProject.delete({
+        where: { id },
+      }),
+      8000,
+      "deleteProject"
+    );
     invalidateContentCache();
     return true;
-  } catch {
-    try {
-      const dbClient = prisma as any;
-      await dbClient.showcaseProject.delete({
-        where: { slug: id },
-      });
-      invalidateContentCache();
-      return true;
-    } catch {
-      console.warn("Failed to delete showcase project in Postgres, removing from local fallback");
-      const local = getLocalFallback();
-      const prev = local.projects.length;
-      local.projects = local.projects.filter((p) => p.id !== id && p.slug !== id);
-      if (local.projects.length !== prev) {
-        saveLocalFallback(local);
-        invalidateContentCache();
-        return true;
-      }
+  } catch (error: any) {
+    if (error?.code === "P2025") {
       return false;
     }
+    console.error("[Database Error] Failed to delete showcase project in PostgreSQL:", error.message);
+    throw new Error("Failed to delete project. Database delete could not be confirmed.");
   }
 }

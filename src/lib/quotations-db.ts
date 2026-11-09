@@ -1,6 +1,45 @@
-import { prisma, isRealDatabaseConfigured } from "@/lib/prisma";
-import fs from "fs";
-import path from "path";
+import crypto from "node:crypto";
+import {
+  prisma,
+  withDatabaseTimeout,
+  withDatabaseRetry,
+  isUniqueConstraintError,
+} from "@/lib/prisma";
+
+export class IdempotencyConflictError extends Error {
+  constructor(message = "Idempotency key was previously used with different request parameters.") {
+    super(message);
+    this.name = "IdempotencyConflictError";
+  }
+}
+
+export function computeQuotationPayloadHash(data: {
+  clientName: string;
+  clientEmail: string;
+  projectTitle: string;
+  currency?: string;
+  totalAmount: number;
+  subtotal: number;
+  lineItems: any[];
+}): string {
+  const canonical = {
+    clientEmail: data.clientEmail.toLowerCase().trim(),
+    clientName: data.clientName.trim(),
+    currency: data.currency || "INR",
+    lineItems: Array.isArray(data.lineItems)
+      ? data.lineItems.map((item) => ({
+          title: item.title,
+          amount: Number(item.amount),
+          hours: Number(item.hours || 0),
+          rate: Number(item.rate || 0),
+        }))
+      : [],
+    projectTitle: data.projectTitle.trim(),
+    subtotal: Number(data.subtotal) || 0,
+    totalAmount: Number(data.totalAmount) || 0,
+  };
+  return crypto.createHash("sha256").update(JSON.stringify(canonical)).digest("hex");
+}
 
 export interface QuotationLineItem {
   id: string;
@@ -14,6 +53,8 @@ export interface QuotationLineItem {
 export interface ProjectQuotationRecord {
   id: string;
   quotationNumber: string;
+  idempotencyKey?: string | null;
+  payloadHash?: string | null;
   clientName: string;
   clientEmail: string;
   clientPhone?: string | null;
@@ -39,37 +80,6 @@ export interface ProjectQuotationRecord {
   updatedAt: string;
 }
 
-const LOCAL_STORE_PATH = path.join(process.cwd(), "data", "quotations.json");
-
-function ensureLocalStore(): ProjectQuotationRecord[] {
-  try {
-    const dir = path.dirname(LOCAL_STORE_PATH);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    if (!fs.existsSync(LOCAL_STORE_PATH)) {
-      fs.writeFileSync(LOCAL_STORE_PATH, JSON.stringify([], null, 2), "utf-8");
-      return [];
-    }
-    const raw = fs.readFileSync(LOCAL_STORE_PATH, "utf-8");
-    return JSON.parse(raw);
-  } catch {
-    return [];
-  }
-}
-
-function writeLocalStore(items: ProjectQuotationRecord[]) {
-  try {
-    const dir = path.dirname(LOCAL_STORE_PATH);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    fs.writeFileSync(LOCAL_STORE_PATH, JSON.stringify(items, null, 2), "utf-8");
-  } catch (err) {
-    console.error("Failed to write to local quotations fallback:", err);
-  }
-}
-
 export function generateQuotationNumber(): string {
   const year = new Date().getFullYear();
   const randomSuffix = Math.floor(1000 + Math.random() * 9000);
@@ -78,6 +88,8 @@ export function generateQuotationNumber(): string {
 
 export async function createQuotation(data: {
   quotationNumber?: string;
+  idempotencyKey?: string | null;
+  actorId?: string | null;
   clientName: string;
   clientEmail: string;
   clientPhone?: string | null;
@@ -99,7 +111,45 @@ export async function createQuotation(data: {
   status?: "DRAFT" | "SENT" | "ACCEPTED" | "DECLINED" | "EXPIRED";
   sentAt?: string | null;
 }): Promise<ProjectQuotationRecord> {
-  const quoteNumber = data.quotationNumber || generateQuotationNumber();
+  const cleanIdempotencyKey = data.idempotencyKey && data.idempotencyKey.trim() ? data.idempotencyKey.trim() : null;
+  // Actor-scoped idempotency key prevents cross-tenant or cross-actor collisions
+  const scopedKey = cleanIdempotencyKey
+    ? (data.actorId ? `usr_${data.actorId}:${cleanIdempotencyKey}` : cleanIdempotencyKey)
+    : null;
+
+  const currentPayloadHash = computeQuotationPayloadHash(data);
+
+  // 1. Database-backed Idempotency check: if an idempotency key was specified, check PostgreSQL first
+  if (scopedKey) {
+    try {
+      const existingByIdempotency = await prisma.projectQuotation.findUnique({
+        where: { idempotencyKey: scopedKey },
+      });
+      if (existingByIdempotency) {
+        // Payload Verification: ensure the key is not being reused with a different payload
+        const isMatch = existingByIdempotency.payloadHash
+          ? existingByIdempotency.payloadHash === currentPayloadHash
+          : (
+              existingByIdempotency.clientEmail.toLowerCase() === data.clientEmail.toLowerCase().trim() &&
+              Math.abs(existingByIdempotency.totalAmount - data.totalAmount) < 0.01 &&
+              existingByIdempotency.projectTitle.trim() === data.projectTitle.trim()
+            );
+
+        if (!isMatch) {
+          throw new IdempotencyConflictError(
+            `Idempotency key "${cleanIdempotencyKey}" was previously used with different request parameters.`
+          );
+        }
+
+        console.info(`[Quotation Idempotency] Replaying existing quotation for "${cleanIdempotencyKey}".`);
+        return serializePrismaQuotation(existingByIdempotency);
+      }
+    } catch (err: any) {
+      if (err instanceof IdempotencyConflictError) throw err;
+      console.warn(`[Quotation Idempotency] Lookup warning for key "${cleanIdempotencyKey}": ${err.message}`);
+    }
+  }
+
   const currency = data.currency || "INR";
   const discount = Number(data.discount) || 0;
   const taxRate = Number(data.taxRate) || 0;
@@ -108,250 +158,135 @@ export async function createQuotation(data: {
   const status = data.status || "DRAFT";
   const viewToken = `qt_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
 
-  try {
-    const created = await (prisma as any).projectQuotation.create({
-      data: {
-        quotationNumber: quoteNumber,
-        clientName: data.clientName.trim(),
-        clientEmail: data.clientEmail.trim(),
-        clientPhone: data.clientPhone?.trim() || null,
-        clientCompany: data.clientCompany?.trim() || null,
-        projectTitle: data.projectTitle.trim(),
-        overview: data.overview.trim(),
-        currency,
-        subtotal: Number(data.subtotal),
-        discount,
-        taxRate,
-        taxAmount,
-        totalAmount: Number(data.totalAmount),
-        timeline: data.timeline.trim(),
-        paymentSchedule: data.paymentSchedule.trim(),
-        validUntil: new Date(data.validUntil),
-        lineItems: data.lineItems,
-        techStack,
-        termsAndNotes: data.termsAndNotes?.trim() || null,
-        status,
-        sentAt: data.sentAt ? new Date(data.sentAt) : null,
-        viewToken,
-      },
-    });
+  let attempts = 0;
+  while (attempts < 3) {
+    attempts++;
+    const quoteNumber = data.quotationNumber && attempts === 1 ? data.quotationNumber : generateQuotationNumber();
 
-    return {
-      id: created.id,
-      quotationNumber: created.quotationNumber,
-      clientName: created.clientName,
-      clientEmail: created.clientEmail,
-      clientPhone: created.clientPhone,
-      clientCompany: created.clientCompany,
-      projectTitle: created.projectTitle,
-      overview: created.overview,
-      currency: created.currency as "INR" | "USD",
-      subtotal: created.subtotal,
-      discount: created.discount,
-      taxRate: created.taxRate,
-      taxAmount: created.taxAmount,
-      totalAmount: created.totalAmount,
-      timeline: created.timeline,
-      paymentSchedule: created.paymentSchedule,
-      validUntil: created.validUntil.toISOString(),
-      lineItems: created.lineItems as unknown as QuotationLineItem[],
-      techStack: created.techStack,
-      termsAndNotes: created.termsAndNotes,
-      status: created.status as ProjectQuotationRecord["status"],
-      sentAt: created.sentAt ? created.sentAt.toISOString() : null,
-      viewToken: created.viewToken,
-      createdAt: created.createdAt.toISOString(),
-      updatedAt: created.updatedAt.toISOString(),
-    };
-  } catch (dbError) {
-    if (isRealDatabaseConfigured()) {
-      console.error(
-        "[Database Error] Failed to persist quotation to PostgreSQL:",
-        (dbError as Error).message
+    try {
+      const created = await withDatabaseTimeout(
+        prisma.projectQuotation.create({
+          data: {
+            quotationNumber: quoteNumber,
+            idempotencyKey: scopedKey,
+            payloadHash: currentPayloadHash,
+            clientName: data.clientName.trim(),
+            clientEmail: data.clientEmail.toLowerCase().trim(),
+            clientPhone: data.clientPhone?.trim() || null,
+            clientCompany: data.clientCompany?.trim() || null,
+            projectTitle: data.projectTitle.trim(),
+            overview: data.overview.trim(),
+            currency,
+            subtotal: Number(data.subtotal),
+            discount,
+            taxRate,
+            taxAmount,
+            totalAmount: Number(data.totalAmount),
+            timeline: data.timeline.trim(),
+            paymentSchedule: data.paymentSchedule.trim(),
+            validUntil: new Date(data.validUntil),
+            lineItems: data.lineItems as any,
+            techStack,
+            termsAndNotes: data.termsAndNotes?.trim() || null,
+            status,
+            sentAt: data.sentAt ? new Date(data.sentAt) : null,
+            viewToken,
+          },
+        }),
+        10000,
+        "createQuotation"
       );
-      throw dbError;
+
+      return serializePrismaQuotation(created);
+    } catch (err: any) {
+      // 2. Concurrency Race Defense: If another concurrent worker inserted this idempotencyKey
+      if (scopedKey && isUniqueConstraintError(err)) {
+        try {
+          const raceWinner = await prisma.projectQuotation.findUnique({
+            where: { idempotencyKey: scopedKey },
+          });
+          if (raceWinner) {
+            const isMatch = raceWinner.payloadHash
+              ? raceWinner.payloadHash === currentPayloadHash
+              : (
+                  raceWinner.clientEmail.toLowerCase() === data.clientEmail.toLowerCase().trim() &&
+                  Math.abs(raceWinner.totalAmount - data.totalAmount) < 0.01 &&
+                  raceWinner.projectTitle.trim() === data.projectTitle.trim()
+                );
+
+            if (!isMatch) {
+              throw new IdempotencyConflictError(
+                `Idempotency key "${cleanIdempotencyKey}" was concurrently used with different request parameters.`
+              );
+            }
+
+            console.info(`[Quotation Idempotency] Concurrent race resolved for "${cleanIdempotencyKey}". Returning record.`);
+            return serializePrismaQuotation(raceWinner);
+          }
+        } catch (raceErr) {
+          if (raceErr instanceof IdempotencyConflictError) throw raceErr;
+        }
+      }
+
+      // If collision was on random quotationNumber, retry with new random suffix
+      if (isUniqueConstraintError(err) && attempts < 3) {
+        console.warn(`[Quotation] Collision on quotationNumber "${quoteNumber}", retrying with new number...`);
+        continue;
+      }
+      console.error("[Database Error] Failed to persist quotation to PostgreSQL:", err.message);
+      throw new Error("Failed to create quotation. Database write could not be confirmed.");
     }
-
-    console.warn(
-      "[Database Warning] PostgreSQL unreachable via Prisma. Falling back to local data store for quotations. Error:",
-      (dbError as Error).message
-    );
-
-    const store = ensureLocalStore();
-    const newRecord: ProjectQuotationRecord = {
-      id: `local_qt_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
-      quotationNumber: quoteNumber,
-      clientName: data.clientName.trim(),
-      clientEmail: data.clientEmail.trim(),
-      clientPhone: data.clientPhone?.trim() || null,
-      clientCompany: data.clientCompany?.trim() || null,
-      projectTitle: data.projectTitle.trim(),
-      overview: data.overview.trim(),
-      currency,
-      subtotal: Number(data.subtotal),
-      discount,
-      taxRate,
-      taxAmount,
-      totalAmount: Number(data.totalAmount),
-      timeline: data.timeline.trim(),
-      paymentSchedule: data.paymentSchedule.trim(),
-      validUntil: new Date(data.validUntil).toISOString(),
-      lineItems: data.lineItems,
-      techStack,
-      termsAndNotes: data.termsAndNotes?.trim() || null,
-      status,
-      sentAt: data.sentAt ? new Date(data.sentAt).toISOString() : null,
-      viewToken,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-
-    store.unshift(newRecord);
-    writeLocalStore(store);
-    return newRecord;
   }
+
+  throw new Error("Failed to generate a unique quotation number. Please try again.");
 }
 
 export async function getAllQuotations(): Promise<ProjectQuotationRecord[]> {
-  if (!isRealDatabaseConfigured()) {
-    const store = ensureLocalStore();
-    return store.sort(
-      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
-  }
-
-  try {
-    const records = await (prisma as any).projectQuotation.findMany({
-      orderBy: { createdAt: "desc" },
-    });
-
-    return records.map((r: any) => ({
-      id: r.id,
-      quotationNumber: r.quotationNumber,
-      clientName: r.clientName,
-      clientEmail: r.clientEmail,
-      clientPhone: r.clientPhone,
-      clientCompany: r.clientCompany,
-      projectTitle: r.projectTitle,
-      overview: r.overview,
-      currency: r.currency as "INR" | "USD",
-      subtotal: r.subtotal,
-      discount: r.discount,
-      taxRate: r.taxRate,
-      taxAmount: r.taxAmount,
-      totalAmount: r.totalAmount,
-      timeline: r.timeline,
-      paymentSchedule: r.paymentSchedule,
-      validUntil: r.validUntil.toISOString(),
-      lineItems: r.lineItems as unknown as QuotationLineItem[],
-      techStack: r.techStack,
-      termsAndNotes: r.termsAndNotes,
-      status: r.status as ProjectQuotationRecord["status"],
-      sentAt: r.sentAt ? r.sentAt.toISOString() : null,
-      viewToken: r.viewToken,
-      createdAt: r.createdAt.toISOString(),
-      updatedAt: r.updatedAt.toISOString(),
-    }));
-  } catch (dbError) {
-    console.warn(
-      "[Database Warning] PostgreSQL unreachable via Prisma. Falling back to local store for quotations.",
-      (dbError as Error).message
-    );
-    const store = ensureLocalStore();
-    return store.sort(
-      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
-  }
+  return withDatabaseRetry(
+    async () => {
+      const records = await withDatabaseTimeout(
+        prisma.projectQuotation.findMany({
+          orderBy: { createdAt: "desc" },
+        }),
+        6000,
+        "getAllQuotations"
+      );
+      return (records || []).map(serializePrismaQuotation);
+    },
+    { isIdempotent: true, operationName: "getAllQuotations" }
+  );
 }
 
 export async function getQuotationById(id: string): Promise<ProjectQuotationRecord | null> {
-  if (!isRealDatabaseConfigured()) {
-    const store = ensureLocalStore();
-    return store.find((q) => q.id === id) || null;
-  }
-
-  try {
-    const r = await (prisma as any).projectQuotation.findUnique({
-      where: { id },
-    });
-    if (!r) return null;
-
-    return {
-      id: r.id,
-      quotationNumber: r.quotationNumber,
-      clientName: r.clientName,
-      clientEmail: r.clientEmail,
-      clientPhone: r.clientPhone,
-      clientCompany: r.clientCompany,
-      projectTitle: r.projectTitle,
-      overview: r.overview,
-      currency: r.currency as "INR" | "USD",
-      subtotal: r.subtotal,
-      discount: r.discount,
-      taxRate: r.taxRate,
-      taxAmount: r.taxAmount,
-      totalAmount: r.totalAmount,
-      timeline: r.timeline,
-      paymentSchedule: r.paymentSchedule,
-      validUntil: r.validUntil.toISOString(),
-      lineItems: r.lineItems as unknown as QuotationLineItem[],
-      techStack: r.techStack,
-      termsAndNotes: r.termsAndNotes,
-      status: r.status as ProjectQuotationRecord["status"],
-      sentAt: r.sentAt ? r.sentAt.toISOString() : null,
-      viewToken: r.viewToken,
-      createdAt: r.createdAt.toISOString(),
-      updatedAt: r.updatedAt.toISOString(),
-    };
-  } catch {
-    const store = ensureLocalStore();
-    return store.find((q) => q.id === id) || null;
-  }
+  return withDatabaseRetry(
+    async () => {
+      const record = await withDatabaseTimeout(
+        prisma.projectQuotation.findUnique({
+          where: { id },
+        }),
+        6000,
+        "getQuotationById"
+      );
+      return record ? serializePrismaQuotation(record) : null;
+    },
+    { isIdempotent: true, operationName: "getQuotationById" }
+  );
 }
 
 export async function getQuotationByToken(token: string): Promise<ProjectQuotationRecord | null> {
-  if (!isRealDatabaseConfigured()) {
-    const store = ensureLocalStore();
-    return store.find((q) => q.viewToken === token) || null;
-  }
-
-  try {
-    const r = await (prisma as any).projectQuotation.findUnique({
-      where: { viewToken: token },
-    });
-    if (!r) return null;
-
-    return {
-      id: r.id,
-      quotationNumber: r.quotationNumber,
-      clientName: r.clientName,
-      clientEmail: r.clientEmail,
-      clientPhone: r.clientPhone,
-      clientCompany: r.clientCompany,
-      projectTitle: r.projectTitle,
-      overview: r.overview,
-      currency: r.currency as "INR" | "USD",
-      subtotal: r.subtotal,
-      discount: r.discount,
-      taxRate: r.taxRate,
-      taxAmount: r.taxAmount,
-      totalAmount: r.totalAmount,
-      timeline: r.timeline,
-      paymentSchedule: r.paymentSchedule,
-      validUntil: r.validUntil.toISOString(),
-      lineItems: r.lineItems as unknown as QuotationLineItem[],
-      techStack: r.techStack,
-      termsAndNotes: r.termsAndNotes,
-      status: r.status as ProjectQuotationRecord["status"],
-      sentAt: r.sentAt ? r.sentAt.toISOString() : null,
-      viewToken: r.viewToken,
-      createdAt: r.createdAt.toISOString(),
-      updatedAt: r.updatedAt.toISOString(),
-    };
-  } catch {
-    const store = ensureLocalStore();
-    return store.find((q) => q.viewToken === token) || null;
-  }
+  return withDatabaseRetry(
+    async () => {
+      const record = await withDatabaseTimeout(
+        prisma.projectQuotation.findUnique({
+          where: { viewToken: token },
+        }),
+        6000,
+        "getQuotationByToken"
+      );
+      return record ? serializePrismaQuotation(record) : null;
+    },
+    { isIdempotent: true, operationName: "getQuotationByToken" }
+  );
 }
 
 export async function updateQuotation(
@@ -361,7 +296,7 @@ export async function updateQuotation(
   try {
     const updatePayload: any = {};
     if (data.clientName !== undefined) updatePayload.clientName = data.clientName.trim();
-    if (data.clientEmail !== undefined) updatePayload.clientEmail = data.clientEmail.trim();
+    if (data.clientEmail !== undefined) updatePayload.clientEmail = data.clientEmail.toLowerCase().trim();
     if (data.clientPhone !== undefined) updatePayload.clientPhone = data.clientPhone?.trim() || null;
     if (data.clientCompany !== undefined) updatePayload.clientCompany = data.clientCompany?.trim() || null;
     if (data.projectTitle !== undefined) updatePayload.projectTitle = data.projectTitle.trim();
@@ -381,75 +316,72 @@ export async function updateQuotation(
     if (data.status !== undefined) updatePayload.status = data.status;
     if (data.sentAt !== undefined) updatePayload.sentAt = data.sentAt ? new Date(data.sentAt) : null;
 
-    const updated = await (prisma as any).projectQuotation.update({
-      where: { id },
-      data: updatePayload,
-    });
+    const updated = await withDatabaseTimeout(
+      prisma.projectQuotation.update({
+        where: { id },
+        data: updatePayload,
+      }),
+      10000,
+      "updateQuotation"
+    );
 
-    return {
-      id: updated.id,
-      quotationNumber: updated.quotationNumber,
-      clientName: updated.clientName,
-      clientEmail: updated.clientEmail,
-      clientPhone: updated.clientPhone,
-      clientCompany: updated.clientCompany,
-      projectTitle: updated.projectTitle,
-      overview: updated.overview,
-      currency: updated.currency as "INR" | "USD",
-      subtotal: updated.subtotal,
-      discount: updated.discount,
-      taxRate: updated.taxRate,
-      taxAmount: updated.taxAmount,
-      totalAmount: updated.totalAmount,
-      timeline: updated.timeline,
-      paymentSchedule: updated.paymentSchedule,
-      validUntil: updated.validUntil.toISOString(),
-      lineItems: updated.lineItems as unknown as QuotationLineItem[],
-      techStack: updated.techStack,
-      termsAndNotes: updated.termsAndNotes,
-      status: updated.status as ProjectQuotationRecord["status"],
-      sentAt: updated.sentAt ? updated.sentAt.toISOString() : null,
-      viewToken: updated.viewToken,
-      createdAt: updated.createdAt.toISOString(),
-      updatedAt: updated.updatedAt.toISOString(),
-    };
-  } catch (dbError) {
-    if (isRealDatabaseConfigured()) {
-      console.error("[Database Error] Failed to update quotation in PostgreSQL:", (dbError as Error).message);
-      throw dbError;
+    return serializePrismaQuotation(updated);
+  } catch (err: any) {
+    if (err?.code === "P2025") {
+      return null; // Record not found
     }
-    const store = ensureLocalStore();
-    const index = store.findIndex((q) => q.id === id);
-    if (index !== -1) {
-      store[index] = {
-        ...store[index],
-        ...data,
-        updatedAt: new Date().toISOString(),
-      } as ProjectQuotationRecord;
-      writeLocalStore(store);
-      return store[index];
-    }
-    return null;
+    console.error("[Database Error] Failed to update quotation in PostgreSQL:", err.message);
+    throw new Error("Failed to update quotation. Database write could not be confirmed.");
   }
 }
 
 export async function deleteQuotation(id: string): Promise<boolean> {
   try {
-    await (prisma as any).projectQuotation.delete({
-      where: { id },
-    });
+    await withDatabaseTimeout(
+      prisma.projectQuotation.delete({
+        where: { id },
+      }),
+      8000,
+      "deleteQuotation"
+    );
     return true;
-  } catch (err) {
-    if (isRealDatabaseConfigured()) {
-      console.error("[Database Error] Failed to delete quotation in PostgreSQL:", (err as Error).message);
-      throw err;
+  } catch (err: any) {
+    if (err?.code === "P2025") {
+      return false; // Already deleted / not found
     }
-    const store = ensureLocalStore();
-    const filtered = store.filter((q) => q.id !== id);
-    if (filtered.length !== store.length) {
-      writeLocalStore(filtered);
-      return true;
-    }
-    return false;
+    console.error("[Database Error] Failed to delete quotation in PostgreSQL:", err.message);
+    throw new Error("Failed to delete quotation. Database delete could not be confirmed.");
   }
+}
+
+function serializePrismaQuotation(rec: any): ProjectQuotationRecord {
+  return {
+    id: rec.id,
+    quotationNumber: rec.quotationNumber,
+    idempotencyKey: rec.idempotencyKey || null,
+    payloadHash: rec.payloadHash || null,
+    clientName: rec.clientName,
+    clientEmail: rec.clientEmail,
+    clientPhone: rec.clientPhone,
+    clientCompany: rec.clientCompany,
+    projectTitle: rec.projectTitle,
+    overview: rec.overview,
+    currency: rec.currency as "INR" | "USD",
+    subtotal: rec.subtotal,
+    discount: rec.discount,
+    taxRate: rec.taxRate,
+    taxAmount: rec.taxAmount,
+    totalAmount: rec.totalAmount,
+    timeline: rec.timeline,
+    paymentSchedule: rec.paymentSchedule,
+    validUntil: rec.validUntil instanceof Date ? rec.validUntil.toISOString() : rec.validUntil,
+    lineItems: Array.isArray(rec.lineItems) ? rec.lineItems : [],
+    techStack: Array.isArray(rec.techStack) ? rec.techStack : [],
+    termsAndNotes: rec.termsAndNotes,
+    status: rec.status as ProjectQuotationRecord["status"],
+    sentAt: rec.sentAt ? (rec.sentAt instanceof Date ? rec.sentAt.toISOString() : rec.sentAt) : null,
+    viewToken: rec.viewToken,
+    createdAt: rec.createdAt instanceof Date ? rec.createdAt.toISOString() : rec.createdAt,
+    updatedAt: rec.updatedAt instanceof Date ? rec.updatedAt.toISOString() : rec.updatedAt,
+  };
 }
