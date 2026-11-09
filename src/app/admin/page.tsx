@@ -204,12 +204,19 @@ export default function AdminDashboardPage() {
   const fetchPortalProjects = async () => {
     try {
       const res = await fetch("/api/projects");
+      if (!res.ok) {
+        setPortalProjects([]);
+        return;
+      }
       const json = await res.json();
-      if (json.success) {
+      if (json.success && Array.isArray(json.projects)) {
         setPortalProjects(json.projects);
+      } else {
+        setPortalProjects([]);
       }
     } catch (err) {
       console.error("Failed to load portal projects:", err);
+      setPortalProjects([]);
     } finally {
       setLoadingPortalProjects(false);
     }
@@ -219,12 +226,19 @@ export default function AdminDashboardPage() {
   const fetchDevelopers = async () => {
     try {
       const res = await fetch("/api/admin/developers");
+      if (!res.ok) {
+        setDevelopers([]);
+        return;
+      }
       const json = await res.json();
-      if (json.success) {
+      if (json.success && Array.isArray(json.developers)) {
         setDevelopers(json.developers);
+      } else {
+        setDevelopers([]);
       }
     } catch (err) {
       console.error("Failed to load developers:", err);
+      setDevelopers([]);
     } finally {
       setLoadingDevs(false);
     }
