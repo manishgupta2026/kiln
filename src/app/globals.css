@@ -408,16 +408,38 @@ header.nav {
   flex-direction: column;
   align-items: flex-start;
   text-decoration: none;
-  transform: translateY(-4px);
+  transform: translateY(-2px);
   transition: transform 0.2s ease;
 }
 
 .logo-brand:hover {
-  transform: translateY(-5px);
+  transform: translateY(-3px);
 }
 
-.logo-brand:hover .brand-mark {
-  transform: rotate(2deg) scale(1.05);
+.logo-img {
+  height: 38px;
+  width: auto;
+  display: block;
+  object-fit: contain;
+  transition: transform 0.2s ease;
+}
+
+.logo-brand:hover .logo-img {
+  transform: scale(1.02);
+}
+
+.logo-img-dark {
+  display: none !important;
+}
+
+[data-theme="dark"] .logo-img-light,
+html.dark .logo-img-light {
+  display: none !important;
+}
+
+[data-theme="dark"] .logo-img-dark,
+html.dark .logo-img-dark {
+  display: block !important;
 }
 
 .logo {
@@ -439,8 +461,8 @@ header.nav {
   letter-spacing: 0.04em;
   color: var(--muted);
   line-height: 1;
-  margin-top: 3px;
-  padding-left: 40px;
+  margin-top: 4px;
+  padding-left: 42px;
   white-space: nowrap;
   display: block;
 }
@@ -465,7 +487,8 @@ header.nav {
   transition: transform 0.2s ease;
 }
 
-.logo:hover .brand-mark {
+.logo:hover .brand-mark,
+.logo-brand:hover .brand-mark {
   transform: rotate(2deg) scale(1.05);
 }
 
@@ -676,6 +699,9 @@ header.nav {
   }
   .mobile-nav-drawer {
     top: 59px;
+  }
+  .logo-img {
+    height: 30px;
   }
   .logo-brand .logo {
     font-size: 21px;
@@ -2903,6 +2929,12 @@ footer .logo-brand:hover {
   transform: translateY(-3px);
 }
 
+footer .logo-img {
+  height: 38px;
+  width: auto;
+  display: block;
+}
+
 footer .logo-brand .logo,
 footer .logo {
   color: var(--hero-text);
@@ -2911,6 +2943,7 @@ footer .logo {
 footer .logo-tagline {
   color: #BFE3D6;
   opacity: 0.9;
+  padding-left: 42px;
 }
 
 .footer-links {

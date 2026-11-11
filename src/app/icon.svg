@@ -1,4 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
-  <rect width="32" height="32" rx="7" fill="#F4B63F" stroke="#17201E" stroke-width="2"/>
-  <text x="50%" y="54%" text-anchor="middle" dominant-baseline="middle" fill="#17201E" font-family="system-ui, sans-serif" font-weight="800" font-size="20">D</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img"><title>DigiGrantha favicon</title><rect width="64" height="64" rx="14" fill="#F2B33D"/><path fill-rule="evenodd" fill="#0F5C52" d="M14 12 H32 A21 20 0 0 1 32 52 H14 Z M24 21 H40 V45 L32 39 L24 45 Z"/></svg>

@@ -47,30 +47,12 @@ export default function PortalHeader({ user, projectTitle }: PortalHeaderProps) 
       }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-        <Link href={rootPath} style={{ display: "inline-flex", alignItems: "center", gap: "10px", textDecoration: "none" }}>
-          <div
-            style={{
-              width: "28px",
-              height: "28px",
-              background: "var(--yellow)",
-              border: "2px solid var(--outline)",
-              borderRadius: "7px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontFamily: "var(--display)",
-              fontWeight: 800,
-              fontSize: "15px",
-              color: "#17201E",
-              boxShadow: "2px 2px 0 var(--outline)",
-              transform: "rotate(-3deg)",
-            }}
-          >
-            D
-          </div>
-          <span style={{ fontFamily: "var(--display)", fontSize: "20px", fontWeight: 700, color: "var(--text)", letterSpacing: "-0.02em" }}>
-            DigiGrantha<span style={{ color: "var(--yellow)" }}>.</span>
-          </span>
+        <Link href={rootPath} style={{ display: "inline-flex", alignItems: "center", textDecoration: "none" }}>
+          <img
+            src="/digigrantha-logo.svg"
+            alt="DigiGrantha"
+            style={{ height: "30px", width: "auto", display: "block" }}
+          />
         </Link>
 
         <span

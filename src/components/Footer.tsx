@@ -10,12 +10,14 @@ export default function Footer({ showNote = true }: FooterProps) {
       <div className="wrap">
         <div className="footer-inner">
           <Link href="/" className="logo-brand">
-            <div className="logo">
-              <span className="brand-mark" aria-hidden="true">D</span>
-              <span className="logo-text">DigiGrantha</span>
-              <span className="logo-dot">.</span>
-            </div>
-            <span className="logo-tagline">Where idea become Digital</span>
+            <img
+              src="/digigrantha-logo-on-dark.svg"
+              alt="DigiGrantha"
+              className="logo-img"
+              width={172}
+              height={40}
+            />
+            <span className="logo-tagline">Where ideas become digital</span>
           </Link>
           <div className="footer-links">
             <Link href="/work">Work</Link>

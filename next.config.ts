@@ -87,7 +87,7 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        source: "/:file((?:favicon\\.ico|signature\\.png|og-image\\.png|llms\\.txt|llms-full\\.txt))",
+        source: "/:file((?:favicon\\.ico|favicon\\.svg|favicon-32\\.png|favicon-48\\.png|apple-touch-icon-180\\.png|apple-touch-icon\\.png|icon-512\\.png|app-icon\\.svg|digigrantha-logo\\.svg|digigrantha-logo-on-dark\\.svg|digigrantha-logo-1200\\.png|digigrantha-mark\\.svg|signature\\.png|og-image\\.png|llms\\.txt|llms-full\\.txt))",
         headers: [
           {
             key: "Cache-Control",

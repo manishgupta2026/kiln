@@ -13,7 +13,7 @@ import { OrganizationJsonLd } from "@/components/JsonLd";
 export const metadata: Metadata = {
   metadataBase: new URL("https://digigrantha.com"),
   title: {
-    default: "DigiGrantha — Digital Product & Web Development Studio",
+    default: "DigiGrantha — Where ideas become digital",
     template: "%s | DigiGrantha",
   },
   description:
@@ -22,6 +22,18 @@ export const metadata: Metadata = {
   authors: [{ name: "DigiGrantha Studio", url: "https://digigrantha.com" }],
   creator: "DigiGrantha",
   publisher: "DigiGrantha",
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon-48.png", sizes: "48x48", type: "image/png" },
+    ],
+    apple: [
+      { url: "/apple-touch-icon-180.png", sizes: "180x180", type: "image/png" },
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+    shortcut: "/favicon.svg",
+  },
   formatDetection: {
     email: false,
     address: false,
@@ -90,6 +102,11 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+        <link rel="icon" href="/favicon-48.png" sizes="48x48" type="image/png" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon-180.png" />
+        <meta name="theme-color" content="#0F5C52" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link

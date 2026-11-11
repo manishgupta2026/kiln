@@ -36,11 +36,22 @@ export default function ForgotPasswordPage() {
 
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "var(--bg)" }}>
-      <header style={{ padding: "20px 32px", borderBottom: "2px solid var(--outline)", background: "var(--surface)" }}>
-        <Link href="/" className="logo">
-          <span className="brand-mark" aria-hidden="true">D</span>
-          <span className="logo-text">Digigrantha</span>
-          <span className="logo-dot">.</span>
+      <header style={{ padding: "18px 32px", borderBottom: "2px solid var(--outline)", background: "var(--surface)" }}>
+        <Link href="/" className="logo-brand" style={{ transform: "none" }}>
+          <img
+            src="/digigrantha-logo.svg"
+            alt="DigiGrantha"
+            className="logo-img logo-img-light"
+            width={172}
+            height={38}
+          />
+          <img
+            src="/digigrantha-logo-on-dark.svg"
+            alt="DigiGrantha"
+            className="logo-img logo-img-dark"
+            width={172}
+            height={38}
+          />
         </Link>
       </header>
 

@@ -17,9 +17,9 @@ export function OrganizationJsonLd({ url = "https://digigrantha.com" }: Organiza
         logo: {
           "@type": "ImageObject",
           "@id": `${url}/#logo`,
-          url: `${url}/og-image.png`,
-          contentUrl: `${url}/og-image.png`,
-          caption: "DigiGrantha — Digital Product & Web Development Studio",
+          url: `${url}/digigrantha-logo-1200.png`,
+          contentUrl: `${url}/digigrantha-logo-1200.png`,
+          caption: "DigiGrantha — Where ideas become digital",
         },
         image: {
           "@id": `${url}/#logo`,
@@ -101,7 +101,7 @@ export function OrganizationJsonLd({ url = "https://digigrantha.com" }: Organiza
         url: url,
         name: "DigiGrantha",
         description:
-          "Expressive digital product & web development studio. Where idea becomes Digital.",
+          "Expressive digital product & web development studio. Where ideas become digital.",
         publisher: {
           "@id": `${url}/#organization`,
         },

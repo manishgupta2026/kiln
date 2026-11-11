@@ -400,8 +400,12 @@ export default function AdminNavbar({
         <div className="admin-nav-container">
           {/* Left Brand & Studio Pill */}
           <div className="admin-nav-brand-group">
-            <Link href="/admin" className="admin-nav-logo" title="Digigrantha Admin Studio">
-              DigiGrantha<span className="admin-nav-logo-dot">.</span>
+            <Link href="/admin" className="admin-nav-logo" title="Digigrantha Admin Studio" style={{ display: "inline-flex", alignItems: "center" }}>
+              <img
+                src="/digigrantha-logo.svg"
+                alt="DigiGrantha"
+                style={{ height: "28px", width: "auto", display: "block" }}
+              />
             </Link>
 
             <div className="admin-nav-status-badge">
@@ -505,8 +509,13 @@ export default function AdminNavbar({
           {/* Drawer Top Header */}
           <div className="admin-drawer-header">
             <div>
-              <div className="admin-drawer-logo">
-                DigiGrantha<span>.</span> Studio
+              <div className="admin-drawer-logo" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <img
+                  src="/digigrantha-logo.svg"
+                  alt="DigiGrantha"
+                  style={{ height: "26px", width: "auto", display: "block" }}
+                />
+                <span>Studio</span>
               </div>
               <div className="admin-drawer-status">
                 <span className="admin-nav-pulse-dot" />

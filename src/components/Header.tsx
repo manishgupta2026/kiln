@@ -32,14 +32,23 @@ export default function Header() {
   return (
     <header className="nav">
       <div className="nav-inner">
-        {/* Brand Logo with Neem Signature Tilted Badge */}
+        {/* Brand Logo with Official DigiGrantha Bookmark Lockup */}
         <Link href="/" className="logo-brand" onClick={() => setMobileMenuOpen(false)}>
-          <div className="logo">
-            <span className="brand-mark" aria-hidden="true">D</span>
-            <span className="logo-text">DigiGrantha</span>
-            <span className="logo-dot">.</span>
-          </div>
-          <span className="logo-tagline">Where idea becomes Digital</span>
+          <img
+            src="/digigrantha-logo.svg"
+            alt="DigiGrantha"
+            className="logo-img logo-img-light"
+            width={172}
+            height={40}
+          />
+          <img
+            src="/digigrantha-logo-on-dark.svg"
+            alt="DigiGrantha"
+            className="logo-img logo-img-dark"
+            width={172}
+            height={40}
+          />
+          <span className="logo-tagline">Where ideas become digital</span>
         </Link>
 
         {/* Desktop Nav Links */}

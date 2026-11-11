@@ -1,6 +1,6 @@
 # DigiGrantha
 
-> Where idea becomes Digital. An independent digital product and software engineering studio that designs, architects, and builds custom web applications, responsive websites, scalable client portals, and resilient digital systems start to finish.
+> Where ideas become digital. An independent digital product and software engineering studio that designs, architects, and builds custom web applications, responsive websites, scalable client portals, and resilient digital systems start to finish.
 
 ## Core Identity & Overview
 - **Studio Name**: DigiGrantha (also known as DigiGrantha Studio)
