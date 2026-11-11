@@ -14,9 +14,9 @@ export default function Header() {
     setMobileMenuOpen(false);
   }, [pathname]);
 
-  // Lock scroll and hide floating CTA when mobile menu is open
+  // Lock scroll and hide floating CTA stack when mobile menu is open
   useEffect(() => {
-    const floatCta = document.getElementById("float-cta");
+    const floatCta = document.getElementById("float-cta-stack") || document.getElementById("float-cta");
     if (mobileMenuOpen) {
       document.body.style.overflow = "hidden";
       if (floatCta) floatCta.style.display = "none";
@@ -41,15 +41,15 @@ export default function Header() {
                 src="/digigrantha-mark.svg"
                 alt="DigiGrantha"
                 className="brand-mark-img brand-mark-light"
-                width={44}
-                height={44}
+                width={38}
+                height={38}
               />
               <img
                 src="/digigrantha-mark-on-dark.svg"
                 alt="DigiGrantha"
                 className="brand-mark-img brand-mark-dark"
-                width={44}
-                height={44}
+                width={38}
+                height={38}
               />
             </div>
             <div className="logo-text-group">

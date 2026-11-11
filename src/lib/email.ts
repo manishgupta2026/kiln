@@ -801,3 +801,196 @@ Digigrantha`;
   });
 }
 
+function escapeHtml(str: string): string {
+  return String(str || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+export async function sendNewBriefAdminNotification(brief: {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string | null;
+  projectType: string;
+  budget?: string | null;
+  description: string;
+}): Promise<{ success: boolean; errors?: string[] }> {
+  const adminRecipients = new Set<string>();
+
+  // 1. Mandatory requested recipient
+  adminRecipients.add("admin@digigrantha.com");
+
+  // 2. Environment-configured admin email(s)
+  if (process.env.ADMIN_NOTIFICATION_EMAIL) {
+    process.env.ADMIN_NOTIFICATION_EMAIL.split(",").forEach((e) => {
+      const trimmed = e.trim();
+      if (trimmed && trimmed.includes("@")) adminRecipients.add(trimmed);
+    });
+  }
+  if (process.env.ADMIN_EMAIL) {
+    process.env.ADMIN_EMAIL.split(",").forEach((e) => {
+      const trimmed = e.trim();
+      if (trimmed && trimmed.includes("@")) adminRecipients.add(trimmed);
+    });
+  }
+  if (process.env.SMTP_USER && process.env.SMTP_USER.includes("@")) {
+    adminRecipients.add(process.env.SMTP_USER.trim());
+  }
+
+  // 3. Database admin users (if available)
+  try {
+    const { prisma } = await import("@/lib/prisma");
+    const adminUsers: Array<{ email: string }> = await prisma.user.findMany({
+      where: { role: "ADMIN" },
+      select: { email: true },
+    });
+    adminUsers.forEach((u: { email: string }) => {
+      if (u.email && u.email.includes("@")) {
+        adminRecipients.add(u.email.trim());
+      }
+    });
+  } catch {
+    // If DB is offline, continue with environment recipients
+  }
+
+  const subject = `⚡ New Project Application: ${brief.name} (${brief.projectType})`;
+  const adminUrl = `https://digigrantha.com/admin/briefs/${brief.id}`;
+
+  const html = `
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; background: #FAF7EE; border: 2px solid #17201E; border-radius: 16px; overflow: hidden; box-shadow: 4px 4px 0 #17201E;">
+      <!-- Header -->
+      <div style="background: #0F5C52; padding: 24px 28px; border-bottom: 2px solid #17201E;">
+        <div>
+          <span style="font-family: Georgia, serif; font-size: 20px; font-weight: 700; color: #FAF7EE; letter-spacing: -0.02em;">
+            Digi<span style="font-style: italic; color: #C6E04B;">Grantha</span><span style="color: #F4B63F;">.</span>
+          </span>
+          <div style="font-size: 11px; color: #BFE3D6; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; margin-top: 4px;">
+            ⚡ New Project Application Received
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Content -->
+      <div style="padding: 28px; color: #17201E;">
+        <h2 style="font-family: Georgia, serif; font-size: 22px; margin: 0 0 8px 0; color: #17201E;">
+          ${escapeHtml(brief.name)} applied for a project
+        </h2>
+        <p style="font-size: 14px; color: #55625E; margin: 0 0 24px 0; line-height: 1.5;">
+          A new project application was submitted on <strong>digigrantha.com</strong>.
+        </p>
+
+        <!-- Details Card -->
+        <div style="background: #FFFFFF; border: 1.5px solid #17201E; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+          <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+            <tr>
+              <td style="padding: 6px 0; color: #55625E; width: 130px; font-weight: 600;">Applicant:</td>
+              <td style="padding: 6px 0; color: #17201E; font-weight: 700;">${escapeHtml(brief.name)}</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; color: #55625E; font-weight: 600;">Email:</td>
+              <td style="padding: 6px 0;">
+                <a href="mailto:${escapeHtml(brief.email)}" style="color: #0F5C52; font-weight: 700; text-decoration: underline;">
+                  ${escapeHtml(brief.email)}
+                </a>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; color: #55625E; font-weight: 600;">Phone:</td>
+              <td style="padding: 6px 0; color: #17201E; font-family: monospace;">
+                ${brief.phone ? `<a href="tel:${escapeHtml(brief.phone)}" style="color: #0F5C52; text-decoration: underline;">${escapeHtml(brief.phone)}</a>` : "<em>Not provided</em>"}
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; color: #55625E; font-weight: 600;">Project Type:</td>
+              <td style="padding: 6px 0; color: #17201E;">
+                <span style="background: #C6E04B; border: 1px solid #17201E; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; color: #17201E; display: inline-block;">
+                  ${escapeHtml(brief.projectType)}
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; color: #55625E; font-weight: 600;">Estimated Budget:</td>
+              <td style="padding: 6px 0; color: #17201E; font-weight: 700;">
+                ${escapeHtml(brief.budget || "Flexible / To be discussed")}
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <!-- Project Description Box -->
+        <div style="background: #FAF8F5; border: 1.5px solid #17201E; border-radius: 12px; padding: 18px 20px; margin-bottom: 28px;">
+          <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: #55625E; font-weight: 700; margin-bottom: 8px;">
+            Project Brief / Requirements
+          </div>
+          <div style="font-size: 14.5px; line-height: 1.6; color: #17201E; white-space: pre-wrap;">
+            ${escapeHtml(brief.description)}
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div style="margin-bottom: 24px;">
+          <a href="${adminUrl}" style="background: #F4B63F; color: #17201E; padding: 13px 26px; text-decoration: none; border-radius: 999px; font-size: 14px; font-weight: 800; border: 2px solid #17201E; display: inline-block; margin-right: 12px; margin-bottom: 8px;">
+            Open in Admin Portal &rarr;
+          </a>
+          <a href="mailto:${escapeHtml(brief.email)}?subject=Regarding%20your%20project%20inquiry%20with%20DigiGrantha" style="background: #FFFFFF; color: #17201E; padding: 13px 24px; text-decoration: none; border-radius: 999px; font-size: 14px; font-weight: 700; border: 2px solid #17201E; display: inline-block; margin-bottom: 8px;">
+            Reply to Applicant &rarr;
+          </a>
+        </div>
+
+        <!-- Footer Note -->
+        <p style="font-size: 12px; color: #55625E; line-height: 1.5; margin: 0; border-top: 1px dashed #17201E; padding-top: 16px;">
+          Notification automatically dispatched to <strong>admin@digigrantha.com</strong> and DigiGrantha leadership.
+        </p>
+      </div>
+    </div>
+  `;
+
+  const text = `DigiGrantha — New Project Application Received
+
+Applicant: ${brief.name}
+Email: ${brief.email}
+Phone: ${brief.phone || "Not provided"}
+Project Type: ${brief.projectType}
+Budget: ${brief.budget || "Flexible / Not specified"}
+
+Project Description:
+${brief.description}
+
+Review in Admin Portal:
+${adminUrl}
+
+Reply to applicant: mailto:${brief.email}
+`;
+
+  const dispatchResults = await Promise.allSettled(
+    Array.from(adminRecipients).map((recipient) =>
+      sendEmail({
+        to: recipient,
+        name: "DigiGrantha Admin",
+        subject,
+        html,
+        text,
+      })
+    )
+  );
+
+  const errors: string[] = [];
+  dispatchResults.forEach((res, i) => {
+    const recipient = Array.from(adminRecipients)[i];
+    if (res.status === "rejected") {
+      errors.push(`${recipient}: ${res.reason?.message || "Failed"}`);
+      console.error(`[Brief Notification Failed] To ${recipient}:`, res.reason);
+    } else if (!res.value.success) {
+      errors.push(`${recipient}: ${res.value.error || "Failed"}`);
+    } else {
+      console.log(`[Brief Notification Sent] To ${recipient}`);
+    }
+  });
+
+  return { success: errors.length === 0, errors };
+}
+

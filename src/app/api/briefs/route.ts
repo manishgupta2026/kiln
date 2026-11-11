@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createBrief } from "@/lib/briefs-db";
 import { rateLimitDistributed, getClientIp } from "@/lib/rate-limit";
+import { sendNewBriefAdminNotification } from "@/lib/email";
 
 export const dynamic = "force-dynamic";
 
@@ -48,6 +49,13 @@ export async function POST(req: NextRequest) {
       budget: validatedData.budget ? validatedData.budget.trim() : null,
       description: validatedData.description.trim(),
     });
+
+    // Notify admin team (including admin@digigrantha.com)
+    try {
+      await sendNewBriefAdminNotification(newBrief);
+    } catch (emailErr) {
+      console.error("[Brief Email Dispatch Error]:", emailErr);
+    }
 
     return NextResponse.json(
       {

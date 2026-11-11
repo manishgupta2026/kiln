@@ -407,22 +407,23 @@ header.nav {
   display: inline-flex;
   align-items: center;
   text-decoration: none;
+  transform: translateY(-2px);
   transition: transform 0.2s ease;
 }
 
 .logo-brand:hover {
-  transform: translateY(-1px);
+  transform: translateY(-3px);
 }
 
 .logo-lockup {
   display: inline-flex;
   align-items: center;
-  gap: 13px;
+  gap: 12px;
 }
 
 .logo-mark-wrap {
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
   flex-shrink: 0;
   display: inline-flex;
   align-items: center;
@@ -431,8 +432,8 @@ header.nav {
 }
 
 .brand-mark-img {
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
   display: block;
   object-fit: contain;
 }
@@ -464,7 +465,7 @@ html.dark .brand-mark-dark {
 
 .logo-title {
   font-family: var(--display);
-  font-size: 23px;
+  font-size: 22px;
   font-weight: 700;
   letter-spacing: -0.025em;
   color: var(--text);
@@ -496,9 +497,9 @@ html.dark .logo-name-grantha {
 
 .logo-tagline {
   font-family: var(--body);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
-  letter-spacing: 0.025em;
+  letter-spacing: 0.02em;
   color: var(--muted);
   line-height: 1.1;
   margin-top: 3px;
@@ -619,19 +620,15 @@ html.dark .logo-img-dark {
 .nav-cta {
   font-family: var(--body);
   font-weight: 700;
-  font-size: 13.5px;
-  padding: 10px 22px;
+  font-size: 13px;
+  padding: 10px 20px;
   background: var(--yellow);
   color: #17201E;
   border: 2px solid var(--outline);
   border-radius: var(--radius-pill);
   box-shadow: var(--shadow-sm);
-  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.15s ease;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
   white-space: nowrap;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
 }
 
 .nav-cta:hover {
@@ -806,120 +803,6 @@ html.dark .logo-img-dark {
   .logo-tagline {
     font-size: 8.5px;
     margin-top: 2px;
-  }
-}
-
-/* ============================================================
-   NAVBAR DESKTOP & LARGE SCREEN REFINEMENTS (Symmetry & Scale)
-   ============================================================ */
-@media (min-width: 1024px) {
-  .nav-inner {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    align-items: center;
-    gap: 20px;
-    padding: 16px 40px;
-  }
-  .logo-brand {
-    justify-self: start;
-  }
-  .nav-links {
-    justify-self: center;
-    gap: 8px;
-  }
-  .nav-actions {
-    justify-self: end;
-  }
-  .logo-mark-wrap,
-  .brand-mark-img {
-    width: 42px;
-    height: 42px;
-  }
-  .logo-title {
-    font-size: 24px;
-  }
-  .logo-tagline {
-    font-size: 11px;
-    letter-spacing: 0.025em;
-  }
-  .nav-links a {
-    font-size: 14px;
-    padding: 8px 14px;
-  }
-  .nav-cta {
-    font-size: 13.5px;
-    padding: 10px 22px;
-  }
-}
-
-@media (min-width: 1280px) {
-  .nav-inner {
-    padding: 18px 48px;
-    gap: 28px;
-  }
-  .logo-lockup {
-    gap: 14px;
-  }
-  .logo-mark-wrap,
-  .brand-mark-img {
-    width: 44px;
-    height: 44px;
-  }
-  .logo-title {
-    font-size: 25px;
-  }
-  .logo-tagline {
-    font-size: 11.5px;
-    letter-spacing: 0.03em;
-    margin-top: 3.5px;
-  }
-  .nav-links {
-    gap: 10px;
-  }
-  .nav-links a {
-    font-size: 14.5px;
-    padding: 9px 16px;
-  }
-  .nav-cta {
-    font-size: 14px;
-    padding: 11px 24px;
-  }
-}
-
-@media (min-width: 1536px) {
-  :root {
-    --max: 1260px;
-  }
-  .nav-inner {
-    padding: 20px 48px;
-    gap: 36px;
-  }
-  .logo-lockup {
-    gap: 16px;
-  }
-  .logo-mark-wrap,
-  .brand-mark-img {
-    width: 48px;
-    height: 48px;
-  }
-  .logo-title {
-    font-size: 27px;
-  }
-  .logo-tagline {
-    font-size: 12.5px;
-    letter-spacing: 0.035em;
-    margin-top: 4px;
-  }
-  .nav-links {
-    gap: 12px;
-  }
-  .nav-links a {
-    font-size: 15px;
-    padding: 10px 18px;
-  }
-  .nav-cta {
-    font-size: 14.5px;
-    padding: 12px 26px;
   }
 }
 
@@ -3126,12 +3009,11 @@ footer {
 }
 
 footer .logo-brand {
-  display: inline-flex;
-  align-items: center;
+  transform: translateY(-2px);
 }
 
 footer .logo-brand:hover {
-  transform: translateY(-1px);
+  transform: translateY(-3px);
 }
 
 footer .logo-name-digi {
@@ -3209,11 +3091,55 @@ footer .logo-img {
   }
 }
 
-#float-cta {
+/* ============================================================
+   FLOATING ACTION STACK (Start a project + WhatsApp)
+   ============================================================ */
+.float-cta-stack {
   position: fixed;
   bottom: 24px;
   right: 24px;
   z-index: 99;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(12px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.float-cta-stack.show {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.float-whatsapp-btn {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: #25D366;
+  color: #FFFFFF !important;
+  border: 2px solid var(--outline);
+  box-shadow: 3px 3px 0 var(--outline);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  user-select: none;
+}
+
+.float-whatsapp-btn:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--outline);
+  background: #20BA5A;
+  color: #FFFFFF !important;
+}
+
+#float-cta {
   background: var(--yellow);
   color: #17201E;
   font-family: var(--body);
@@ -3227,30 +3153,29 @@ footer .logo-img {
   align-items: center;
   gap: 6px;
   text-decoration: none;
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(12px);
-  transition: opacity 0.2s ease, transform 0.2s ease, box-shadow 0.12s ease;
-}
-
-@media (max-width: 640px) {
-  #float-cta {
-    bottom: 16px;
-    right: 16px;
-    padding: 10px 16px;
-    font-size: 12px;
-  }
-}
-
-#float-cta.show {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateY(0);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.12s ease;
 }
 
 #float-cta:hover {
   transform: translate(2px, 2px);
   box-shadow: 2px 2px 0 var(--outline);
+}
+
+@media (max-width: 640px) {
+  .float-cta-stack {
+    bottom: 16px;
+    right: 16px;
+    gap: 8px;
+  }
+  .float-whatsapp-btn {
+    width: 42px;
+    height: 42px;
+  }
+  #float-cta {
+    padding: 10px 16px;
+    font-size: 12px;
+  }
 }
 
 /* ============================================================
@@ -3259,30 +3184,6 @@ footer .logo-img {
 /* Hide Next.js dev overlay badge so it never obscures floating elements */
 nextjs-portal {
   display: none !important;
-}
-
-/* Footer WhatsApp Pill */
-.footer-whatsapp-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(37, 211, 102, 0.15);
-  border: 1.5px solid rgba(37, 211, 102, 0.6);
-  color: #BFE3D6 !important;
-  padding: 6px 14px;
-  border-radius: var(--radius-pill);
-  font-family: var(--mono);
-  font-size: 12px;
-  font-weight: 600;
-  text-decoration: none;
-  transition: all 0.2s ease;
-}
-
-.footer-whatsapp-pill:hover {
-  background: #25D366;
-  border-color: #25D366;
-  color: #0E1715 !important;
-  transform: translateY(-1px);
 }
 
 /* Mobile Drawer WhatsApp Button */
@@ -5070,6 +4971,7 @@ nextjs-portal {
   header.nav,
   footer,
   #float-cta,
+  .float-cta-stack,
   .theme-toggle-btn,
   .nav-menu-btn,
   #trail {
