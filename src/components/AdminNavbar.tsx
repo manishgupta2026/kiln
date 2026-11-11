@@ -400,12 +400,24 @@ export default function AdminNavbar({
         <div className="admin-nav-container">
           {/* Left Brand & Studio Pill */}
           <div className="admin-nav-brand-group">
-            <Link href="/admin" className="admin-nav-logo" title="Digigrantha Admin Studio" style={{ display: "inline-flex", alignItems: "center" }}>
-              <img
-                src="/digigrantha-logo.svg"
-                alt="DigiGrantha"
-                style={{ height: "28px", width: "auto", display: "block" }}
-              />
+            <Link href="/admin" className="admin-nav-logo" title="Digigrantha Admin Studio" style={{ display: "inline-flex", alignItems: "center", textDecoration: "none" }}>
+              <div className="logo-lockup" style={{ gap: "9px" }}>
+                <div className="logo-mark-wrap" style={{ width: "28px", height: "28px" }}>
+                  <img
+                    src="/digigrantha-mark.svg"
+                    alt="DigiGrantha"
+                    className="brand-mark-img"
+                    style={{ width: "28px", height: "28px" }}
+                  />
+                </div>
+                <div className="logo-text-group">
+                  <div className="logo-title" style={{ fontSize: "18px" }}>
+                    <span className="logo-name-digi">Digi</span>
+                    <span className="logo-name-grantha">Grantha</span>
+                    <span className="logo-dot">.</span>
+                  </div>
+                </div>
+              </div>
             </Link>
 
             <div className="admin-nav-status-badge">
@@ -509,12 +521,24 @@ export default function AdminNavbar({
           {/* Drawer Top Header */}
           <div className="admin-drawer-header">
             <div>
-              <div className="admin-drawer-logo" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <img
-                  src="/digigrantha-logo.svg"
-                  alt="DigiGrantha"
-                  style={{ height: "26px", width: "auto", display: "block" }}
-                />
+              <div className="admin-drawer-logo" style={{ display: "flex", alignItems: "center", gap: "9px" }}>
+                <div className="logo-lockup" style={{ gap: "9px" }}>
+                  <div className="logo-mark-wrap" style={{ width: "26px", height: "26px" }}>
+                    <img
+                      src="/digigrantha-mark.svg"
+                      alt="DigiGrantha"
+                      className="brand-mark-img"
+                      style={{ width: "26px", height: "26px" }}
+                    />
+                  </div>
+                  <div className="logo-text-group">
+                    <div className="logo-title" style={{ fontSize: "17px" }}>
+                      <span className="logo-name-digi">Digi</span>
+                      <span className="logo-name-grantha">Grantha</span>
+                      <span className="logo-dot">.</span>
+                    </div>
+                  </div>
+                </div>
                 <span>Studio</span>
               </div>
               <div className="admin-drawer-status">

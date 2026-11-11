@@ -129,8 +129,6 @@ export default async function HomePage() {
                         <text x="18" y="59" fill="#17201E" fontFamily="var(--display)" fontSize="19.5" fontWeight="800" letterSpacing="-0.025em">
                           A product people love.
                         </text>
-                        {/* Mint brush highlight under 'love.' */}
-                        <path d="M140 66 C166 64, 194 66, 214 65" stroke="#BFE5D9" strokeWidth="4.5" strokeLinecap="round" />
                         {/* Amber star spark near love */}
                         <path d="M224 53 Q226 57 230 58 Q226 59 224 63 Q222 59 218 58 Q222 57 224 53 Z" fill="#F4A228" />
 
@@ -146,38 +144,25 @@ export default async function HomePage() {
                         {/* Story Card: "Every great product starts as a story. We help write yours." */}
                         <g>
                           {/* Hard offset shadow */}
-                          <rect x="21.5" y="112.5" width="228" height="88" rx="14" fill="#17201E" />
+                          <rect x="17.5" y="112.5" width="236" height="88" rx="14" fill="#17201E" />
                           {/* Card body */}
-                          <rect x="18" y="109" width="228" height="88" rx="14" fill="url(#story-card-grad)" stroke="#17201E" strokeWidth="2" />
+                          <rect x="14" y="109" width="236" height="88" rx="14" fill="url(#story-card-grad)" stroke="#17201E" strokeWidth="2" />
 
                           {/* Left pine vertical stripe */}
-                          <rect x="28" y="120" width="3.5" height="66" rx="1.75" fill="#0F5C52" />
-
-                          {/* Subtitle tag */}
-                          <text x="40" y="132" fill="#5F6B68" fontFamily="var(--display)" fontSize="9.5" fontWeight="800" letterSpacing="0.06em">
-                            · THE BEGINNING
-                          </text>
+                          <rect x="23" y="122" width="3.5" height="62" rx="1.75" fill="#0F5C52" />
 
                           {/* Narrative line 1 */}
-                          <text x="40" y="150" fill="#17201E" fontFamily="var(--display)" fontSize="11.5" fontWeight="700" letterSpacing="-0.01em">
+                          <text x="33" y="145" fill="#17201E" fontFamily="var(--display)" fontSize="11.6" fontWeight="700" letterSpacing="-0.02em">
                             Every great product starts as a story.
                           </text>
 
                           {/* Narrative line 2 (Payoff) */}
-                          <text x="40" y="174" fill="#0F5C52" fontFamily="var(--display)" fontSize="14" fontWeight="800" fontStyle="italic" letterSpacing="-0.015em">
+                          <text x="33" y="170" fill="#17201E" fontFamily="var(--display)" fontSize="11.6" fontWeight="700" letterSpacing="-0.02em">
                             We help write yours.
                           </text>
 
                           {/* Amber sparkle star */}
-                          <path d="M182 165 Q184 170 188 171 Q184 172 182 177 Q180 172 176 171 Q180 170 182 165 Z" fill="#F4A228" />
-
-                          {/* Mint Ship button badge */}
-                          <g>
-                            <rect x="194" y="159" width="42" height="22" rx="11" fill="#BFE5D9" stroke="#17201E" strokeWidth="1.5" />
-                            <text x="215" y="174" textAnchor="middle" fill="#0F5C52" fontFamily="var(--display)" fontSize="11" fontWeight="800">
-                              Ship ↗
-                            </text>
-                          </g>
+                          <path d="M156 164 Q158 168 162 169 Q158 170 156 174 Q154 170 150 169 Q154 168 156 164 Z" fill="#F4A228" />
                         </g>
 
                         {/* Botanical Leaf Stem (Right Side) */}

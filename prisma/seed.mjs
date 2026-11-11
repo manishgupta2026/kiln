@@ -102,7 +102,7 @@ async function main() {
       briefDescription:
         "A workforce intelligence platform built around four distinct roles — a leadership dashboard for strategic analytics, HR operations tools, personalized growth assessments for employees, and a mentor-facing view for career guidance. Four different logins, because four different people need four different tools, not one dashboard wearing four hats.",
       tags: ["Next.js", "TypeScript", "Tailwind", "Neon"],
-      liveUrl: "https://coppter-frontend.onrender.com/",
+      liveUrl: null,
       status: "live",
       featured: true,
       displayOrder: 3,

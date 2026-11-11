@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { WhatsAppIcon } from "@/components/WhatsAppButton";
 
 export default function Header() {
   const pathname = usePathname();
@@ -32,23 +33,34 @@ export default function Header() {
   return (
     <header className="nav">
       <div className="nav-inner">
-        {/* Brand Logo with Official DigiGrantha Bookmark Lockup */}
+        {/* Brand Logo: Official Bookmark Badge on Left, DigiGrantha & Tagline in Front */}
         <Link href="/" className="logo-brand" onClick={() => setMobileMenuOpen(false)}>
-          <img
-            src="/digigrantha-logo.svg"
-            alt="DigiGrantha"
-            className="logo-img logo-img-light"
-            width={172}
-            height={40}
-          />
-          <img
-            src="/digigrantha-logo-on-dark.svg"
-            alt="DigiGrantha"
-            className="logo-img logo-img-dark"
-            width={172}
-            height={40}
-          />
-          <span className="logo-tagline">Where ideas become digital</span>
+          <div className="logo-lockup">
+            <div className="logo-mark-wrap">
+              <img
+                src="/digigrantha-mark.svg"
+                alt="DigiGrantha"
+                className="brand-mark-img brand-mark-light"
+                width={44}
+                height={44}
+              />
+              <img
+                src="/digigrantha-mark-on-dark.svg"
+                alt="DigiGrantha"
+                className="brand-mark-img brand-mark-dark"
+                width={44}
+                height={44}
+              />
+            </div>
+            <div className="logo-text-group">
+              <div className="logo-title">
+                <span className="logo-name-digi">Digi</span>
+                <span className="logo-name-grantha">Grantha</span>
+                <span className="logo-dot">.</span>
+              </div>
+              <span className="logo-tagline">Where ideas become digital</span>
+            </div>
+          </div>
         </Link>
 
         {/* Desktop Nav Links */}
@@ -168,6 +180,16 @@ export default function Header() {
             >
               Start a project →
             </Link>
+            <a
+              href="https://wa.me/917765063536?text=Hi%20DigiGrantha%2C%20I%20would%20like%20to%20discuss%20a%20project"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mobile-whatsapp-btn"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <WhatsAppIcon size={18} />
+              <span>WhatsApp (+91 77650 63536)</span>
+            </a>
           </div>
         </div>
       </div>

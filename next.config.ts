@@ -6,6 +6,7 @@ if (process.env.NODE_ENV === "development" && process.argv.some((arg) => arg.inc
 }
 
 const nextConfig: NextConfig = {
+  devIndicators: false,
   reactStrictMode: true,
   compress: true,
   poweredByHeader: false,

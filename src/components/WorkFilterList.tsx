@@ -53,7 +53,12 @@ export default function WorkFilterList({
       const match = (initialCaseStudies || []).find(
         (cs) => cs.name.toLowerCase() === wp.name.toLowerCase()
       );
-      const resolvedLiveUrl = match !== undefined ? match.liveUrl : wp.liveUrl;
+      const isCoppter =
+        wp.name.toLowerCase().includes("coppter") ||
+        wp.name.toLowerCase().includes("copter");
+      const resolvedLiveUrl = isCoppter
+        ? null
+        : (match !== undefined ? match.liveUrl : wp.liveUrl);
       return {
         ...wp,
         liveUrl: resolvedLiveUrl,

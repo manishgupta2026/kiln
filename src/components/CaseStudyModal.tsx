@@ -40,6 +40,10 @@ export default function CaseStudyModal({ caseStudy, onClose, onOpenPhotos }: Cas
 
   if (!caseStudy || !mounted) return null;
 
+  const isCoppter =
+    caseStudy.name.toLowerCase().includes("coppter") ||
+    caseStudy.name.toLowerCase().includes("copter");
+
   return createPortal(
     <div
       className="case-study-backdrop"
@@ -195,7 +199,7 @@ export default function CaseStudyModal({ caseStudy, onClose, onOpenPhotos }: Cas
               </a>
             </div>
           </div>
-        ) : caseStudy.liveUrl ? (
+        ) : !isCoppter && caseStudy.liveUrl ? (
           <div className="case-study-actions" style={{ marginTop: "24px" }}>
             <a
               href={caseStudy.liveUrl}
@@ -206,6 +210,17 @@ export default function CaseStudyModal({ caseStudy, onClose, onOpenPhotos }: Cas
             >
               <span>Visit live site ↗</span>
             </a>
+          </div>
+        ) : caseStudy.photos && caseStudy.photos.length > 0 && onOpenPhotos ? (
+          <div className="case-study-actions" style={{ marginTop: "24px" }}>
+            <button
+              type="button"
+              className="btn-primary"
+              onClick={() => onOpenPhotos(caseStudy, 0)}
+              style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}
+            >
+              <span>View project photos ↗</span>
+            </button>
           </div>
         ) : null}
       </div>

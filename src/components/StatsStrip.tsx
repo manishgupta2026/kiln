@@ -10,9 +10,9 @@ interface StatItem {
 }
 
 const STATS_DATA: StatItem[] = [
-  { id: "projects", target: 50, suffix: "+", label: "Projects delivered" },
+  { id: "projects", target: 10, suffix: "+", label: "Projects delivered" },
   { id: "satisfaction", target: 98, suffix: "%", label: "Client satisfaction" },
-  { id: "experience", target: 2, suffix: "+", label: "Years of experience" },
+  { id: "experience", target: 1, suffix: "+", label: "Years of experience" },
   { id: "passion", target: 100, suffix: "%", label: "Passion for your growth" },
 ];
 

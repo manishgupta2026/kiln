@@ -757,6 +757,7 @@ export function NutriFlexMockup() {
 
 export function ProjectBrowserMockup({
   study,
+  onOpenPhotos,
   onOpenCaseStudy,
 }: {
   study: ProjectCardProps["study"];
@@ -779,10 +780,17 @@ export function ProjectBrowserMockup({
   };
 
   const isDark = showcase?.isDark ?? true;
+  const isCoppter =
+    study.name.toLowerCase().includes("coppter") ||
+    study.name.toLowerCase().includes("copter");
 
   const handleMockupClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onOpenCaseStudy(study);
+    if (isCoppter && study.photos && study.photos.length > 0 && onOpenPhotos) {
+      onOpenPhotos(study);
+    } else {
+      onOpenCaseStudy(study);
+    }
   };
 
   return (
@@ -919,7 +927,7 @@ function ProjectCardInner({ study, onOpenCaseStudy, onOpenPhotos }: ProjectCardP
 
           {/* Action Buttons */}
           <div className="project-card-actions">
-            {study.liveUrl || study.version1Url ? (
+            {!isCoppter && (study.liveUrl || study.version1Url) ? (
               <a
                 href={study.liveUrl || study.version1Url}
                 target="_blank"

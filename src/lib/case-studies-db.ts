@@ -83,6 +83,9 @@ export async function getCaseStudies(): Promise<CaseStudyRecord[]> {
         const fallbackItem = localFallbackItems.find(
           (f) => f.name.toLowerCase() === item.name.toLowerCase()
         );
+        const isCoppter =
+          item.name?.toLowerCase().includes("coppter") ||
+          item.name?.toLowerCase().includes("copter");
         return {
           id: item.id,
           name: item.name,
@@ -91,7 +94,7 @@ export async function getCaseStudies(): Promise<CaseStudyRecord[]> {
           resultStat: item.resultStat,
           briefDescription: item.briefDescription,
           tags: item.tags || [],
-          liveUrl: item.liveUrl || null,
+          liveUrl: isCoppter ? null : (item.liveUrl || null),
           status: item.status || "live",
           featured: Boolean(item.featured),
           displayOrder: item.displayOrder ?? 0,

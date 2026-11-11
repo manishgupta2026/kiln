@@ -38,20 +38,32 @@ export default function ForgotPasswordPage() {
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "var(--bg)" }}>
       <header style={{ padding: "18px 32px", borderBottom: "2px solid var(--outline)", background: "var(--surface)" }}>
         <Link href="/" className="logo-brand" style={{ transform: "none" }}>
-          <img
-            src="/digigrantha-logo.svg"
-            alt="DigiGrantha"
-            className="logo-img logo-img-light"
-            width={172}
-            height={38}
-          />
-          <img
-            src="/digigrantha-logo-on-dark.svg"
-            alt="DigiGrantha"
-            className="logo-img logo-img-dark"
-            width={172}
-            height={38}
-          />
+          <div className="logo-lockup">
+            <div className="logo-mark-wrap">
+              <img
+                src="/digigrantha-mark.svg"
+                alt="DigiGrantha"
+                className="brand-mark-img brand-mark-light"
+                width={36}
+                height={36}
+              />
+              <img
+                src="/digigrantha-mark-on-dark.svg"
+                alt="DigiGrantha"
+                className="brand-mark-img brand-mark-dark"
+                width={36}
+                height={36}
+              />
+            </div>
+            <div className="logo-text-group">
+              <div className="logo-title" style={{ fontSize: "20px" }}>
+                <span className="logo-name-digi">Digi</span>
+                <span className="logo-name-grantha">Grantha</span>
+                <span className="logo-dot">.</span>
+              </div>
+              <span className="logo-tagline">Where ideas become digital</span>
+            </div>
+          </div>
         </Link>
       </header>
 

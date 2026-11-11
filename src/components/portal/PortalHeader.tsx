@@ -48,11 +48,23 @@ export default function PortalHeader({ user, projectTitle }: PortalHeaderProps) 
     >
       <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
         <Link href={rootPath} style={{ display: "inline-flex", alignItems: "center", textDecoration: "none" }}>
-          <img
-            src="/digigrantha-logo.svg"
-            alt="DigiGrantha"
-            style={{ height: "30px", width: "auto", display: "block" }}
-          />
+          <div className="logo-lockup" style={{ gap: "9px" }}>
+            <div className="logo-mark-wrap" style={{ width: "30px", height: "30px" }}>
+              <img
+                src="/digigrantha-mark.svg"
+                alt="DigiGrantha"
+                className="brand-mark-img"
+                style={{ width: "30px", height: "30px" }}
+              />
+            </div>
+            <div className="logo-text-group">
+              <div className="logo-title" style={{ fontSize: "19px" }}>
+                <span className="logo-name-digi">Digi</span>
+                <span className="logo-name-grantha">Grantha</span>
+                <span className="logo-dot">.</span>
+              </div>
+            </div>
+          </div>
         </Link>
 
         <span
