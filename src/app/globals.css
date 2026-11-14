@@ -62,7 +62,7 @@
 html {
   scroll-behavior: smooth;
   color-scheme: light dark;
-  overflow-x: hidden;
+  overflow-x: clip;
   max-width: 100%;
 }
 
@@ -76,7 +76,7 @@ body {
   position: relative;
   min-height: 100vh;
   transition: background-color 0.2s ease, color 0.2s ease;
-  overflow-x: hidden;
+  overflow-x: clip;
   max-width: 100%;
   width: 100%;
 }
@@ -387,10 +387,15 @@ select:focus-visible {
 header.nav {
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 1000;
+  width: 100%;
   background: var(--bg);
   border-bottom: 2px solid var(--outline);
-  transition: all 0.2s ease;
+  transition: box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+header.nav.scrolled {
+  box-shadow: 0 4px 16px rgba(23, 32, 30, 0.08);
 }
 
 .nav-inner {
@@ -3116,13 +3121,13 @@ footer .logo-img {
 }
 
 .float-whatsapp-btn {
-  width: 46px;
-  height: 46px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   background: #25D366;
   color: #FFFFFF !important;
   border: 2px solid var(--outline);
-  box-shadow: 3px 3px 0 var(--outline);
+  box-shadow: 3.5px 3.5px 0 var(--outline);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3130,11 +3135,12 @@ footer .logo-img {
   cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
   user-select: none;
+  flex-shrink: 0;
 }
 
 .float-whatsapp-btn:hover {
   transform: translate(2px, 2px);
-  box-shadow: 1px 1px 0 var(--outline);
+  box-shadow: 1.5px 1.5px 0 var(--outline);
   background: #20BA5A;
   color: #FFFFFF !important;
 }
@@ -3169,8 +3175,9 @@ footer .logo-img {
     gap: 8px;
   }
   .float-whatsapp-btn {
-    width: 42px;
-    height: 42px;
+    width: 44px;
+    height: 44px;
+    box-shadow: 2.5px 2.5px 0 var(--outline);
   }
   #float-cta {
     padding: 10px 16px;

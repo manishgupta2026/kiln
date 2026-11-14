@@ -8,6 +8,17 @@ import { WhatsAppIcon } from "@/components/WhatsAppButton";
 export default function Header() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  // Monitor scroll to apply sticky styling
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 10);
+    };
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   // Close mobile menu whenever route changes
   useEffect(() => {
@@ -31,7 +42,7 @@ export default function Header() {
   }, [mobileMenuOpen]);
 
   return (
-    <header className="nav">
+    <header className={`nav ${scrolled ? "scrolled" : ""}`}>
       <div className="nav-inner">
         {/* Brand Logo: Official Bookmark Badge on Left, DigiGrantha & Tagline in Front */}
         <Link href="/" className="logo-brand" onClick={() => setMobileMenuOpen(false)}>
@@ -188,7 +199,7 @@ export default function Header() {
               onClick={() => setMobileMenuOpen(false)}
             >
               <WhatsAppIcon size={18} />
-              <span>WhatsApp (+91 77650 63536)</span>
+              <span>+91 77650 63536</span>
             </a>
           </div>
         </div>

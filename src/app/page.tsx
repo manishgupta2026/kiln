@@ -116,53 +116,51 @@ export default async function HomePage() {
                         {/* Background dot grid */}
                         <rect x="0" y="0" width="360" height="215" fill="url(#hero-dot-grid)" />
 
-                        {/* Headline: Your idea. Our craft. */}
-                        <text x="18" y="32" fill="#17201E" fontFamily="var(--display)" fontSize="19.5" fontWeight="800" letterSpacing="-0.025em">
-                          Your idea. Our craft.
-                        </text>
-                        {/* 3 teal spark rays above 'craft.' */}
-                        <path d="M180 15 L174 8" stroke="#0F5C52" strokeWidth="2.5" strokeLinecap="round" />
-                        <path d="M190 13 L190 5" stroke="#0F5C52" strokeWidth="2.5" strokeLinecap="round" />
-                        <path d="M200 15 L206 8" stroke="#0F5C52" strokeWidth="2.5" strokeLinecap="round" />
-
-                        {/* Line 2: A product people love. */}
-                        <text x="18" y="59" fill="#17201E" fontFamily="var(--display)" fontSize="19.5" fontWeight="800" letterSpacing="-0.025em">
-                          A product people love.
-                        </text>
-                        {/* Amber star spark near love */}
-                        <path d="M224 53 Q226 57 230 58 Q226 59 224 63 Q222 59 218 58 Q222 57 224 53 Z" fill="#F4A228" />
-
-                        {/* Studio Tag & connecting trail */}
+                        {/* Studio Tag & connecting trail at top: THE PROMISE */}
                         <g>
-                          <rect x="18" y="78" width="90" height="22" rx="11" fill="#F4A228" stroke="#17201E" strokeWidth="1.8" />
-                          <text x="63" y="93" textAnchor="middle" fill="#17201E" fontFamily="var(--display)" fontSize="10" fontWeight="800" letterSpacing="0.04em">
+                          <rect x="15" y="8" width="102" height="23" rx="11.5" fill="#F4A228" stroke="#17201E" strokeWidth="1.8" />
+                          <text x="66" y="23.5" textAnchor="middle" fill="#17201E" fontFamily="var(--display)" fontSize="11" fontWeight="800" letterSpacing="0.05em">
                             THE PROMISE
                           </text>
-                          <path d="M116 89 L238 89" stroke="#17201E" strokeWidth="1.2" strokeDasharray="3 4" opacity="0.35" />
+                          <path d="M123 19.5 L246 19.5" stroke="#17201E" strokeWidth="1.2" strokeDasharray="3 4" opacity="0.3" />
                         </g>
 
-                        {/* Story Card: "Every great product starts as a story. We help write yours." */}
+                        {/* Story Card: Containing all 4 lines with identical font & size */}
                         <g>
                           {/* Hard offset shadow */}
-                          <rect x="17.5" y="112.5" width="236" height="88" rx="14" fill="#17201E" />
+                          <rect x="11.5" y="39.5" width="246" height="168" rx="14" fill="#17201E" />
                           {/* Card body */}
-                          <rect x="14" y="109" width="236" height="88" rx="14" fill="url(#story-card-grad)" stroke="#17201E" strokeWidth="2" />
+                          <rect x="8" y="36" width="246" height="168" rx="14" fill="url(#story-card-grad)" stroke="#17201E" strokeWidth="2" />
 
                           {/* Left pine vertical stripe */}
-                          <rect x="23" y="122" width="3.5" height="62" rx="1.75" fill="#0F5C52" />
+                          <rect x="17" y="48" width="3.5" height="144" rx="1.75" fill="#0F5C52" />
 
-                          {/* Narrative line 1 */}
-                          <text x="33" y="145" fill="#17201E" fontFamily="var(--display)" fontSize="11.6" fontWeight="700" letterSpacing="-0.02em">
+                          {/* Narrative line 1: Your idea. Our craft. */}
+                          <text x="27" y="67" fill="#17201E" fontFamily="var(--display)" fontSize="12.2" fontWeight="700" letterSpacing="-0.025em">
+                            Your idea. Our craft.
+                          </text>
+
+                          {/* Narrative line 2: A product people love. */}
+                          <text x="27" y="97" fill="#17201E" fontFamily="var(--display)" fontSize="12.2" fontWeight="700" letterSpacing="-0.025em">
+                            A product people love.
+                          </text>
+                          {/* Amber star spark near love */}
+                          <path d="M168 91 Q170 95 174 96 Q170 97 168 101 Q166 97 162 96 Q166 95 168 91 Z" fill="#F4A228" />
+
+                          {/* Subtle separation line */}
+                          <line x1="27" y1="115" x2="238" y2="115" stroke="#17201E" strokeWidth="1" strokeDasharray="2 3" opacity="0.18" />
+
+                          {/* Narrative line 3: Every great product starts as a story. */}
+                          <text x="27" y="143" fill="#17201E" fontFamily="var(--display)" fontSize="12.2" fontWeight="700" letterSpacing="-0.025em" textLength="202" lengthAdjust="spacing">
                             Every great product starts as a story.
                           </text>
 
-                          {/* Narrative line 2 (Payoff) */}
-                          <text x="33" y="170" fill="#17201E" fontFamily="var(--display)" fontSize="11.6" fontWeight="700" letterSpacing="-0.02em">
+                          {/* Narrative line 4: We help write yours. */}
+                          <text x="27" y="173" fill="#17201E" fontFamily="var(--display)" fontSize="12.2" fontWeight="700" letterSpacing="-0.025em">
                             We help write yours.
                           </text>
-
                           {/* Amber sparkle star */}
-                          <path d="M156 164 Q158 168 162 169 Q158 170 156 174 Q154 170 150 169 Q154 168 156 164 Z" fill="#F4A228" />
+                          <path d="M158 167 Q160 171 164 172 Q160 173 158 177 Q156 173 152 172 Q156 171 158 167 Z" fill="#F4A228" />
                         </g>
 
                         {/* Botanical Leaf Stem (Right Side) */}
@@ -302,7 +300,7 @@ export default async function HomePage() {
             <div className="brief-head reveal">
               <div className="section-label">Waiting to serve you</div>
               <h2 className="section-title" style={{ marginBottom: 0 }}>
-                Tell us everything.
+                Help us with your requirement.
               </h2>
               <p>The more specific you are, the faster we can tell you yes, no, or not yet.</p>
             </div>

@@ -49,7 +49,7 @@ export default function FloatingCta({
         aria-label="Chat on WhatsApp with DigiGrantha (+91 77650 63536)"
         title="Chat on WhatsApp: +91 77650 63536"
       >
-        <WhatsAppIcon size={24} />
+        <WhatsAppIcon size={26} />
       </a>
       <Link href={targetHref} id="float-cta">
         Start a project ↗
