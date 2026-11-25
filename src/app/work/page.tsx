@@ -6,28 +6,39 @@ import WorkFilterList from "@/components/WorkFilterList";
 import CursorPreview from "@/components/CursorPreview";
 import ScrollReveal from "@/components/ScrollReveal";
 import { getCaseStudies } from "@/lib/case-studies-db";
+import { WORK_PROJECTS } from "@/lib/work-projects";
+import { STUDIO_FACTS } from "@/lib/studio-facts";
 
 import { BreadcrumbJsonLd, PortfolioJsonLd } from "@/components/JsonLd";
 
 export const revalidate = 60; // 1 minute revalidation so admin edits reflect quickly
 
 export const metadata: Metadata = {
-  title: "Work & Case Studies — Digital Product & Web Portfolio",
+  title: "Shipped Web Apps & Software Portfolio",
   description:
-    "Explore shipped digital products, enterprise portals, algorithmic platforms, and web applications engineered by DigiGrantha. Real products with verified outcomes.",
+    "Browse 6 production web apps, FinTech systems, multi-role enterprise portals, and client websites engineered in-house by DigiGrantha.",
   alternates: {
     canonical: "https://digigrantha.com/work",
   },
   openGraph: {
-    title: "Work & Case Studies — DigiGrantha Portfolio",
+    title: "Shipped Web Apps & Software Portfolio | DigiGrantha",
     description:
-      "Explore shipped digital products, enterprise portals, algorithmic platforms, and web applications engineered by DigiGrantha.",
+      "Browse production web applications, enterprise portals, algorithmic trading systems, and client websites engineered by DigiGrantha.",
     url: "https://digigrantha.com/work",
   },
 };
 
 export default async function WorkPage() {
   const caseStudies = await getCaseStudies();
+  const portfolioItems = WORK_PROJECTS.map((wp) => {
+    const match = caseStudies.find((c) => c.name.toLowerCase() === wp.name.toLowerCase());
+    return {
+      name: wp.name,
+      description: match?.oneLiner || wp.oneLiner,
+      category: wp.category,
+      url: wp.liveUrl,
+    };
+  });
 
   return (
     <>
@@ -37,28 +48,32 @@ export default async function WorkPage() {
           { name: "Work", item: "https://digigrantha.com/work" },
         ]}
       />
-      <PortfolioJsonLd
-        items={caseStudies.map((s) => ({
-          name: s.name,
-          description: s.oneLiner,
-          category: s.category,
-          url: s.liveUrl,
-        }))}
-      />
+      <PortfolioJsonLd items={portfolioItems} />
       <ScrollReveal />
       <Header />
 
       <main>
         <section className="page-head">
           <div className="wrap">
-            <div className="eyebrow reveal">Full archive</div>
+            <div className="eyebrow reveal">Full archive · {WORK_PROJECTS.length} shipped products</div>
             <h1 className="reveal">
-              Everything we&apos;ve shipped — and what&apos;s in the oven which we are proud of.
+              Everything we&apos;ve shipped, and what we&apos;re building next.
             </h1>
             <p className="page-sub reveal">
-              This list grows every time we finish something. Filter by kind, or just scroll —
-              there&apos;s nothing here we&apos;re not proud of.
+              This archive grows every time a build ships. Filter by category below, learn{" "}
+              <Link href="/about" style={{ textDecoration: "underline", fontWeight: 600 }}>
+                how our small studio operates
+              </Link>
+              , or explore{" "}
+              <Link href="/career" style={{ textDecoration: "underline", fontWeight: 600 }}>
+                open engineering roles
+              </Link>
+              .
             </p>
+
+            <h2 className="section-label reveal" style={{ marginBottom: "18px" }}>
+              Case studies &amp; production builds
+            </h2>
 
             <WorkFilterList initialCaseStudies={caseStudies} />
           </div>
@@ -70,9 +85,9 @@ export default async function WorkPage() {
           <div className="wrap reveal">
             <div className="cta-inner">
               <div className="cta-copy">
-                <h2>Have an idea lets make it Real.</h2>
+                <h2>Have an idea? Let&apos;s build it.</h2>
                 <p className="cta-sub">
-                  Send us a 30s brief, we would reply within 1–2 business days.
+                  Send a short brief. We reply within {STUDIO_FACTS.replySla} with a concrete architecture plan.
                 </p>
               </div>
               <Link href="/#brief" className="btn-primary">

@@ -1,17 +1,18 @@
 import React from "react";
+import { STUDIO_FACTS } from "@/lib/studio-facts";
 
 interface OrganizationJsonLdProps {
   url?: string;
 }
 
-export function OrganizationJsonLd({ url = "https://digigrantha.com" }: OrganizationJsonLdProps) {
+export function OrganizationJsonLd({ url = STUDIO_FACTS.siteUrl }: OrganizationJsonLdProps) {
   const schema = {
     "@context": "https://schema.org",
     "@graph": [
       {
         "@type": ["Organization", "ProfessionalService"],
         "@id": `${url}/#organization`,
-        name: "DigiGrantha",
+        name: STUDIO_FACTS.brandName,
         alternateName: ["DigiGrantha Studio", "Digigrantha"],
         url: url,
         logo: {
@@ -19,20 +20,20 @@ export function OrganizationJsonLd({ url = "https://digigrantha.com" }: Organiza
           "@id": `${url}/#logo`,
           url: `${url}/digigrantha-logo-1200.png`,
           contentUrl: `${url}/digigrantha-logo-1200.png`,
-          caption: "DigiGrantha — Where ideas become digital",
+          caption: `${STUDIO_FACTS.brandName}: ${STUDIO_FACTS.tagline}`,
         },
         image: {
           "@id": `${url}/#logo`,
         },
         description:
-          "DigiGrantha is an independent digital product and software engineering studio. We design, architect, and ship high-performance web applications, responsive websites, private client portals, and resilient digital platforms start to finish.",
-        email: "team@digigrantha.com",
+          "DigiGrantha is an independent digital product and software engineering studio. We design, architect, and ship custom web applications, responsive websites, private client portals, and data-heavy platforms start to finish.",
+        email: STUDIO_FACTS.contactEmail,
         sameAs: [
           "https://github.com/manishgupta2026/kiln",
         ],
-        priceRange: "$$",
-        currenciesAccepted: "USD, INR, EUR, GBP",
-        paymentAccepted: "Credit Card, Wire Transfer, Bank Transfer",
+        priceRange: "₹25,000 - ₹10,00,000+",
+        currenciesAccepted: "INR, USD, EUR, GBP",
+        paymentAccepted: "Bank Transfer, Wire Transfer, UPI, Credit Card",
         knowsAbout: [
           "Custom Web Application Development",
           "Next.js 15 & React 19 Engineering",
@@ -49,29 +50,49 @@ export function OrganizationJsonLd({ url = "https://digigrantha.com" }: Organiza
           itemListElement: [
             {
               "@type": "Offer",
+              priceCurrency: "INR",
+              priceSpecification: {
+                "@type": "PriceSpecification",
+                priceCurrency: "INR",
+                minPrice: 25000,
+                maxPrice: 50000,
+              },
               itemOffered: {
                 "@type": "Service",
                 name: "Websites that Explain Themselves",
                 description:
-                  "Editorial landing pages and marketing sites engineered with speed, clarity, and thoughtful typography that convert visitors immediately.",
+                  "Editorial landing pages and marketing sites engineered with fast load times, clear structure, and conversion-focused copy.",
               },
             },
             {
               "@type": "Offer",
+              priceCurrency: "INR",
+              priceSpecification: {
+                "@type": "PriceSpecification",
+                priceCurrency: "INR",
+                minPrice: 50000,
+                maxPrice: 200000,
+              },
               itemOffered: {
                 "@type": "Service",
                 name: "Full-Stack Web Applications & Products",
                 description:
-                  "Production web apps, SaaS dashboards, and workflow tools designed and engineered end-to-end with high agency and clean architectures.",
+                  "Production web apps, SaaS dashboards, and workflow tools designed and engineered end-to-end in TypeScript and PostgreSQL.",
               },
             },
             {
               "@type": "Offer",
+              priceCurrency: "INR",
+              priceSpecification: {
+                "@type": "PriceSpecification",
+                priceCurrency: "INR",
+                minPrice: 200000,
+              },
               itemOffered: {
                 "@type": "Service",
                 name: "Intelligent & Data-Heavy Platforms",
                 description:
-                  "From algorithmic trading engines to multi-role workforce intelligence platforms, logic-heavy products where zero downtime and data integrity are non-negotiable.",
+                  "Algorithmic analytics engines and multi-role enterprise portals where uptime and data integrity are non-negotiable.",
               },
             },
             {
@@ -80,16 +101,16 @@ export function OrganizationJsonLd({ url = "https://digigrantha.com" }: Organiza
                 "@type": "Service",
                 name: "Private Client Portal Infrastructure",
                 description:
-                  "Bespoke transparent client portals featuring live phase tracking, integrated messaging, milestone sign-offs, and unified invoice management.",
+                  "Dedicated client portals featuring 4-stage live progress tracking, async developer chat, milestone sign-offs, and unified invoice management.",
               },
             },
             {
               "@type": "Offer",
               itemOffered: {
                 "@type": "Service",
-                name: "Post-Launch Monitoring & Look After",
+                name: "Post-Launch Monitoring & Maintenance",
                 description:
-                  "Dedicated DevOps, uptime monitoring, security patching, and ongoing performance optimization.",
+                  "Dedicated DevOps, edge uptime monitoring, security patching, and ongoing performance optimization.",
               },
             },
           ],
@@ -99,9 +120,9 @@ export function OrganizationJsonLd({ url = "https://digigrantha.com" }: Organiza
         "@type": "WebSite",
         "@id": `${url}/#website`,
         url: url,
-        name: "DigiGrantha",
+        name: STUDIO_FACTS.brandName,
         description:
-          "Expressive digital product & web development studio. Where ideas become digital.",
+          "Digital product and web development studio. Where ideas become digital.",
         publisher: {
           "@id": `${url}/#organization`,
         },
@@ -188,25 +209,28 @@ export function PortfolioJsonLd({ items = [] }: { items?: PortfolioItem[] }) {
   const schema = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    name: "Shipped Projects & Case Studies — DigiGrantha",
+    name: "Shipped Projects & Case Studies | DigiGrantha",
     description:
-      "A curated archive of production digital products, enterprise portals, and web applications delivered by DigiGrantha.",
+      "Archive of production digital products, multi-role enterprise portals, and web applications delivered by DigiGrantha.",
     numberOfItems: items.length,
-    itemListElement: items.map((proj, idx) => ({
-      "@type": "ListItem",
-      position: idx + 1,
-      item: {
-        "@type": "CreativeWork",
-        name: proj.name,
-        description: proj.description,
-        genre: proj.category,
-        url: proj.url || `https://digigrantha.com/work#project-0${idx + 1}`,
-        creator: {
-          "@type": "Organization",
-          name: "DigiGrantha",
+    itemListElement: items.map((proj, idx) => {
+      const paddedIdx = String(idx + 1).padStart(2, "0");
+      return {
+        "@type": "ListItem",
+        position: idx + 1,
+        item: {
+          "@type": "CreativeWork",
+          name: proj.name,
+          description: proj.description,
+          genre: proj.category,
+          url: proj.url || `${STUDIO_FACTS.siteUrl}/work#project-${paddedIdx}`,
+          creator: {
+            "@type": "Organization",
+            name: STUDIO_FACTS.brandName,
+          },
         },
-      },
-    })),
+      };
+    }),
   };
 
   return (

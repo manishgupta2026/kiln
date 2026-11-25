@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ScrollReveal from "@/components/ScrollReveal";
@@ -7,16 +8,16 @@ import CareerForm from "@/components/CareerForm";
 import { BreadcrumbJsonLd } from "@/components/JsonLd";
 
 export const metadata: Metadata = {
-  title: "Careers & Opportunities — DigiGrantha Studio",
+  title: "Engineering & Design Careers",
   description:
-    "Explore engineering and product design roles at DigiGrantha. We build with high agency, modern TypeScript architecture, and zero corporate bureaucracy.",
+    "Explore full-stack TypeScript, Next.js, UI/UX design, and internship roles at DigiGrantha. Ship production software with high agency and zero bureaucracy.",
   alternates: {
     canonical: "https://digigrantha.com/career",
   },
   openGraph: {
-    title: "Careers & Opportunities — DigiGrantha Studio",
+    title: "Engineering & Design Careers | DigiGrantha",
     description:
-      "Build real production software with high agency. Opportunities for full-stack engineers, UI/UX designers, interns, and specialists.",
+      "Build production software with high agency. Opportunities for full-stack engineers, UI/UX designers, interns, and specialists.",
     url: "https://digigrantha.com/career",
   },
 };
@@ -60,12 +61,20 @@ export default function CareerPage() {
         {/* HERO SECTION */}
         <section className="page-head" style={{ paddingBottom: "24px" }}>
           <div className="wrap">
-            <div className="eyebrow reveal">Careers at Digigrantha</div>
+            <div className="eyebrow reveal">Careers at DigiGrantha</div>
             <h1 className="reveal">Build software with high agency.</h1>
             <p className="page-sub reveal" style={{ maxWidth: "680px" }}>
-              Digigrantha is a small, deliberate engineering &amp; design studio. We don&apos;t hire warm bodies
-              for desks — we partner with craftspeople who care deeply about product feel, type, speed,
-              and code cleanliness.
+              DigiGrantha is a small, deliberate engineering and design studio. We don&apos;t hire
+              warm bodies for desks. We partner with craftspeople who care about product feel,
+              typography, speed, and clean code. See{" "}
+              <Link href="/work" style={{ textDecoration: "underline", fontWeight: 600 }}>
+                our shipped work
+              </Link>{" "}
+              or learn{" "}
+              <Link href="/about" style={{ textDecoration: "underline", fontWeight: 600 }}>
+                how we stay small on purpose
+              </Link>
+              .
             </p>
           </div>
         </section>

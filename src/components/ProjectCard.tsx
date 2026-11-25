@@ -1,190 +1,15 @@
 "use client";
 
 import React from "react";
-import { CaseStudyRecord } from "@/lib/case-studies-db";
+import { WORK_PROJECTS, type WorkProjectItem } from "@/lib/work-projects";
+
+export { WORK_PROJECTS };
 
 export interface ProjectCardProps {
-  study: {
-    id: string;
-    idx: string;
-    name: string;
-    category: string;
-    status: "live" | "in-progress";
-    statusLabel: string;
-    oneLiner: string;
-    resultStat?: string;
-    metrics: { icon: string; val: string; label: string }[];
-    tags: string[];
-    liveUrl: string | null;
-    version1Url?: string;
-    version2Url?: string;
-    secondaryLabel: string;
-    briefDescription?: string;
-    photos?: string[];
-  };
+  study: WorkProjectItem;
   onOpenCaseStudy: (study: any) => void;
   onOpenPhotos?: (study: any) => void;
 }
-
-export const WORK_PROJECTS = [
-  {
-    id: "study-5e-serpraise",
-    idx: "01",
-    name: "5e Serpraise",
-    category: "Corporate Training · OD Consulting",
-    status: "live" as const,
-    statusLabel: "Live in production",
-    oneLiner: "Corporate training and organizational development platform built across two major generational releases.",
-    resultStat: "20+ years legacy · 2 versions",
-    metrics: [
-      { icon: "⭐", val: "20+", label: "Years legacy" },
-      { icon: "🚀", val: "2", label: "Versions shipped" },
-      { icon: "🌏", val: "2", label: "Global markets" },
-    ],
-    tags: ["Next.js", "TypeScript", "Tailwind", "Vercel"],
-    liveUrl: "https://5eserpraise.com",
-    version1Url: "https://5eserpraise.com",
-    version2Url: "https://5e-serpraise.vercel.app/",
-    secondaryLabel: "Read case study",
-    briefDescription:
-      "A human resources, corporate training, and organization development initiative operating since 2003 across India and Australia. We architected and delivered both generations of their digital experience: Version 1 on production and Version 2 with a modernized, editorial design system and interactive module architecture.",
-  },
-  {
-    id: "cmtzk3on50003i240peo85zlm",
-    idx: "02",
-    name: "Manraah",
-    category: "HealthTech · Mental Wellness",
-    status: "in-progress" as const,
-    statusLabel: "In progress",
-    oneLiner: "A mental wellness platform with dedicated student, professional, and admin experiences.",
-    resultStat: "3 user groups",
-    metrics: [
-      { icon: "👥", val: "3", label: "User groups" },
-      { icon: "❤️", val: "Wellness", label: "First approach" },
-      { icon: "⛁", val: "Scalable", label: "& secure" },
-    ],
-    tags: ["Next.js", "TypeScript", "Tailwind", "Neon"],
-    liveUrl: null,
-    photos: [
-      "/photos/manraah/manraah-11.jpeg",
-      "/photos/manraah/manraah-7.jpeg",
-      "/photos/manraah/manraah-8.jpeg",
-      "/photos/manraah/manraah-9.jpeg",
-      "/photos/manraah/manraah-1.jpeg",
-      "/photos/manraah/manraah-10.jpeg",
-      "/photos/manraah/manraah-2.jpeg",
-      "/photos/manraah/manraah-3.jpeg",
-      "/photos/manraah/manraah-12.jpeg",
-      "/photos/manraah/manraah-5.jpeg",
-      "/photos/manraah/manraah-4.jpeg",
-      "/photos/manraah/manraah-6.jpeg",
-    ],
-    secondaryLabel: "Read case study",
-    briefDescription:
-      "A mental wellness platform with entirely separate experiences for students, professionals, and admins — each with its own permissions, flows, and interface, not one dashboard trying to serve three audiences at once.",
-  },
-  {
-    id: "study-nutriflex",
-    idx: "03",
-    name: "NutriFlex",
-    category: "HealthTech · Fitness",
-    status: "live" as const,
-    statusLabel: "Live in production",
-    oneLiner: "Personal fitness platform delivering dynamic workout progressions and structured health routines.",
-    resultStat: "100% personalized",
-    metrics: [
-      { icon: "→", val: "Dynamic", label: "Task engine" },
-      { icon: "·", val: "100%", label: "Personalized" },
-      { icon: "✓", val: "Full", label: "Fitness suite" },
-    ],
-    tags: ["Next.js", "React", "TypeScript", "Bootstrap"],
-    liveUrl: null,
-    photos: [
-      "/photos/nutriflex/nutriflex-1.jpeg",
-      "/photos/nutriflex/nutriflex-2.jpeg",
-      "/photos/nutriflex/nutriflex-4.jpeg",
-      "/photos/nutriflex/nutriflex-5.jpeg",
-      "/photos/nutriflex/nutriflex-3.jpeg",
-    ],
-    secondaryLabel: "Read case study",
-    briefDescription:
-      "An adaptive fitness and nutrition platform built to eliminate generic routines. NutriFlex generates customized weekly workout schedules, dynamic exercise progressions, and structured goal tracking tailored to individual athletes.",
-  },
-  {
-    id: "cmtzk3o4d0002i240zv5grujz",
-    idx: "04",
-    name: "Coppter",
-    category: "Workforce · Enterprise",
-    status: "live" as const,
-    statusLabel: "Live in production",
-    oneLiner: "A workforce management system with four dedicated portals for different job roles.",
-    resultStat: "4 portals shipped",
-    metrics: [
-      { icon: "⚏", val: "4", label: "Portals shipped" },
-      { icon: "👥", val: "Multiple", label: "User roles" },
-      { icon: "🛡️", val: "Unified", label: "Operations" },
-    ],
-    tags: ["Next.js", "TypeScript", "Tailwind", "Neon"],
-    liveUrl: null,
-    photos: [
-      "/photos/coppter/coppter-1.jpeg",
-      "/photos/coppter/coppter-2.jpeg",
-      "/photos/coppter/coppter-3.jpeg",
-      "/photos/coppter/coppter-4.jpeg",
-      "/photos/coppter/coppter-6.jpeg",
-      "/photos/coppter/coppter-5.jpeg",
-    ],
-    secondaryLabel: "Read case study",
-    briefDescription:
-      "A workforce intelligence platform built around four distinct roles — a leadership dashboard for strategic analytics, HR operations tools, personalized growth assessments for employees, and a mentor-facing view for career guidance. Four different logins, because four different people need four different tools, not one dashboard wearing four hats.",
-  },
-  {
-    id: "cmtzk3nlb0001i2408g0a3usm",
-    idx: "05",
-    name: "CourseHunt",
-    category: "EdTech · Learning Platform",
-    status: "live" as const,
-    statusLabel: "Live in production",
-    oneLiner: "A course discovery platform that helps students find the right learning opportunities.",
-    resultStat: "1,000+ daily users",
-    metrics: [
-      { icon: "👥", val: "1,000+", label: "Daily users" },
-      { icon: "📖", val: "10K+", label: "Courses listed" },
-      { icon: "↗", val: "2×", label: "Repeat usage" },
-    ],
-    tags: ["Next.js", "Supabase", "Vercel"],
-    liveUrl: "https://www.coursehunt.tech/",
-    secondaryLabel: "Read case study",
-    briefDescription:
-      "A fast course aggregator built on Next.js and Supabase. Students were losing hours hunting for course links scattered across the internet — CourseHunt automates discovery and validation so listings are already there, and already working, when they arrive.",
-  },
-  {
-    id: "cmtzk3myp0000i2408jebuygu",
-    idx: "06",
-    name: "TradeSage",
-    category: "FinTech · Algorithmic Trading",
-    status: "live" as const,
-    statusLabel: "Live in production",
-    oneLiner: "An algorithmic trading platform that analyzes market patterns and executes data-driven trades.",
-    resultStat: "70.5% win rate",
-    metrics: [
-      { icon: "↗", val: "70.5%", label: "Win rate" },
-      { icon: "⛁", val: "5+", label: "Trading models" },
-      { icon: "→", val: "Real-time", label: "Market execution" },
-    ],
-    tags: ["Python", "XGBoost", "GitHub Actions", "SmartAPI"],
-    liveUrl: null,
-    photos: [
-      "/photos/tradesaga/tradesaga-1.png",
-      "/photos/tradesaga/tradesaga-2.png",
-      "/photos/tradesaga/tradesaga-3.png",
-      "/photos/tradesaga/tradesaga-4.png",
-    ],
-    secondaryLabel: "Read case study",
-    briefDescription:
-      "An algorithmic trading system for the Indian equity market. We trained a model on ten years of NSE data across 2,200+ stocks, then wrapped it in automated risk controls — position sizing, regime filters, and a daily loss kill-switch — so the model can't outrun its own discipline.",
-  },
-];
 
 export interface ShowcaseMeta {
   webp: string;
@@ -297,8 +122,8 @@ export function TradeSageMockup() {
 
         <rect x="228" y="0" width="82" height="42" rx="5" fill="#0D1524" stroke="#192842" strokeWidth="0.8" />
         <text x="234" y="12" fill="#64748B" fontFamily="system-ui, sans-serif" fontSize="5" fontWeight="700">WIN RATE %</text>
-        <text x="234" y="28" fill="#FACC15" fontFamily="system-ui, sans-serif" fontSize="14" fontWeight="900">78.0%</text>
-        <text x="234" y="37" fill="#10B981" fontFamily="system-ui, sans-serif" fontSize="5">model predicted</text>
+        <text x="234" y="28" fill="#FACC15" fontFamily="system-ui, sans-serif" fontSize="14" fontWeight="900">60.5%</text>
+        <text x="234" y="37" fill="#10B981" fontFamily="system-ui, sans-serif" fontSize="5">live verified</text>
       </g>
       {/* Probabilistic Signal Feed Table */}
       <g transform="translate(10, 80)">

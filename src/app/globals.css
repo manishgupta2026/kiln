@@ -3090,6 +3090,7 @@ h1.hero-headline em {
   border-top: 6px solid var(--yellow);
 }
 
+.fit-col h3,
 .fit-col h4 {
   font-family: var(--display);
   font-size: 22px;

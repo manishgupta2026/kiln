@@ -5,34 +5,36 @@ import Footer from "@/components/Footer";
 import ScrollReveal from "@/components/ScrollReveal";
 import FaqSection from "@/components/FaqSection";
 import { getTeamMembers } from "@/lib/team-db";
+import { STUDIO_FACTS } from "@/lib/studio-facts";
+import { FAQS } from "@/lib/faqs";
 
-import { BreadcrumbJsonLd } from "@/components/JsonLd";
+import { BreadcrumbJsonLd, FaqJsonLd } from "@/components/JsonLd";
 
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "About DigiGrantha — Engineering & Digital Product Studio",
+  title: "In-House Engineering & Design Studio",
   description:
-    "Learn about DigiGrantha: a deliberate, high-agency engineering & product design studio building websites, web applications, and enterprise platforms in-house.",
+    "Meet the builders behind DigiGrantha. We design and engineer custom web apps, SaaS tools, and private client portals in-house with zero outsourcing.",
   alternates: {
     canonical: "https://digigrantha.com/about",
   },
   openGraph: {
-    title: "About DigiGrantha — Engineering & Product Design Studio",
+    title: "In-House Engineering & Design Studio | DigiGrantha",
     description:
-      "Learn about DigiGrantha: a deliberate, high-agency engineering & product design studio building websites, web applications, and enterprise platforms in-house.",
+      "Meet the engineers behind DigiGrantha: a small, high-agency software studio building custom web apps and enterprise portals end-to-end.",
     url: "https://digigrantha.com/about",
   },
 };
 
 const MILESTONES = [
-  "Shipped 5e Serpraise — corporate training and organizational development platform built across two major generational releases (V1 & V2).",
-  "Built Manraah — a mental wellness platform with dedicated experiences for students, professionals, and administrators.",
-  "Shipped NutriFlex — an adaptive fitness platform delivering dynamic workout progressions and structured health routines.",
-  "Shipped Coppter — 4 role-based portals for an enterprise workforce intelligence platform, from zero to live deployment.",
-  "Shipped CourseHunt — a course aggregator now used by 1,000+ students every day.",
-  "Built TradeSage — an algorithmic trading system live on real capital, currently running at a 60.5% win rate.",
-  "Expanded DigiGrantha into an in-house studio — bringing engineering, product design, and private client portals under one roof to ship products end-to-end.",
+  "Shipped 5e Serpraise: corporate training and organizational development platform built across two generational releases (V1 & V2).",
+  "Built Manraah: a mental wellness platform with dedicated experiences for students, professionals, and administrators.",
+  "Shipped NutriFlex: an adaptive fitness platform delivering dynamic workout progressions and structured health routines.",
+  "Shipped Coppter: 4 role-based portals for an enterprise workforce intelligence platform, from zero to live deployment.",
+  "Shipped CourseHunt: a course aggregator now used by 1,000+ students every day.",
+  `Built TradeSage: an algorithmic trading system live on real capital with a ${STUDIO_FACTS.metrics.tradesage.summary}.`,
+  "Expanded DigiGrantha into an in-house studio, bringing engineering, product design, and private client portals under one roof.",
 ];
 
 export default async function AboutPage() {
@@ -46,6 +48,7 @@ export default async function AboutPage() {
           { name: "About", item: "https://digigrantha.com/about" },
         ]}
       />
+      <FaqJsonLd items={FAQS} />
       <ScrollReveal />
       <Header />
 
@@ -55,9 +58,17 @@ export default async function AboutPage() {
             <div className="eyebrow reveal">About</div>
             <h1 className="reveal">A small team, on purpose.</h1>
             <p className="page-sub reveal">
-              Digigrantha isn&apos;t a big studio pretending to be boutique. It&apos;s a small one that
-              stayed small on purpose — because that&apos;s what lets us actually build the whole
-              thing, ourselves, instead of managing a project through five layers of people.
+              DigiGrantha isn&apos;t a big studio pretending to be boutique. It&apos;s a small one that
+              stayed small on purpose so the same engineers design, build, and deploy your product
+              instead of passing it through five layers of management. See{" "}
+              <Link href="/work" style={{ textDecoration: "underline", fontWeight: 600 }}>
+                our shipped work
+              </Link>{" "}
+              or check{" "}
+              <Link href="/career" style={{ textDecoration: "underline", fontWeight: 600 }}>
+                open roles
+              </Link>
+              .
             </p>
           </div>
         </section>
@@ -73,13 +84,13 @@ export default async function AboutPage() {
               <div className="mvg-card mission">
                 <div className="mvg-card-header">
                   <span className="mvg-badge">Mission</span>
-                  <span className="mvg-icon">🎯</span>
+                  <span className="mvg-icon" aria-hidden="true">🎯</span>
                 </div>
-                <h3>Crafting products that endure</h3>
+                <h3>Crafting products that last</h3>
                 <p>
-                  To transform ambitious ideas into thoughtful, robustly engineered digital experiences —
-                  from sleek websites and web applications to intelligent, data-heavy platforms — with absolute
-                  craftsmanship, rapid execution, and complete transparency.
+                  Turn ambitious ideas into fast, maintainable web software in Next.js, TypeScript,
+                  and PostgreSQL. We ship custom websites, SaaS apps, and algorithmic platforms with
+                  direct accountability and zero agency fluff.
                 </p>
                 <div className="mvg-tag">Design + Engineering + Trust</div>
               </div>
@@ -87,13 +98,13 @@ export default async function AboutPage() {
               <div className="mvg-card vision">
                 <div className="mvg-card-header">
                   <span className="mvg-badge">Vision</span>
-                  <span className="mvg-icon">🔭</span>
+                  <span className="mvg-icon" aria-hidden="true">🔭</span>
                 </div>
                 <h3>Where ideas become digital</h3>
                 <p>
-                  To be the gold standard digital product studio where ambitious founders and enterprise leaders turn
-                  when standard agencies are too slow and freelance networks are too fragile. Proving that an elite,
-                  compact team consistently builds superior software.
+                  To be the studio founders and product leaders choose when large agencies move too
+                  slowly and solo freelancers lack full-stack continuity. A compact engineering team
+                  ships cleaner software faster.
                 </p>
                 <div className="mvg-tag">The Independent Studio Standard</div>
               </div>
@@ -101,13 +112,13 @@ export default async function AboutPage() {
               <div className="mvg-card goal">
                 <div className="mvg-card-header">
                   <span className="mvg-badge">Goal</span>
-                  <span className="mvg-icon">⚡</span>
+                  <span className="mvg-icon" aria-hidden="true">⚡</span>
                 </div>
                 <h3>Zero black boxes. Real impact.</h3>
                 <p>
-                  To eliminate status meetings and handoff friction by giving every client real-time portal
-                  visibility, direct access to the developers writing code, and post-launch reliability that
-                  stands firm under real-world traffic and real capital.
+                  Replace endless status meetings with a live private client portal. Track every
+                  milestone, message the engineers writing your code directly, and rely on ongoing
+                  post-launch monitoring under real production traffic.
                 </p>
                 <div className="mvg-tag">Built · Shipped · Supported</div>
               </div>
@@ -119,6 +130,9 @@ export default async function AboutPage() {
         <section className="founder">
           <div className="wrap">
             <div className="section-label reveal">Team behind DigiGrantha</div>
+            <h2 className="section-title reveal" style={{ marginBottom: "24px" }}>
+              Meet the builders behind DigiGrantha
+            </h2>
             <div className="team-grid reveal">
               {team.map((member) => (
                 <div key={member.id || member.name} className="founder-card">
@@ -126,7 +140,7 @@ export default async function AboutPage() {
                     {member.avatar && (member.avatar.startsWith("http") || member.avatar.startsWith("/")) ? (
                       <img
                         src={member.avatar}
-                        alt={`${member.name} — ${member.role} at DigiGrantha`}
+                        alt={`${member.name}, ${member.role} at DigiGrantha`}
                         loading="lazy"
                         decoding="async"
                         style={{ width: "100%", height: "100%", objectFit: "cover" }}
@@ -143,6 +157,12 @@ export default async function AboutPage() {
                 </div>
               ))}
             </div>
+            <p style={{ marginTop: "24px", fontSize: "15px", color: "var(--muted)" }} className="reveal">
+              Interested in building production systems with us?{" "}
+              <Link href="/career" style={{ color: "var(--text)", fontWeight: 700, textDecoration: "underline" }}>
+                Apply to join the studio →
+              </Link>
+            </p>
           </div>
         </section>
 
@@ -157,16 +177,21 @@ export default async function AboutPage() {
               <span className="why-badge-text">WHY SMALL, REALLY</span>
             </div>
             <div className="why-content reveal">
+              <h2 className="section-title" style={{ marginBottom: "16px", fontSize: "clamp(24px, 3vw, 32px)" }}>
+                Why work directly with a small studio?
+              </h2>
               <p>
-                Most of what makes an early-stage product feel considered — the small decisions
-                about how a screen should behave, what a form should ask for and when, what happens
-                when something breaks at an inconvenient hour — gets lost the moment a project passes
-                through too many hands.
+                Most of what makes an early-stage product feel sharp gets lost the moment a project
+                passes through too many hands. Decisions about form validation, edge error states,
+                and latency belong with the people writing the code.
               </p>
               <p>
-                Staying small means the person who designed your product is the same person who&apos;s
-                going to get paged if it goes down. That&apos;s not a limitation we&apos;re working
-                around. It&apos;s the actual reason the work is good.
+                Staying small means the engineer who architected your product is the same person
+                monitoring production uptime. Explore{" "}
+                <Link href="/work" style={{ color: "var(--text)", fontWeight: 700, textDecoration: "underline" }}>
+                  all shipped case studies
+                </Link>{" "}
+                to see this model in practice.
               </p>
             </div>
           </div>
@@ -176,6 +201,9 @@ export default async function AboutPage() {
         <section className="milestones">
           <div className="wrap">
             <div className="section-label reveal">So far</div>
+            <h2 className="section-title reveal" style={{ marginBottom: "24px" }}>
+              Verified milestones &amp; shipped outcomes
+            </h2>
             <div className="milestone-list reveal">
               {MILESTONES.map((item, idx) => (
                 <div key={idx} className="milestone">

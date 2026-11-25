@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { BUDGET_TIERS } from "@/lib/studio-facts";
 
 const TYPE_CHIPS = [
   { label: "Website", value: "Website" },
@@ -11,12 +12,10 @@ const TYPE_CHIPS = [
   { label: "Something else", value: "Something else" },
 ];
 
-const BUDGET_CHIPS = [
-  { label: "Under ₹50k", value: "Under ₹50k" },
-  { label: "₹50k – ₹2L", value: "₹50k – ₹2L" },
-  { label: "₹2L+", value: "₹2L+" },
-  { label: "Let's talk", value: "Let's talk" },
-];
+const BUDGET_CHIPS = BUDGET_TIERS.map((tier) => ({
+  label: tier.label,
+  value: tier.value,
+}));
 
 export default function BriefForm() {
   const [name, setName] = useState("");
@@ -199,7 +198,7 @@ export default function BriefForm() {
           {isSubmitting ? "Sending..." : "Send the brief →"}
         </button>
         <div className={`form-success ${isSuccess ? "show" : ""}`} id="formSuccess">
-          Got it — we read every one of these ourselves. Expect a reply within a day to schedule our discovery call.
+          Got it: we read every one of these ourselves. Expect a reply within a day to schedule our discovery call.
         </div>
         {errorMessage && (
           <div className="form-error show" id="formError">

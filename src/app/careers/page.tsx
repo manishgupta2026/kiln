@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import CareerPage from "../career/page";
 
 export const metadata: Metadata = {
-  title: "Careers — DigiGrantha",
+  title: "Engineering & Design Careers",
   alternates: {
     canonical: "https://digigrantha.com/career",
   },

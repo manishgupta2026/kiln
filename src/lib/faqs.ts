@@ -1,45 +1,54 @@
+import { BUDGET_TIERS, STUDIO_FACTS } from "@/lib/studio-facts";
+
 export interface FaqItem {
   id: string;
   question: string;
   answer: string;
 }
 
+const budgetSummary = BUDGET_TIERS.slice(0, 3)
+  .map((t) => `${t.label} (${t.scope})`)
+  .join("; ");
+
 export const FAQS: FaqItem[] = [
   {
     id: "faq-1",
     question: "What happens after I send the project brief?",
-    answer:
-      "We read every brief ourselves — with no intermediary sales reps or account managers. We reply within 1–2 business days with an honest scope assessment, architecture plan, and clear next steps.",
+    answer: `We read every brief ourselves, with no intermediary sales reps or account managers. We reply within ${STUDIO_FACTS.replySla} with an honest scope assessment, architecture plan, and clear next steps.`,
   },
   {
     id: "faq-2",
-    question: "Why choose DigiGrantha over traditional software agencies or freelancers?",
-    answer:
-      "Traditional agencies trap you in layers of non-technical project managers, inflated billable hours, and junior outsourcing. Freelancers often lack end-to-end design and DevOps continuity. DigiGrantha gives you high agency: experienced engineers who design, code, and deploy your entire product in-house, backed by transparent milestone tracking in your private client portal.",
+    question: "How much does a custom website or web application cost?",
+    answer: `Project budgets start across three transparent tiers based on scope: ${budgetSummary}. Submit a brief on the homepage intake form for a fixed scope estimate within ${STUDIO_FACTS.replySla}.`,
   },
   {
     id: "faq-3",
-    question: "What technology stack and architecture do you build with?",
+    question: "Why choose DigiGrantha over traditional software agencies or freelancers?",
     answer:
-      "We engineer modern, production-grade products using Next.js 15, React 19, TypeScript, PostgreSQL (Neon), Prisma ORM, Tailwind CSS, and Cloudflare Workers edge deployment. This architecture delivers instantaneous page loads, zero cold starts, enterprise security, and rock-solid scalability.",
+      "Traditional agencies trap you in layers of non-technical project managers, inflated billable hours, and junior outsourcing. Freelancers often lack end-to-end design and DevOps continuity. DigiGrantha works directly: experienced engineers design, code, and deploy your product in-house, backed by live milestone tracking in your private client portal.",
   },
   {
     id: "faq-4",
-    question: "Who owns the code, design assets, and intellectual property?",
+    question: "What technology stack and architecture do you build with?",
     answer:
-      "You do — 100%. All source code, Git repositories, Figma design files, and intellectual property belong exclusively to you. We deliver clean, documented code with no proprietary lock-in or licensing fees.",
+      "We engineer production software using Next.js 15, React 19, TypeScript, PostgreSQL (Neon), Prisma ORM, Tailwind CSS, and Cloudflare Workers edge deployment. This stack delivers fast page loads, strict type safety, and reliable scaling under real traffic.",
   },
   {
     id: "faq-5",
-    question: "How does the private client portal work during development?",
+    question: "Who owns the code, design assets, and intellectual property?",
     answer:
-      "From day one, you get dedicated access to the DigiGrantha Client Portal. You can track real-time sprint progress across Discover, Design, Build, and Ship phases, message your engineers directly, review and approve milestone deliverables, and manage quotations and invoices in one secure place.",
+      "You do, 100%. All source code, Git repositories, design files, and intellectual property belong exclusively to you. We deliver clean, documented code with zero proprietary lock-in or licensing fees.",
   },
   {
     id: "faq-6",
+    question: "How does the private client portal work during development?",
+    answer:
+      "From day one, you get dedicated access to the DigiGrantha Client Portal. You can track real-time sprint progress across Discover, Design, Build, and Ship phases, message your engineers directly, review and approve milestone deliverables, and manage quotations and invoices in one place.",
+  },
+  {
+    id: "faq-7",
     question: "Do you provide ongoing maintenance, hosting, and DevOps support after launch?",
     answer:
-      "Yes. Launch day is the start of our relationship, not the end. We handle edge hosting on Cloudflare, SSL certificates, 24/7 uptime monitoring, security patching, and ongoing performance tuning so you can focus entirely on growing your business.",
+      "Yes. Launch day is the start of our relationship, not the end. We handle edge hosting on Cloudflare, SSL certificates, uptime monitoring, security patching, and ongoing performance optimization after launch.",
   },
 ];
-

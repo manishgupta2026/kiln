@@ -5,7 +5,7 @@ import PortalHeader from "@/components/portal/PortalHeader";
 import DashboardNav from "@/components/portal/DashboardNav";
 
 export const metadata: Metadata = {
-  title: "Client Portal — DigiGrantha",
+  title: "Client Portal",
   robots: {
     index: false,
     follow: false,

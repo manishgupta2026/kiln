@@ -4,8 +4,8 @@
     "name": "TradeSage",
     "category": "Trading & fintech",
     "oneLiner": "Taught a model to trade so we didn't have to guess twice.",
-    "resultStat": "70.5% win rate",
-    "briefDescription": "An algorithmic trading system for the Indian equity market. We trained a model on ten years of NSE data across 2,200+ stocks, then wrapped it in automated risk controls — position sizing, regime filters, and a daily loss kill-switch — so the model can't outrun its own discipline.",
+    "resultStat": "60.5% live win rate (70.5% backtested)",
+    "briefDescription": "An algorithmic trading system for the Indian equity market (NSE). We trained XGBoost models on ten years of NSE data across 2,200+ stocks, wrapped in automated risk controls with position sizing, regime filters, and a daily loss kill-switch.",
     "tags": [
       "Python",
       "XGBoost",

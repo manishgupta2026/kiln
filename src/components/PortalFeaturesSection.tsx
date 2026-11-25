@@ -152,7 +152,7 @@ const FEATURES = [
           <span style={{ fontFamily: "var(--mono)", fontSize: "10px", color: "var(--muted)", marginLeft: "auto", fontWeight: 600 }}>Zero wasted calls</span>
         </div>
         <div style={{ borderLeft: "3px solid var(--yellow)", paddingLeft: "10px", fontSize: "11.5px", color: "var(--muted)", lineHeight: 1.4, fontStyle: "italic" }}>
-          &quot;Deployed caching — response times reduced by 74%.&quot;
+          &quot;Deployed edge caching: response times dropped by 74%.&quot;
         </div>
       </div>
     ),

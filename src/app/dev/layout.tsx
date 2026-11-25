@@ -4,7 +4,7 @@ import { getSessionUser } from "@/lib/auth";
 import PortalHeader from "@/components/portal/PortalHeader";
 
 export const metadata: Metadata = {
-  title: "Developer Portal — DigiGrantha",
+  title: "Developer Portal",
   robots: {
     index: false,
     follow: false,

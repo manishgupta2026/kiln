@@ -18,7 +18,7 @@ export default function FaqSection() {
     <section className="faq" id="faq" aria-labelledby="faq-heading">
       <div className="wrap">
         <div className="section-label reveal" id="faq-heading">
-          Frequently Answered Questions
+          Frequently Asked Questions
         </div>
         <h2 className="section-title reveal" style={{ marginBottom: "28px" }}>
           Clear, honest answers about how we build.

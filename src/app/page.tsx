@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import HeroHeadline from "@/components/HeroHeadline";
@@ -13,24 +14,25 @@ import TrustSection from "@/components/TrustSection";
 import PortalFeaturesSection from "@/components/PortalFeaturesSection";
 import ProcessSection from "@/components/ProcessSection";
 import StatsStrip from "@/components/StatsStrip";
-import { FaqJsonLd, PortfolioJsonLd } from "@/components/JsonLd";
-import { FAQS } from "@/lib/faqs";
+import { PortfolioJsonLd } from "@/components/JsonLd";
 import { getSiteContent } from "@/lib/content-db";
 import { getCaseStudies } from "@/lib/case-studies-db";
+import { WORK_PROJECTS } from "@/lib/work-projects";
+import { STUDIO_FACTS } from "@/lib/studio-facts";
 
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "DigiGrantha — Digital Product & Web Development Studio",
+  title: "DigiGrantha: Custom Web Apps & Product Studio",
   description:
-    "We engineer websites, bespoke web applications, and scalable client portals for ambitious brands. High agency, modern TypeScript architecture, and zero bureaucracy.",
+    "We design and engineer custom web applications, fast Next.js websites, and private client portals in-house. Direct access to engineers, scoped in 1-2 business days.",
   alternates: {
     canonical: "https://digigrantha.com",
   },
   openGraph: {
-    title: "DigiGrantha — Digital Product & Web Development Studio",
+    title: "DigiGrantha: Custom Web Apps & Product Studio",
     description:
-      "We engineer websites, bespoke web applications, and scalable client portals for ambitious brands. High agency, modern TypeScript architecture, and zero bureaucracy.",
+      "Custom web applications, Next.js websites, and private client portals built end-to-end by senior engineers.",
     url: "https://digigrantha.com",
   },
 };
@@ -56,18 +58,19 @@ const TICKER_LIST = [
 export default async function HomePage() {
   const content = await getSiteContent();
   const caseStudies = await getCaseStudies();
+  const portfolioItems = WORK_PROJECTS.map((wp) => {
+    const match = caseStudies.find((c) => c.name.toLowerCase() === wp.name.toLowerCase());
+    return {
+      name: wp.name,
+      description: match?.oneLiner || wp.oneLiner,
+      category: wp.category,
+      url: wp.liveUrl,
+    };
+  });
 
   return (
     <>
-      <FaqJsonLd items={FAQS} />
-      <PortfolioJsonLd
-        items={caseStudies.map((s) => ({
-          name: s.name,
-          description: s.oneLiner,
-          category: s.category,
-          url: s.liveUrl,
-        }))}
-      />
+      <PortfolioJsonLd items={portfolioItems} />
       <ScrollReveal />
       <Header />
 
@@ -222,19 +225,19 @@ export default async function HomePage() {
               <div className="proof-item">
                 <mark>1,000+ daily users:</mark>
                 <span>
-                  <a href="#work" className="proof-project">CourseHunt</a> — a course discovery platform people open every single day.
+                  <Link href="/work" className="proof-project">CourseHunt</Link>: a Next.js course discovery platform students open every day.
                 </span>
               </div>
               <div className="proof-item">
                 <mark>Live in production:</mark>
                 <span>
-                  <a href="#work" className="proof-project">TradeSage</a> — an algorithmic trading platform running with real capital, where reliability isn&apos;t optional.
+                  <Link href="/work" className="proof-project">TradeSage</Link>: an algorithmic trading platform running with real capital ({STUDIO_FACTS.metrics.tradesage.liveWinRate} live win rate).
                 </span>
               </div>
               <div className="proof-item">
                 <mark>4 role-based portals:</mark>
                 <span>
-                  <a href="#work" className="proof-project">Coppter</a> — an enterprise workforce intelligence platform serving every level of the organization, from one system.
+                  <Link href="/work" className="proof-project">Coppter</Link>: an enterprise workforce management system unifying 4 distinct user roles.
                 </span>
               </div>
             </div>
@@ -273,21 +276,30 @@ export default async function HomePage() {
             </h2>
             <div className="fit-cols reveal">
               <div className="fit-col yes">
-                <h4>A good fit if:</h4>
+                <h3>A good fit if:</h3>
                 <ul>
                   <li>
-                    You&apos;re pre-launch, early-stage, or building something new and need one team to design and build the whole thing.
+                    You&apos;re pre-launch, early-stage, or building something new and need one team to{" "}
+                    <Link href="/about" style={{ textDecoration: "underline", fontWeight: 600 }}>
+                      design and engineer it in-house
+                    </Link>
+                    .
                   </li>
                   <li>You want direct access to the people writing the code.</li>
                   <li>You&apos;d rather ship something sharp than something bloated.</li>
                 </ul>
               </div>
               <div className="fit-col no">
-                <h4>Probably not if:</h4>
+                <h3>Probably not if:</h3>
                 <ul>
                   <li>You need a large team on standby around the clock.</li>
                   <li>You need a full product live in a matter of days.</li>
-                  <li>You&apos;re looking for a big-name agency to put on a board deck.</li>
+                  <li>You&apos;re looking for a big-name agency to put on a board deck. Want to build with us?{" "}
+                    <Link href="/career" style={{ textDecoration: "underline", fontWeight: 600 }}>
+                      See open roles
+                    </Link>
+                    .
+                  </li>
                 </ul>
               </div>
             </div>
@@ -302,7 +314,11 @@ export default async function HomePage() {
               <h2 className="section-title" style={{ marginBottom: 0 }}>
                 Help us with your requirement.
               </h2>
-              <p>The more specific you are, the faster we can tell you yes, no, or not yet.</p>
+              <p>
+                Projects run across clear budget tiers starting under ₹50k for focused sites,
+                ₹50k-₹2L for custom apps, and ₹2L+ for multi-role platforms. We reply within{" "}
+                {STUDIO_FACTS.replySla}.
+              </p>
             </div>
 
             <BriefForm />
